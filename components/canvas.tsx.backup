@@ -198,28 +198,14 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
         const { clientX, clientY } =
           'changedTouches' in event ? event.changedTouches[0] : event;
 
-        const sourceId = connectionState.fromNode?.id;
-        const isSourceHandle = connectionState.fromHandle?.type === 'source';
-
-        if (!sourceId) {
-          return;
-        }
-
-        const newNodeId = addNode('drop', {
-          position: screenToFlowPosition({ x: clientX, y: clientY }),
-          data: {
-            isSource: !isSourceHandle,
-          },
+        const { x, y } = screenToFlowPosition({
+          x: clientX,
+          y: clientY,
         });
 
-        setEdges((eds: Edge[]) =>
-          eds.concat({
-            id: nanoid(),
-            source: isSourceHandle ? sourceId : newNodeId,
-            target: isSourceHandle ? newNodeId : sourceId,
-            type: 'temporary',
-          })
-        );
+        addNode('drop', {
+          position: { x, y },
+        });
       }
     },
     [addNode, screenToFlowPosition]
@@ -399,8 +385,6 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
               zoomOnDoubleClick={false}
               selectionOnDrag={true}
               onDoubleClick={addDropNode}
-              minZoom={0.01}
-              maxZoom={10}
               {...rest}
             >
               <Background />

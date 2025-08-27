@@ -95,14 +95,7 @@ export const Menu = () => {
           <DropdownMenuItem onClick={handleOpenProfile}>
             Profile
           </DropdownMenuItem>
-          {isSubscribed && (
-            <DropdownMenuItem asChild className="justify-between">
-              <a href="/api/portal" target="_blank" rel="noopener noreferrer">
-                Billing{' '}
-                <ArrowUpRightIcon size={16} className="text-muted-foreground" />
-              </a>
-            </DropdownMenuItem>
-          )}
+
 
           <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
         </DropdownMenuContent>

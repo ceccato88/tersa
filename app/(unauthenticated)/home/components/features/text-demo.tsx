@@ -84,7 +84,7 @@ export const TextDemo = () => (
         panOnDrag={[1]}
       preventScrolling={false}
       fitViewOptions={{
-        minZoom: 0,
+        minZoom: 0.01,
       }}
     />
   </ReactFlowProvider>

@@ -76,13 +76,7 @@ export const ImageSizeSelector = ({
       value={value}
       onValueChange={onChange}
     >
-      <ComboboxTrigger 
-        id={id} 
-        className="rounded-full"
-        style={{
-          width: typeof width === 'number' ? `${width}px` : width
-        }}
-      >
+      <ComboboxTrigger id={id} className="rounded-full" style={{ width }}>
         <div className="flex w-full items-center gap-2">
           {getIcon(value)}
           {getLabel(value)}
