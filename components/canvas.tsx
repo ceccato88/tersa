@@ -392,10 +392,11 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
               edgeTypes={edgeTypes}
               isValidConnection={isValidConnection}
               connectionLineComponent={ConnectionLine}
-              panOnScroll
+              panOnScroll={false}
+              zoomOnScroll={true}
+              panOnDrag={[1]}
               fitView
               zoomOnDoubleClick={false}
-              panOnDrag={false}
               selectionOnDrag={true}
               onDoubleClick={addDropNode}
               {...rest}

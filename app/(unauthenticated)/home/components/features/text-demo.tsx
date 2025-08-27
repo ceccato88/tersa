@@ -80,7 +80,8 @@ export const TextDemo = () => (
       nodes={nodes}
       edges={edges}
       panOnScroll={false}
-      zoomOnScroll={false}
+        zoomOnScroll={true}
+        panOnDrag={[1]}
       preventScrolling={false}
       fitViewOptions={{
         minZoom: 0,

@@ -11,7 +11,8 @@ export const Demo = () => (
             nodes={sampleNodes}
             edges={sampleEdges}
             panOnScroll={false}
-            zoomOnScroll={false}
+        zoomOnScroll={true}
+        panOnDrag={[1]}
             preventScrolling={false}
             fitViewOptions={{
               minZoom: 0,
