@@ -68,7 +68,7 @@ export const getSubscribedUser = async () => {
   }
 
   if (!profile.subscriptionId) {
-    throw new Error('Please subscribe to use this feature.');
+    throw new Error('Claim your free AI credits to use this feature.');
   }
 
   const credits = await getCredits();

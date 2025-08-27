@@ -11,8 +11,7 @@ import {
 import { useUser } from '@/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
 import { useSubscription } from '@/providers/subscription';
-import { ArrowUpRight, ArrowUpRightIcon, Loader2 } from 'lucide-react';
-import Link from 'next/link';
+import { ArrowUpRightIcon, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { type MouseEventHandler, useState } from 'react';
 import { Profile } from './profile';
@@ -104,24 +103,7 @@ export const Menu = () => {
               </a>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem asChild>
-            <Link href="/pricing" className="flex items-center justify-between">
-              <span>Upgrade</span>
-              <ArrowUpRight size={16} className="text-muted-foreground" />
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <a
-              href="https://github.com/haydenbleasel/tersa"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between"
-            >
-              <span>Send feedback</span>
-              <ArrowUpRight size={16} className="text-muted-foreground" />
-            </a>
-          </DropdownMenuItem>
+
           <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

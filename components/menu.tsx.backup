@@ -1,0 +1,75 @@
+'use client';
+
+import { signOutAction } from '@/app/actions/auth/sign-out';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useUser } from '@/hooks/use-user';
+import { handleError } from '@/lib/error/handle';
+import { getInitials } from '@/lib/user';
+import { LogOutIcon, SettingsIcon, UpgradeIcon } from 'lucide-react';
+import Link from 'next/link';
+import { useCallback } from 'react';
+
+export const Menu = () => {
+  const user = useUser();
+
+  const handleSignOut = useCallback(async () => {
+    try {
+      const response = await signOutAction();
+
+      if ('error' in response) {
+        throw new Error(response.error);
+      }
+    } catch (error) {
+      handleError('Error signing out', error);
+    }
+  }, []);
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Avatar className="size-8 cursor-pointer">
+          <AvatarImage src={user.avatarUrl ?? undefined} alt={user.name} />
+          <AvatarFallback className="text-xs">
+            {getInitials(user.name)}
+          </AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem asChild>
+          <Link href="/settings">
+            <SettingsIcon size={16} />
+            Settings
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/pricing">
+            <UpgradeIcon size={16} />
+            Upgrade
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <a href="https://github.com/haydenbleasel/tersa" target="_blank">
+            Send feedback
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleSignOut}>
+          <LogOutIcon size={16} />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
