@@ -107,7 +107,7 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
             <CommandGroup heading="Add node">
               {nodeButtons
                 .filter(
-                  (button) => ['text', 'image', 'video', 'file'].includes(button.id)
+                  (button) => button.id !== 'file' && button.id !== 'tweet'
                 )
                 .map((button) => (
                   <CommandItem
