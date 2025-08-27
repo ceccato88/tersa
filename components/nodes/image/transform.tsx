@@ -173,7 +173,6 @@ export const ImageTransform = ({
             value={size ?? ''}
             options={selectedModel?.sizes ?? []}
             id={id}
-            className="w-[200px] rounded-full"
             onChange={(value) => updateNodeData(id, { size: value })}
           />
         ),
