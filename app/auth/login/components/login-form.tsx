@@ -7,7 +7,7 @@ import { env } from '@/lib/env';
 import { handleError } from '@/lib/error/handle';
 import { createClient } from '@/lib/supabase/client';
 import { Turnstile } from '@marsidev/react-turnstile';
-import Link from 'next/link';
+
 import { useRouter } from 'next/navigation';
 import { type FormEventHandler, useState } from 'react';
 
@@ -64,15 +64,7 @@ export const LoginForm = () => {
             />
           </div>
           <div className="grid gap-2">
-            <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
-              <Link
-                href="/auth/forgot-password"
-                className="ml-auto inline-block text-muted-foreground text-xs underline-offset-4 hover:underline"
-              >
-                Forgot your password?
-              </Link>
-            </div>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
