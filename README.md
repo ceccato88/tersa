@@ -50,12 +50,18 @@ A visual AI playground. Tersa is an open source canvas for building AI workflows
 
 3. Create a `.env.local` file in the root directory with your environment variables. Check the `lib/env.ts` file for all the variables you need to set.
 
-4. Run the development server
+4. Generate and run database migrations
+   ```sh
+   pnpm drizzle-kit generate
+   pnpm drizzle-kit migrate
+   ```
+
+5. Run the development server
    ```sh
    pnpm dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Usage
 
