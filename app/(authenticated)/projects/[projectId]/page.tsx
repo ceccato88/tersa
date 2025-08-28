@@ -15,7 +15,7 @@ import { notFound, redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
-  title: 'Tersa',
+  title: 'WOW',
   description: 'Create and share AI workflows',
 };
 

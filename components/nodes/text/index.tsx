@@ -12,6 +12,7 @@ export type TextNodeProps = {
     model?: string;
     updatedAt?: string;
     instructions?: string;
+    variationCount?: number;
 
     // Tiptap generated JSON content
     content?: JSONContent;
@@ -26,10 +27,11 @@ export const TextNode = (props: TextNodeProps) => {
   const { getNodes, getEdges } = useReactFlow();
   const incomers = getIncomers(props, getNodes(), getEdges());
   const hasConnections = incomers.length > 0;
+  const hasGeneratedContent = Boolean(props.data.generated?.text);
 
-  // Se tem conexões de entrada, usa TextTransform (com IA)
-  // Se não tem conexões, usa TextPrimitive (editor simples)
-  if (hasConnections) {
+  // Se tem conexões de entrada OU conteúdo gerado, usa TextTransform (com IA)
+  // Se não tem conexões nem conteúdo gerado, usa TextPrimitive (editor simples)
+  if (hasConnections || hasGeneratedContent) {
     return <TextTransform {...props} title="Texto" />;
   }
 

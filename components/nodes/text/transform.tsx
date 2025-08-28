@@ -14,6 +14,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useReasoning } from '@/hooks/use-reasoning';
 import { handleError } from '@/lib/error/handle';
@@ -93,7 +94,7 @@ export const TextTransform = ({
   type,
   title,
 }: TextTransformProps) => {
-  const { updateNodeData, getNodes, getEdges } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges, addNodes, addEdges } = useReactFlow();
   const project = useProject();
   const modelId = data.model ?? getDefaultModel();
   const analytics = useAnalytics();
@@ -104,6 +105,9 @@ export const TextTransform = ({
   const [messages, setMessages] = useState<StreamMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState<string>('');
   const abortControllerRef = useRef<AbortController | null>(null);
+  
+  // Estado para múltiplas variações
+  const [variationCount, setVariationCount] = useState(data.variationCount ?? 1);
 
   const handleGenerate = useCallback(async () => {
     const incomers = getIncomers({ id }, getNodes(), getEdges());
@@ -183,66 +187,118 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
       // Criar AbortController para cancelamento
       abortControllerRef.current = new AbortController();
 
-      // Fazer chamada para API do Replicate via endpoint local
-      const response = await fetch('/api/replicate-stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: modelId,
-          input: replicateInput,
-        }),
-        signal: abortControllerRef.current.signal,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error('No reader available');
-      }
-
       setStatus('streaming');
-      let fullText = '';
-      const decoder = new TextDecoder();
+      
+      // Gerar múltiplas variações
+      const variations: string[] = [];
+      
+      for (let i = 0; i < variationCount; i++) {
+        // Fazer chamada para API do Replicate via endpoint local
+        const response = await fetch('/api/replicate-stream', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: modelId,
+            input: replicateInput,
+          }),
+          signal: abortControllerRef.current.signal,
+        });
 
-      while (true) {
-        const { done, value } = await reader.read();
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const reader = response.body?.getReader();
+        if (!reader) {
+          throw new Error('No reader available');
+        }
+
+        let fullText = '';
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) break;
+          
+          const chunk = decoder.decode(value, { stream: true });
+          fullText += chunk;
+          
+          // Mostrar progresso apenas da primeira variação
+          if (i === 0) {
+            setCurrentMessage(fullText);
+          }
+        }
         
-        if (done) break;
-        
-        const chunk = decoder.decode(value, { stream: true });
-        fullText += chunk;
-        setCurrentMessage(fullText);
+        variations.push(fullText);
       }
-
+      
+      // A primeira variação fica no nó atual
+      const mainVariation = variations[0];
+      
       // Finalizar streaming
       const finalMessage: StreamMessage = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: fullText,
+        content: mainVariation,
       };
 
       setMessages([finalMessage]);
       setStatus('completed');
 
-      // Atualizar dados do nó
+      // Atualizar dados do nó principal
       updateNodeData(id, {
         generated: {
-          text: fullText,
+          text: mainVariation,
         },
+        variationCount,
         updatedAt: new Date().toISOString(),
       });
-
+      
+      // Criar nós adicionais para as outras variações
+      if (variations.length > 1) {
+        const currentNode = getNodes().find(node => node.id === id);
+        if (currentNode) {
+           const newNodes = [];
+           const baseY = currentNode.position.y; // Garantir mesmo Y para todos
+          
+          for (let i = 1; i < variations.length; i++) {
+             const newNodeId = `${id}-variation-${i}`;
+             const newNode = {
+               id: newNodeId,
+               type: 'text',
+               position: {
+                 x: currentNode.position.x + (i * 420), // 384px (w-sm) + 36px spacing
+                 y: baseY, // Usar Y fixo do nó original
+               },
+               data: {
+                 generated: {
+                   text: variations[i],
+                 },
+                 model: modelId,
+                 instructions: data.instructions,
+                 updatedAt: new Date().toISOString(),
+               },
+             };
+             
+             newNodes.push(newNode);
+           }
+          
+          addNodes(newNodes);
+          
+          toast.success(`${variations.length} variações geradas com sucesso`);
+        }
+      } else {
+        toast.success('Texto gerado com sucesso');
+      }
+      
       setReasoning((oldReasoning) => ({
         ...oldReasoning,
         isGenerating: false,
       }));
 
-      toast.success('Text generated successfully');
       setTimeout(() => mutate('credits'), 5000);
 
     } catch (error: any) {
@@ -258,12 +314,16 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
     data.instructions,
     getEdges,
     getNodes,
+    addNodes,
+    addEdges,
     id,
     modelId,
     type,
     analytics.track,
     updateNodeData,
     setReasoning,
+    variationCount,
+    data,
   ]);
 
   const handleStop = useCallback(() => {
@@ -286,6 +346,12 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
   const handleModelChange = useCallback((value: string) => {
     updateNodeData(id, { model: value });
   }, [id, updateNodeData]);
+  
+  const handleVariationCountChange = useCallback((value: number) => {
+    const clampedValue = Math.max(1, value); // Mínimo de 1
+    setVariationCount(clampedValue);
+    updateNodeData(id, { variationCount: clampedValue });
+  }, [id, updateNodeData]);
 
   const toolbar = useMemo(() => {
     const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];
@@ -305,6 +371,21 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
             ))}
           </SelectContent>
         </Select>
+      ),
+    });
+    
+    // Controle de variações
+    items.push({
+      children: (
+        <Input
+           id="variations"
+           type="number"
+           min="1"
+           value={variationCount}
+           onChange={(e) => handleVariationCountChange(parseInt(e.target.value) || 1)}
+           className="w-16 h-8 rounded-full text-center"
+           title="Número de variações"
+         />
       ),
     });
 
@@ -393,6 +474,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
     data.updatedAt,
     handleGenerate,
     handleModelChange,
+    handleVariationCountChange,
     modelId,
     id,
     messages,
@@ -400,6 +482,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
     status,
     handleStop,
     handleCopy,
+    variationCount,
   ]);
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');

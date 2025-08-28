@@ -57,7 +57,10 @@ export const NodeLayout = ({
       const incomers = getIncomers(node, getNodes(), getEdges());
       return incomers.length > 0;
     }
-    return type !== 'file' && type !== 'tweet' && type !== 'video';
+    if (type === 'video') {
+      return true; // Nós de vídeo sempre têm entrada disponível
+    }
+    return type !== 'file' && type !== 'tweet';
   };
 
   const handleFocus = () => {
@@ -88,19 +91,8 @@ export const NodeLayout = ({
   };
 
   const handleSelect = (open: boolean) => {
-    if (!open) {
-      return;
-    }
-
-    const node = getNode(id);
-
-    if (!node) {
-      return;
-    }
-
-    if (!node.selected) {
-      updateNode(id, { selected: true });
-    }
+    // Removido updateNode para evitar loop infinito de re-renderização
+    // A seleção do nó é gerenciada automaticamente pelo React Flow
   };
 
   return (

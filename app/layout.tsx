@@ -6,7 +6,13 @@ import { cn } from '@/lib/utils';
 import { PostHogProvider } from '@/providers/posthog-provider';
 import { ThemeProvider } from '@/providers/theme';
 import { Analytics } from '@vercel/analytics/next';
+import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+
+export const metadata: Metadata = {
+  title: 'WOW',
+  description: 'WOW - AI-powered creative platform',
+};
 
 type RootLayoutProps = {
   children: ReactNode;
