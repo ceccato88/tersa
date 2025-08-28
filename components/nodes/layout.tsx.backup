@@ -97,7 +97,7 @@ export const NodeLayout = ({
       {type !== 'drop' && Boolean(toolbar?.length) && (
         <NodeToolbar id={id} items={toolbar} />
       )}
-      {type !== 'file' && type !== 'tweet' && type !== 'video' && (
+      {type !== 'file' && type !== 'tweet' && (
         <Handle type="target" position={Position.Left} />
       )}
       <ContextMenu onOpenChange={handleSelect}>
@@ -125,35 +125,35 @@ export const NodeLayout = ({
         <ContextMenuContent>
           <ContextMenuItem onClick={() => duplicateNode(id)}>
             <CopyIcon size={12} />
-            <span>Duplicar</span>
+            <span>Duplicate</span>
           </ContextMenuItem>
           <ContextMenuItem onClick={handleFocus}>
             <EyeIcon size={12} />
-            <span>Focar</span>
+            <span>Focus</span>
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem onClick={handleDelete} variant="destructive">
             <TrashIcon size={12} />
-            <span>Excluir</span>
+            <span>Delete</span>
           </ContextMenuItem>
           {process.env.NODE_ENV === 'development' && (
             <>
               <ContextMenuSeparator />
               <ContextMenuItem onClick={handleShowData}>
                 <CodeIcon size={12} />
-                <span>Mostrar dados</span>
+                <span>Show data</span>
               </ContextMenuItem>
             </>
           )}
         </ContextMenuContent>
       </ContextMenu>
-      {type !== 'file' && type !== 'tweet' && <Handle type="source" position={Position.Right} />}
+      {type !== 'video' && <Handle type="source" position={Position.Right} />}
       <Dialog open={showData} onOpenChange={setShowData}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Dados do nó</DialogTitle>
+            <DialogTitle>Node data</DialogTitle>
             <DialogDescription>
-              Dados do nó{' '}
+              Data for node{' '}
               <code className="rounded-sm bg-secondary px-2 py-1 font-mono">
                 {id}
               </code>

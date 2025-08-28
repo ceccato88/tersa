@@ -22,5 +22,5 @@ export type TextNodeProps = {
 
 export const TextNode = (props: TextNodeProps) => {
   // Sempre usa TextTransform (versão com IA) independente das conexões
-  return <TextTransform {...props} title="Text" />;
+  return <TextTransform {...props} title="Texto" />;
 };

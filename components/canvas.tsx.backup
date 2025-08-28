@@ -47,154 +47,52 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
   const project = useProject();
   const {
     onConnect,
-    onConnectStart,
     onConnectEnd,
+    onConnectStart,
     onEdgesChange,
     onNodesChange,
-    nodes: initialNodes,
-    edges: initialEdges,
     ...rest
-  } = props ?? {};
-  const content = project?.content as { nodes: Node[]; edges: Edge[] };
-  const [nodes, setNodes] = useState<Node[]>(
-    initialNodes ?? content?.nodes ?? []
-  );
-  const [edges, setEdges] = useState<Edge[]>(
-    initialEdges ?? content?.edges ?? []
-  );
+  } = props;
+  const { getNodes, getEdges, screenToFlowPosition, setNodes, setEdges } =
+    useReactFlow();
+  const { addNode, duplicateNode } = useNodeOperations();
   const [copiedNodes, setCopiedNodes] = useState<Node[]>([]);
-  const {
-    getEdges,
-    toObject,
-    screenToFlowPosition,
-    getNodes,
-    getNode,
-    updateNode,
-  } = useReactFlow();
-  const analytics = useAnalytics();
-  const [saveState, setSaveState] = useSaveProject();
-
-  const save = useDebouncedCallback(async () => {
-    if (saveState.isSaving || !project?.userId || !project?.id) {
-      return;
-    }
-
-    try {
-      setSaveState((prev) => ({ ...prev, isSaving: true }));
-
-      const response = await updateProjectAction(project.id, {
-        content: toObject(),
-      });
-
-      if ('error' in response) {
-        throw new Error(response.error);
-      }
-
-      setSaveState((prev) => ({ ...prev, lastSaved: new Date() }));
-    } catch (error) {
-      handleError('Error saving project', error);
-    } finally {
-      setSaveState((prev) => ({ ...prev, isSaving: false }));
-    }
-  }, 1000);
+  const { track } = useAnalytics();
+  const save = useSaveProject();
 
   const handleNodesChange = useCallback<OnNodesChange>(
     (changes) => {
-      setNodes((current) => {
-        const updated = applyNodeChanges(changes, current);
-        save();
-        onNodesChange?.(changes);
-        return updated;
-      });
+      setNodes((nds: Node[]) => applyNodeChanges(changes, nds));
+      save();
     },
-    [save, onNodesChange]
+    [save, setNodes]
   );
 
   const handleEdgesChange = useCallback<OnEdgesChange>(
     (changes) => {
-      setEdges((current) => {
-        const updated = applyEdgeChanges(changes, current);
-        save();
-        onEdgesChange?.(changes);
-        return updated;
-      });
+      setEdges((eds: Edge[]) => applyEdgeChanges(changes, eds));
+      save();
     },
-    [save, onEdgesChange]
+    [save, setEdges]
   );
 
   const handleConnect = useCallback<OnConnect>(
     (connection) => {
-      const newEdge: Edge = {
-        id: nanoid(),
-        type: 'animated',
+      const edge = {
         ...connection,
-      };
-      setEdges((eds: Edge[]) => eds.concat(newEdge));
-      save();
-      onConnect?.(connection);
-    },
-    [save, onConnect]
-  );
-
-  const addNode = useCallback(
-    (type: string, options?: Record<string, unknown>) => {
-      const { data: nodeData, ...rest } = options ?? {};
-      const newNode: Node = {
         id: nanoid(),
-        type,
-        data: {
-          ...(nodeData ? nodeData : {}),
-        },
-        position: { x: 0, y: 0 },
-        origin: [0, 0.5],
-        ...rest,
+        type: 'default',
       };
 
-      setNodes((nds: Node[]) => nds.concat(newNode));
+      setEdges((eds: Edge[]) => [...eds, edge]);
       save();
-
-      analytics.track('toolbar', 'node', 'added', {
-        type,
-      });
-
-      return newNode.id;
     },
-    [save, analytics]
-  );
-
-  const duplicateNode = useCallback(
-    (id: string) => {
-      const node = getNode(id);
-
-      if (!node || !node.type) {
-        return;
-      }
-
-      const { id: oldId, ...rest } = node;
-
-      const newId = addNode(node.type, {
-        ...rest,
-        position: {
-          x: node.position.x + 200,
-          y: node.position.y + 200,
-        },
-        selected: true,
-      });
-
-      setTimeout(() => {
-        updateNode(id, { selected: false });
-        updateNode(newId, { selected: true });
-      }, 0);
-    },
-    [addNode, getNode, updateNode]
+    [save, setEdges]
   );
 
   const handleConnectEnd = useCallback<OnConnectEnd>(
     (event, connectionState) => {
-      // when a connection is dropped on the pane it's not valid
-
       if (!connectionState.isValid) {
-        // we need to remove the wrapper bounds, in order to get the correct position
         const { clientX, clientY } =
           'changedTouches' in event ? event.changedTouches[0] : event;
 
@@ -385,6 +283,8 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
               zoomOnDoubleClick={false}
               selectionOnDrag={true}
               onDoubleClick={addDropNode}
+              minZoom={0.01}
+              maxZoom={10}
               {...rest}
             >
               <Background />

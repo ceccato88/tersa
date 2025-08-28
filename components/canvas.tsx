@@ -410,11 +410,11 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
           <ContextMenuContent>
             <ContextMenuItem onClick={addDropNode}>
               <PlusIcon size={12} />
-              <span>Add a new node</span>
+              <span>Adicionar novo nó</span>
             </ContextMenuItem>
             <ContextMenuItem onClick={handleSelectAll}>
               <BoxSelectIcon size={12} />
-              <span>Select all</span>
+              <span>Selecionar tudo</span>
             </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>

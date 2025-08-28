@@ -14,5 +14,5 @@ export type FileNodeProps = {
 };
 
 export const FileNode = (props: FileNodeProps) => (
-  <FilePrimitive {...props} title="Arquivo" />
+  <FilePrimitive {...props} title="File" />
 );
