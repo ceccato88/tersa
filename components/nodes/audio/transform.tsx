@@ -120,7 +120,7 @@ export const AudioTransform = ({
           value={modelId}
           options={speechModels}
           key={id}
-          className="w-[200px] rounded-full"
+          className="w-[160px] rounded-full"
           onChange={(value) => updateNodeData(id, { model: value })}
         />
       ),

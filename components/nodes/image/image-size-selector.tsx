@@ -78,7 +78,7 @@ export const ImageSizeSelector = ({
     >
       <ComboboxTrigger 
         id={id} 
-        className="w-full max-w-[240px] rounded-full"
+        className="w-[160px] rounded-full"
       >
         <div className="flex w-full items-center gap-2">
           {getIcon(value)}

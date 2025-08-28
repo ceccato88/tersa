@@ -38,6 +38,7 @@ type ModelSelectorProps = {
   id?: string;
   options: Record<string, TersaModel>;
   value: string;
+  width?: number | string;
   className?: string;
   onChange?: (value: string) => void;
   disabled?: boolean;
@@ -138,6 +139,7 @@ export const ModelSelector = ({
   id,
   value,
   options,
+  width = 250,
   className,
   onChange,
   disabled,
@@ -182,10 +184,11 @@ export const ModelSelector = ({
       <DialogTrigger
         className={className}
         id={id}
+        style={{ width }}
         disabled={disabled}
         asChild
       >
-        <Button variant="outline">
+        <Button variant="outline" className="w-full">
           {activeModel && (
             <div className="flex w-full items-center gap-2 overflow-hidden">
               <ModelIcon data={activeModel} chef={activeModel.chef} />

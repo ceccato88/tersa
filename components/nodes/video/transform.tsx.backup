@@ -106,7 +106,7 @@ export const VideoTransform = ({
           value={modelId}
           options={videoModels}
           key={id}
-          className="w-[160px] rounded-full"
+          className="w-[200px] rounded-full"
           onChange={(value) => updateNodeData(id, { model: value })}
         />
       ),

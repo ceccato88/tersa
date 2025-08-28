@@ -168,7 +168,7 @@ export const CodeTransform = ({
           <LanguageSelector
             value={language}
             onChange={handleLanguageChange}
-            className="w-[160px] rounded-full"
+            className="w-[200px] rounded-full"
           />
         ),
       },
@@ -178,7 +178,7 @@ export const CodeTransform = ({
             value={modelId}
             options={textModels}
             key={id}
-            className="w-[160px] rounded-full"
+            className="w-[200px] rounded-full"
             onChange={(value) => updateNodeData(id, { model: value })}
           />
         ),

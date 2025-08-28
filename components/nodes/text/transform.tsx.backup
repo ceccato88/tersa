@@ -209,7 +209,7 @@ export const TextTransform = ({
           value={modelId}
           options={models}
           key={id}
-          className="w-[160px] rounded-full"
+          className="w-[200px] rounded-full"
           onChange={(value) => updateNodeData(id, { model: value })}
         />
       ),
