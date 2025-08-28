@@ -209,6 +209,7 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
           position: screenToFlowPosition({ x: clientX, y: clientY }),
           data: {
             isSource: !isSourceHandle,
+            sourceNodeId: sourceId,
           },
         });
 

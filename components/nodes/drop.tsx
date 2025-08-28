@@ -16,6 +16,7 @@ type DropNodeProps = {
   data: {
     isSource?: boolean;
     position: XYPosition;
+    sourceNodeId?: string;
   };
   id: string;
 };
@@ -24,6 +25,27 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
   const { addNodes, deleteElements, getNode, addEdges, getNodeConnections } =
     useReactFlow();
   const ref = useRef<HTMLDivElement>(null);
+
+  // Get the source node type to filter available node types
+  const sourceNode = data.sourceNodeId ? getNode(data.sourceNodeId) : null;
+  const sourceNodeType = sourceNode?.type;
+
+  // Filter available node types based on source node type
+  const getAvailableNodeTypes = () => {
+    if (sourceNodeType === 'text') {
+      return ['text', 'image', 'video'];
+    }
+    if (sourceNodeType === 'image') {
+      return ['text', 'image', 'video'];
+    }
+    if (sourceNodeType === 'video') {
+      return ['video'];
+    }
+    // For other node types, keep the current behavior
+    return ['text', 'image', 'video', 'file'];
+  };
+
+  const availableNodeTypes = getAvailableNodeTypes();
 
   const handleSelect = (type: string, options?: Record<string, unknown>) => {
     // Get the position of the current node
@@ -107,7 +129,7 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
             <CommandGroup heading="Adicionar nó">
               {nodeButtons
                 .filter(
-                  (button) => ['text', 'image', 'video', 'file'].includes(button.id)
+                  (button) => availableNodeTypes.includes(button.id)
                 )
                 .map((button) => (
                   <CommandItem

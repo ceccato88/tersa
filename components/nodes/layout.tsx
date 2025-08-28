@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { useNodeOperations } from '@/providers/node-operations';
-import { Handle, Position, useReactFlow } from '@xyflow/react';
+import { Handle, Position, useReactFlow, getIncomers } from '@xyflow/react';
 import { CodeIcon, CopyIcon, EyeIcon, TrashIcon } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import { NodeToolbar } from './toolbar';
@@ -45,9 +45,20 @@ export const NodeLayout = ({
   title,
   className,
 }: NodeLayoutProps) => {
-  const { deleteElements, setCenter, getNode, updateNode } = useReactFlow();
+  const { deleteElements, setCenter, getNode, updateNode, getNodes, getEdges } = useReactFlow();
   const { duplicateNode } = useNodeOperations();
   const [showData, setShowData] = useState(false);
+
+  // Verificar se o nó tem conexões de entrada
+  const shouldShowInputHandle = () => {
+    if (type === 'image' || type === 'text') {
+      const node = getNode(id);
+      if (!node) return false;
+      const incomers = getIncomers(node, getNodes(), getEdges());
+      return incomers.length > 0;
+    }
+    return type !== 'file' && type !== 'tweet' && type !== 'video';
+  };
 
   const handleFocus = () => {
     const node = getNode(id);
@@ -97,7 +108,7 @@ export const NodeLayout = ({
       {type !== 'drop' && Boolean(toolbar?.length) && (
         <NodeToolbar id={id} items={toolbar} />
       )}
-      {type !== 'file' && type !== 'tweet' && type !== 'video' && (
+      {shouldShowInputHandle() && (
         <Handle type="target" position={Position.Left} />
       )}
       <ContextMenu onOpenChange={handleSelect}>

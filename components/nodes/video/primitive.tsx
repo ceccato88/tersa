@@ -86,7 +86,7 @@ export const VideoPrimitive = ({
           onDrop={handleDrop}
           src={files}
           onError={console.error}
-          className="rounded-none border-none bg-transparent shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+          className="rounded-none border-none bg-transparent p-0 shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
         >
           <DropzoneEmptyState className="p-4" />
           <DropzoneContent />

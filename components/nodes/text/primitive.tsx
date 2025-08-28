@@ -49,7 +49,7 @@ export const TextPrimitive = ({
           onCreate={handleCreate}
           immediatelyRender={false}
           content={data.content}
-          placeholder="Start typing..."
+          placeholder="Comece a digitar..."
           className={cn(
             'prose prose-sm dark:prose-invert size-full p-6',
             '[&_p:first-child]:mt-0',
