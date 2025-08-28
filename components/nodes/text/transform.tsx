@@ -310,7 +310,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
 
     if (status === 'generating' || status === 'streaming') {
       items.push({
-        tooltip: 'Stop',
+        tooltip: 'Parar',
         children: (
           <Button
             size="icon"
@@ -331,7 +331,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
         : data.generated?.text;
 
       items.push({
-        tooltip: 'Regenerate',
+        tooltip: 'Regenerar',
         children: (
           <Button
             size="icon"
@@ -344,7 +344,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
         ),
       });
       items.push({
-        tooltip: 'Copy',
+        tooltip: 'Copiar',
         children: (
           <Button
             size="icon"
@@ -359,7 +359,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
       });
     } else {
       items.push({
-        tooltip: 'Generate',
+        tooltip: 'Gerar',
         children: (
           <Button
             size="icon"
@@ -375,7 +375,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
 
     if (data.updatedAt) {
       items.push({
-        tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+        tooltip: `Última atualização: ${new Intl.DateTimeFormat('pt-BR', {
           dateStyle: 'short',
           timeStyle: 'short',
         }).format(new Date(data.updatedAt))}`,
@@ -436,8 +436,8 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
           status !== 'streaming' && (
             <div className="flex aspect-video w-full items-center justify-center bg-secondary">
               <p className="text-muted-foreground text-sm">
-                Press <PlayIcon size={12} className="-translate-y-px inline" />{' '}
-                to generate text
+                Pressione <PlayIcon size={12} className="-translate-y-px inline" />{' '}
+                para gerar texto
               </p>
             </div>
           )}
@@ -476,7 +476,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
       <Textarea
         value={data.instructions ?? ''}
         onChange={handleInstructionsChange}
-        placeholder="Current Message"
+        placeholder="Mensagem Atual"
         className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
       />
       <ReasoningTunnel.In>

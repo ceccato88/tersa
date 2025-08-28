@@ -6,12 +6,12 @@ import { /* CodeIcon, */ ImageIcon, TextIcon } from 'lucide-react';
 export const nodeButtons = [
   {
     id: 'text',
-    label: 'Text',
+    label: 'Texto',
     icon: TextIcon,
   },
   {
     id: 'image',
-    label: 'Image',
+    label: 'Imagem',
     icon: ImageIcon,
   },
   // {
@@ -21,7 +21,7 @@ export const nodeButtons = [
   // },
   {
     id: 'video',
-    label: 'Video',
+    label: 'Vídeo',
     icon: VideoIcon,
   },
   // {
@@ -34,7 +34,7 @@ export const nodeButtons = [
   // },
   {
     id: 'file',
-    label: 'File',
+    label: 'Arquivo',
     icon: FileIcon,
   },
   // {

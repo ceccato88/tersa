@@ -113,11 +113,11 @@ export const ProjectSelector = ({
 
     return [
       {
-        label: 'My Projects',
+        label: 'Meus Projetos',
         data: projects.filter((project) => project.userId === user.id),
       },
       {
-        label: 'Other Projects',
+        label: 'Outros Projetos',
         data: projects.filter((project) => project.userId !== user.id),
       },
     ];
@@ -181,7 +181,7 @@ export const ProjectSelector = ({
             <ComboboxGroup>
               <ComboboxItem value="new">
                 <PlusIcon size={16} />
-                Create new project
+                Criar novo projeto
               </ComboboxItem>
             </ComboboxGroup>
           </ComboboxList>
@@ -190,9 +190,9 @@ export const ProjectSelector = ({
       <Dialog open={createOpen} onOpenChange={setCreateOpen} modal={false}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create new project</DialogTitle>
+            <DialogTitle>Criar novo projeto</DialogTitle>
             <DialogDescription>
-              What would you like to call your new project?
+              Como você gostaria de chamar seu novo projeto?
             </DialogDescription>
             <form
               onSubmit={handleCreateProject}
@@ -200,12 +200,12 @@ export const ProjectSelector = ({
               aria-disabled={isCreating}
             >
               <Input
-                placeholder="My new project"
+                placeholder="Meu novo projeto"
                 value={name}
                 onChange={({ target }) => setName(target.value)}
               />
               <Button type="submit" disabled={isCreating || !name.trim()}>
-                Create
+                Criar
               </Button>
             </form>
           </DialogHeader>

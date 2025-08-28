@@ -99,12 +99,12 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
 
   return (
     <div ref={ref}>
-      <NodeLayout id={id} data={data} type="drop" title="Add a new node">
+      <NodeLayout id={id} data={data} type="drop" title="Adicionar um novo nó">
         <Command className="rounded-lg">
-          <CommandInput placeholder="Type a command or search..." />
+          <CommandInput placeholder="Digite um comando ou pesquise..." />
           <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading="Add node">
+            <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
+            <CommandGroup heading="Adicionar nó">
               {nodeButtons
                 .filter(
                   (button) => ['text', 'image', 'video', 'file'].includes(button.id)

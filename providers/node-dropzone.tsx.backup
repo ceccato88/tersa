@@ -95,7 +95,7 @@ export const NodeDropzoneProvider = ({
           </div>
         </div>
         <p className="font-medium text-xl tracking-tight">
-          Solte arquivos para criar nós
+          Drop files to create nodes
         </p>
       </div>
       {children}

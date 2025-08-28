@@ -42,7 +42,7 @@ const FilePreview = ({
           className="flex items-center gap-2 text-primary text-sm hover:underline"
         >
           <FileIcon size={16} />
-          <span>Baixar Arquivo</span>
+          <span>Download File</span>
         </a>
       </div>
     )}
@@ -66,19 +66,19 @@ export const FilePrimitive = ({
 
     try {
       if (!files.length) {
-        throw new Error('Nenhum arquivo selecionado');
+        throw new Error('No file selected');
       }
 
       if (files.some((file) => file.type.startsWith('audio'))) {
-        throw new Error('Use o nó de áudio para fazer upload de arquivos de áudio.');
+        throw new Error('Please use the audio node to upload audio files.');
       }
 
       if (files.some((file) => file.type.startsWith('video'))) {
-        throw new Error('Use o nó de vídeo para fazer upload de arquivos de vídeo.');
+        throw new Error('Please use the video node to upload video files.');
       }
 
       if (files.some((file) => file.type.startsWith('image'))) {
-        throw new Error('Use o nó de imagem para fazer upload de arquivos de imagem.');
+        throw new Error('Please use the image node to upload image files.');
       }
 
       setIsUploading(true);
@@ -95,7 +95,7 @@ export const FilePrimitive = ({
         },
       });
     } catch (error) {
-      handleError('Erro ao fazer upload do arquivo', error);
+      handleError('Error uploading video', error);
     } finally {
       setIsUploading(false);
     }

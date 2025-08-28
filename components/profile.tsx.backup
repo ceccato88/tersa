@@ -1,3 +1,12 @@
+'use client';
+
+import { type FormEventHandler, useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { type UserAttributes } from '@supabase/supabase-js';
+import Image from 'next/image';
+import { Loader2Icon } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -5,27 +14,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { handleError } from '@/lib/error/handle';
-import { createClient } from '@/lib/supabase/client';
-import { uploadFile } from '@/lib/upload';
-import type { UserAttributes } from '@supabase/supabase-js';
-import { Loader2Icon } from 'lucide-react';
-import Image from 'next/image';
-import { type FormEventHandler, useEffect, useState } from 'react';
-import { toast } from 'sonner';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dropzone,
   DropzoneContent,
   DropzoneEmptyState,
-} from './ui/kibo-ui/dropzone';
-import { Label } from './ui/label';
+} from '@/components/ui/kibo-ui/dropzone';
+import { createClient } from '@/lib/supabase/client';
+import { uploadFile } from '@/lib/upload';
+import { handleError } from '@/lib/error/handle';
 
-type ProfileProps = {
+interface ProfileProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-};
+}
 
 export const Profile = ({ open, setOpen }: ProfileProps) => {
   const [name, setName] = useState('');
@@ -96,10 +99,10 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
         throw new Error(response.error.message);
       }
 
-      toast.success('Perfil atualizado com sucesso');
+      toast.success('Profile updated successfully');
       setOpen(false);
     } catch (error) {
-      handleError('Erro ao atualizar perfil', error);
+      handleError('Error updating profile', error);
     } finally {
       setIsUpdating(false);
     }
@@ -112,7 +115,7 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
 
     try {
       if (!files.length) {
-        throw new Error('Nenhum arquivo selecionado');
+        throw new Error('No file selected');
       }
 
       setIsUpdating(true);
@@ -130,10 +133,10 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
         throw new Error(response.error.message);
       }
 
-      toast.success('Avatar atualizado com sucesso');
+      toast.success('Avatar updated successfully');
       setImage(url);
     } catch (error) {
-      handleError('Erro ao atualizar avatar', error);
+      handleError('Error updating avatar', error);
     } finally {
       setIsUpdating(false);
     }
@@ -143,9 +146,9 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
     <Dialog open={open} onOpenChange={setOpen} modal={false}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Perfil</DialogTitle>
+          <DialogTitle>Profile</DialogTitle>
           <DialogDescription>
-            Atualize suas informações de perfil.
+            Update your profile information.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-2">
@@ -187,10 +190,10 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
           aria-disabled={isUpdating}
         >
           <div className="grid gap-2">
-            <Label htmlFor="name">Nome</Label>
+            <Label htmlFor="name">Name</Label>
             <Input
               id="name"
-              placeholder="João Silva"
+              placeholder="Jane Doe"
               value={name}
               onChange={({ target }) => setName(target.value)}
               className="text-foreground"
@@ -200,7 +203,7 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              placeholder="joao@silva.com"
+              placeholder="jane@doe.com"
               value={email}
               type="email"
               onChange={({ target }) => setEmail(target.value)}
@@ -208,7 +211,7 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               placeholder="••••••••"
@@ -222,7 +225,7 @@ export const Profile = ({ open, setOpen }: ProfileProps) => {
             type="submit"
             disabled={isUpdating || !name.trim() || !email.trim()}
           >
-            Atualizar
+            Update
           </Button>
         </form>
       </DialogContent>

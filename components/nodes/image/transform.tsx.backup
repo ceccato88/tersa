@@ -159,7 +159,7 @@ export const ImageTransform = ({
             value={modelId}
             options={availableModels}
             id={id}
-            className="w-[150px] rounded-full"
+            className="w-[160px] rounded-full"
             onChange={(value) => updateNodeData(id, { model: value })}
           />
         ),
@@ -173,6 +173,7 @@ export const ImageTransform = ({
             value={size ?? ''}
             options={selectedModel?.sizes ?? []}
             id={id}
+            className="w-[160px] rounded-full"
             onChange={(value) => updateNodeData(id, { size: value })}
           />
         ),

@@ -6,7 +6,7 @@ export const runway = (modelId: 'gen4_turbo' | 'gen3a_turbo'): VideoModel => ({
   modelId,
   generate: async ({ prompt, imagePrompt, duration }) => {
     if (!imagePrompt) {
-      throw new Error('Runway requer pelo menos uma imagem');
+      throw new Error('Runway requires at least one image');
     }
 
     const client = new RunwayML({ apiKey: env.RUNWAYML_API_SECRET });
@@ -26,20 +26,20 @@ export const runway = (modelId: 'gen4_turbo' | 'gen3a_turbo'): VideoModel => ({
       const task = await client.tasks.retrieve(response.id);
 
       if (task.status === 'CANCELLED' || task.status === 'FAILED') {
-        throw new Error(`Falha na geração de vídeo do Runway: ${task.failure}`);
+        throw new Error(`Runway video generation failed: ${task.failure}`);
       }
 
       if (task.status === 'SUCCEEDED') {
         if (!task.output?.length) {
           throw new Error(
-            `Runway não gerou saída de vídeo: ${task.failure}`
+            `Runway video didn't generate output: ${task.failure}`
           );
         }
 
         const url = task.output.at(0);
 
         if (!url) {
-          throw new Error('Falha na geração de vídeo do Runway: Nenhuma URL de saída');
+          throw new Error('Runway video generation failed: No output URL');
         }
 
         return url;
@@ -48,6 +48,6 @@ export const runway = (modelId: 'gen4_turbo' | 'gen3a_turbo'): VideoModel => ({
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
-    throw new Error('Geração de vídeo do Runway expirou');
+    throw new Error('Runway video generation timed out');
   },
 });

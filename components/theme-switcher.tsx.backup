@@ -13,17 +13,17 @@ import { useEffect, useState } from 'react';
 
 const themes = [
   {
-    label: 'Claro',
+    label: 'Light',
     icon: SunIcon,
     value: 'light',
   },
   {
-    label: 'Escuro',
+    label: 'Dark',
     icon: MoonIcon,
     value: 'dark',
   },
   {
-    label: 'Sistema',
+    label: 'System',
     icon: MonitorIcon,
     value: 'system',
   },
@@ -43,7 +43,7 @@ export const ThemeSwitcher = () => {
       <Button
         size="icon"
         variant="ghost"
-        aria-label="Selecionar tema"
+        aria-label="Select theme"
         className="rounded-full"
       >
         <MonitorIcon size={16} />

@@ -96,8 +96,8 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Project settings</DialogTitle>
-          <DialogDescription>Update your project's details.</DialogDescription>
+          <DialogTitle>Configurações do projeto</DialogTitle>
+          <DialogDescription>Atualize os detalhes do seu projeto.</DialogDescription>
         </DialogHeader>
         <form
           onSubmit={handleUpdateProject}
@@ -105,10 +105,10 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
           aria-disabled={isUpdating}
         >
           <div className="grid gap-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Nome</Label>
             <Input
               id="name"
-              placeholder="My new project"
+              placeholder="Meu novo projeto"
               value={name}
               onChange={({ target }) => setName(target.value)}
             />
@@ -124,7 +124,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
             />
           </div>
           <Button type="submit" disabled={isUpdating || !name.trim()}>
-            Update
+            Atualizar
           </Button>
         </form>
         <DialogFooter className="-mx-6 mt-4 border-t px-6 pt-4 sm:justify-center">
@@ -134,7 +134,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
             className="flex items-center gap-2 text-destructive"
           >
             <TrashIcon size={16} />
-            <span>Delete</span>
+            <span>Excluir</span>
           </Button>
         </DialogFooter>
       </DialogContent>

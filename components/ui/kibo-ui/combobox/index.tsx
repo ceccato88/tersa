@@ -142,7 +142,7 @@ export const ComboboxTrigger = ({
           <span className="flex w-full items-center justify-between gap-2">
             {value
               ? data.find((item) => item.value === value)?.label
-              : `Select ${type}...`}
+              : type === 'project' ? 'Selecionar projeto...' : `Selecionar ${type}...`}
             <ChevronsUpDownIcon
               size={16}
               className="shrink-0 text-muted-foreground"
@@ -181,7 +181,16 @@ export type ComboboxInputProps = ComponentProps<typeof CommandInput>;
 export const ComboboxInput = (props: ComboboxInputProps) => {
   const { type } = useContext(ComboboxContext);
 
-  return <CommandInput placeholder={`Search ${type}...`} {...props} />;
+  const getPlaceholder = (type: string) => {
+    switch (type) {
+      case 'project':
+        return 'Buscar projeto...';
+      default:
+        return `Buscar ${type}...`;
+    }
+  };
+
+  return <CommandInput placeholder={getPlaceholder(type)} {...props} />;
 };
 
 export type ComboboxListProps = ComponentProps<typeof CommandList>;
@@ -195,8 +204,17 @@ export type ComboboxEmptyProps = ComponentProps<typeof CommandEmpty>;
 export const ComboboxEmpty = ({ children, ...props }: ComboboxEmptyProps) => {
   const { type } = useContext(ComboboxContext);
 
+  const getEmptyMessage = (type: string) => {
+    switch (type) {
+      case 'project':
+        return 'Nenhum projeto encontrado.';
+      default:
+        return `Nenhum ${type} encontrado.`;
+    }
+  };
+
   return (
-    <CommandEmpty {...props}>{children ?? `No ${type} found.`}</CommandEmpty>
+    <CommandEmpty {...props}>{children ?? getEmptyMessage(type)}</CommandEmpty>
   );
 };
 

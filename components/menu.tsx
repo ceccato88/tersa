@@ -93,11 +93,11 @@ export const Menu = () => {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleOpenProfile}>
-            Profile
+            Perfil
           </DropdownMenuItem>
 
 
-          <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={logout}>Sair</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <Profile open={profileOpen} setOpen={setProfileOpen} />

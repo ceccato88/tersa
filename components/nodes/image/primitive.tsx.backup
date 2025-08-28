@@ -53,12 +53,17 @@ export const ImagePrimitive = ({
       const description = await describeAction(url, project?.id);
 
       if ('error' in description) {
-        throw new Error(description.error);
+        // Armazenar a mensagem de erro no campo description do nó
+        // para que o nó de texto possa acessá-la
+        updateNodeData(id, {
+          description: `Erro na descrição da imagem: ${description.error}`,
+        });
+        handleError('Error describing image', new Error(description.error));
+      } else {
+        updateNodeData(id, {
+          description: description.description,
+        });
       }
-
-      updateNodeData(id, {
-        description: description.description,
-      });
     } catch (error) {
       handleError('Error uploading image', error);
     } finally {

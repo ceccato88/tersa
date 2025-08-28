@@ -29,5 +29,5 @@ export const VideoNode = (props: VideoNodeProps) => {
   });
   const Component = connections.length ? VideoTransform : VideoPrimitive;
 
-  return <Component {...props} title="Video" />;
+  return <Component {...props} title="Vídeo" />;
 };

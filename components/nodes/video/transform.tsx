@@ -89,11 +89,11 @@ export const VideoTransform = ({
 
       updateNodeData(id, response.nodeData);
 
-      toast.success('Video generated successfully');
+      toast.success('Vídeo gerado com sucesso');
 
       setTimeout(() => mutate('credits'), 5000);
     } catch (error) {
-      handleError('Error generating video', error);
+      handleError('Erro ao gerar vídeo', error);
     } finally {
       setLoading(false);
     }
@@ -113,7 +113,7 @@ export const VideoTransform = ({
     },
     loading
       ? {
-          tooltip: 'Generating...',
+          tooltip: 'Gerando...',
           children: (
             <Button size="icon" className="rounded-full" disabled>
               <Loader2Icon className="animate-spin" size={12} />
@@ -121,7 +121,7 @@ export const VideoTransform = ({
           ),
         }
       : {
-          tooltip: data.generated?.url ? 'Regenerate' : 'Generate',
+          tooltip: data.generated?.url ? 'Regenerar' : 'Gerar',
           children: (
             <Button
               size="icon"
@@ -141,7 +141,7 @@ export const VideoTransform = ({
 
   if (data.generated?.url) {
     toolbar.push({
-      tooltip: 'Download',
+      tooltip: 'Baixar',
       children: (
         <Button
           variant="ghost"
@@ -157,7 +157,7 @@ export const VideoTransform = ({
 
   if (data.updatedAt) {
     toolbar.push({
-      tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+      tooltip: `Última atualização: ${new Intl.DateTimeFormat('pt-BR', {
         dateStyle: 'short',
         timeStyle: 'short',
       }).format(new Date(data.updatedAt))}`,
@@ -186,8 +186,8 @@ export const VideoTransform = ({
       {!loading && !data.generated?.url && (
         <div className="flex aspect-video w-full items-center justify-center rounded-b-xl bg-secondary">
           <p className="text-muted-foreground text-sm">
-            Press <PlayIcon size={12} className="-translate-y-px inline" /> to
-            generate video
+            Pressione <PlayIcon size={12} className="-translate-y-px inline" /> para
+            gerar vídeo
           </p>
         </div>
       )}
@@ -206,7 +206,7 @@ export const VideoTransform = ({
       <Textarea
         value={data.instructions ?? ''}
         onChange={handleInstructionsChange}
-        placeholder="Enter instructions"
+        placeholder="Digite as instruções"
         className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
       />
     </NodeLayout>

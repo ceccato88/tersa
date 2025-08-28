@@ -42,7 +42,7 @@ const getDefaultModel = (models: typeof imageModels) => {
   );
 
   if (!defaultModel) {
-    throw new Error('No default model found');
+    throw new Error('Nenhum modelo padrão encontrado');
   }
 
   return defaultModel[0];
@@ -76,7 +76,7 @@ export const ImageTransform = ({
 
     try {
       if (!textNodes.length && !imageNodes.length) {
-        throw new Error('No input provided');
+        throw new Error('Nenhuma entrada fornecida');
       }
 
       setLoading(true);
@@ -113,11 +113,11 @@ export const ImageTransform = ({
 
       updateNodeData(id, response.nodeData);
 
-      toast.success('Image generated successfully');
+      toast.success('Imagem gerada com sucesso');
 
       setTimeout(() => mutate('credits'), 5000);
     } catch (error) {
-      handleError('Error generating image', error);
+      handleError('Erro ao gerar imagem', error);
     } finally {
       setLoading(false);
     }
@@ -183,7 +183,7 @@ export const ImageTransform = ({
     items.push(
       loading
         ? {
-            tooltip: 'Generating...',
+            tooltip: 'Gerando...',
             children: (
               <Button size="icon" className="rounded-full" disabled>
                 <Loader2Icon className="animate-spin" size={12} />
@@ -191,7 +191,7 @@ export const ImageTransform = ({
             ),
           }
         : {
-            tooltip: data.generated?.url ? 'Regenerate' : 'Generate',
+            tooltip: data.generated?.url ? 'Regenerar' : 'Gerar',
             children: (
               <Button
                 size="icon"
@@ -227,7 +227,7 @@ export const ImageTransform = ({
 
     if (data.updatedAt) {
       items.push({
-        tooltip: `Last updated: ${new Intl.DateTimeFormat('en-US', {
+        tooltip: `Última atualização: ${new Intl.DateTimeFormat('pt-BR', {
           dateStyle: 'short',
           timeStyle: 'short',
         }).format(new Date(data.updatedAt))}`,
@@ -282,15 +282,15 @@ export const ImageTransform = ({
           style={{ aspectRatio }}
         >
           <p className="text-muted-foreground text-sm">
-            Press <PlayIcon size={12} className="-translate-y-px inline" /> to
-            create an image
+            Pressione <PlayIcon size={12} className="-translate-y-px inline" /> para
+            criar uma imagem
           </p>
         </div>
       )}
       {!loading && data.generated?.url && (
         <Image
           src={data.generated.url}
-          alt="Generated image"
+          alt="Imagem gerada"
           width={1000}
           height={1000}
           className="w-full rounded-b-xl object-cover"
@@ -299,7 +299,7 @@ export const ImageTransform = ({
       <Textarea
         value={data.instructions ?? ''}
         onChange={handleInstructionsChange}
-        placeholder="Enter instructions"
+        placeholder="Digite as instruções"
         className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
       />
     </NodeLayout>

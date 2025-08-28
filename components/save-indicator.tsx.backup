@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 const getFormattedTime = (date: Date | undefined) => {
   if (!date) {
-    return 'Nunca';
+    return 'Never';
   }
 
   let unit: Intl.RelativeTimeFormatUnit = 'seconds';
@@ -46,7 +46,7 @@ const getFormattedTime = (date: Date | undefined) => {
     value = Math.round(value / 12);
   }
 
-  return new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' }).format(
+  return new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(
     value,
     unit
   );
@@ -76,7 +76,7 @@ export const SaveIndicator = () => {
           )}
         </TooltipTrigger>
         <TooltipContent>
-          Salvo{' '}
+          Last saved{' '}
           {getFormattedTime(
             lastSaved ?? project?.updatedAt ?? project?.createdAt
           )}

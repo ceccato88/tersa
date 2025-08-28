@@ -35,7 +35,7 @@ export const ImagePrimitive = ({
 
     try {
       if (!files.length) {
-        throw new Error('No file selected');
+        throw new Error('Nenhum arquivo selecionado');
       }
 
       setIsUploading(true);
@@ -58,14 +58,14 @@ export const ImagePrimitive = ({
         updateNodeData(id, {
           description: `Erro na descrição da imagem: ${description.error}`,
         });
-        handleError('Error describing image', new Error(description.error));
+        handleError('Erro ao descrever imagem', new Error(description.error));
       } else {
         updateNodeData(id, {
           description: description.description,
         });
       }
     } catch (error) {
-      handleError('Error uploading image', error);
+      handleError('Erro ao enviar imagem', error);
     } finally {
       setIsUploading(false);
     }
@@ -84,7 +84,7 @@ export const ImagePrimitive = ({
       {!isUploading && data.content && (
         <Image
           src={data.content.url}
-          alt="Image"
+          alt="Imagem"
           width={data.width ?? 1000}
           height={data.height ?? 1000}
           className="h-auto w-full"

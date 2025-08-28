@@ -211,7 +211,7 @@ export const ModelSelector = ({
         </DialogHeader>
         <Command>
           <div className="[&>div]:h-12">
-            <CommandInput placeholder="Search for a model..." />
+            <CommandInput placeholder="Escolha um modelo..." />
           </div>
           <CommandList>
             <CommandEmpty />
