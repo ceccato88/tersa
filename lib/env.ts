@@ -28,6 +28,7 @@ export const env = createEnv({
     // AI SDK
     OPENAI_API_KEY: z.string().min(1).startsWith('sk-'),
     XAI_API_KEY: z.string().min(1).startsWith('xai-'),
+    REPLICATE_API_TOKEN: z.string().min(1).startsWith('r8_'),
     AWS_ACCESS_KEY_ID: z.string().min(1),
     AWS_SECRET_ACCESS_KEY: z.string().min(1),
     AWS_REGION: z.string().min(1),
@@ -56,6 +57,7 @@ export const env = createEnv({
   runtimeEnv: {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     XAI_API_KEY: process.env.XAI_API_KEY,
+    REPLICATE_API_TOKEN: process.env.REPLICATE_API_TOKEN,
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_REGION: process.env.AWS_REGION,

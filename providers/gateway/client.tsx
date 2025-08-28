@@ -16,6 +16,7 @@ type TersaTextModel = TersaModel & {
     model: string;
     getCost: ({ input, output }: { input: number; output: number }) => number;
   })[];
+  default?: boolean;
 };
 
 type GatewayProviderClientProps = {
@@ -114,9 +115,11 @@ export const GatewayProviderClient = ({
       realChef = providers[chef as keyof typeof providers];
     }
 
-    if (model.specification.provider in providers) {
+    if (model.specification?.provider && model.specification.provider in providers) {
       realProvider =
         providers[model.specification.provider as keyof typeof providers];
+    } else if (model.specification?.provider === 'replicate') {
+      realProvider = providers.replicate;
     }
 
     const totalCost = inputPrice + outputPrice;
@@ -134,6 +137,7 @@ export const GatewayProviderClient = ({
         },
       ],
       priceIndicator: getPriceIndicator(totalCost, allCosts),
+      default: model.id === 'openai/gpt-5',
     };
   }
 

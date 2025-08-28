@@ -101,6 +101,11 @@ const getModelDisabled = (
     return true;
   }
 
+  // Enterprise plan has access to all models
+  if (plan === 'enterprise') {
+    return false;
+  }
+
   if (
     (!plan || plan === 'hobby') &&
     (model.priceIndicator === 'highest' || model.priceIndicator === 'high')
@@ -148,7 +153,13 @@ export const ModelSelector = ({
 
   useEffect(() => {
     if (value && !options[value]) {
-      onChange?.(Object.keys(options)[0]);
+      // Find default model or fallback to first available
+      const defaultModel = Object.entries(options).find(([_, model]) => model.default)?.[0];
+      onChange?.(defaultModel || Object.keys(options)[0]);
+    } else if (!value && Object.keys(options).length > 0) {
+      // Select default model when no value is set
+      const defaultModel = Object.entries(options).find(([_, model]) => model.default)?.[0];
+      onChange?.(defaultModel || Object.keys(options)[0]);
     }
   }, [value, options, onChange]);
 

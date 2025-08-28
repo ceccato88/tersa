@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/kibo-ui/ai/source';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useReasoning } from '@/hooks/use-reasoning';
 import { handleError } from '@/lib/error/handle';
@@ -27,9 +28,7 @@ import {
 import { useGateway } from '@/providers/gateway/client';
 import { useProject } from '@/providers/project';
 import { ReasoningTunnel } from '@/tunnels/reasoning';
-import { useChat } from '@ai-sdk/react';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { DefaultChatTransport, type FileUIPart } from 'ai';
 import {
   ClockIcon,
   CopyIcon,
@@ -43,27 +42,49 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useState,
+  useRef,
 } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { mutate } from 'swr';
 import type { TextNodeProps } from '.';
-import { ModelSelector } from '../model-selector';
 
 type TextTransformProps = TextNodeProps & {
   title: string;
 };
 
-const getDefaultModel = (models: ReturnType<typeof useGateway>['models']) => {
-  const defaultModel = Object.entries(models).find(
+// Modelos disponíveis
+const AVAILABLE_MODELS = {
+  'openai/gpt-5': {
+    name: 'GPT-5',
+    provider: 'replicate',
+    default: true,
+  },
+  'openai/gpt-5-mini': {
+    name: 'GPT-5 Mini',
+    provider: 'replicate',
+  },
+  'anthropic/claude-4-sonnet': {
+    name: 'Claude 4 Sonnet',
+    provider: 'replicate',
+  },
+};
+
+type StreamingStatus = 'idle' | 'generating' | 'streaming' | 'completed' | 'error';
+
+interface StreamMessage {
+  id: string;
+  role: 'assistant' | 'user';
+  content: string;
+  sources?: Array<{ url: string; title?: string }>;
+}
+
+const getDefaultModel = () => {
+  const defaultModel = Object.entries(AVAILABLE_MODELS).find(
     ([_, model]) => model.default
   );
-
-  if (!defaultModel) {
-    return 'o3';
-  }
-
-  return defaultModel[0];
+  return defaultModel ? defaultModel[0] : 'openai/gpt-5';
 };
 
 export const TextTransform = ({
@@ -74,35 +95,15 @@ export const TextTransform = ({
 }: TextTransformProps) => {
   const { updateNodeData, getNodes, getEdges } = useReactFlow();
   const project = useProject();
-  const { models } = useGateway();
-  const modelId = data.model ?? getDefaultModel(models);
+  const modelId = data.model ?? getDefaultModel();
   const analytics = useAnalytics();
   const [reasoning, setReasoning] = useReasoning();
-  const { sendMessage, messages, setMessages, status, stop } = useChat({
-    transport: new DefaultChatTransport({
-      api: '/api/chat',
-    }),
-    onError: (error) => handleError('Error generating text', error),
-    onFinish: ({ message }) => {
-      updateNodeData(id, {
-        generated: {
-          text: message.parts.find((part) => part.type === 'text')?.text ?? '',
-          sources:
-            message.parts?.filter((part) => part.type === 'source-url') ?? [],
-        },
-        updatedAt: new Date().toISOString(),
-      });
-
-      setReasoning((oldReasoning) => ({
-        ...oldReasoning,
-        isGenerating: false,
-      }));
-
-      toast.success('Text generated successfully');
-
-      setTimeout(() => mutate('credits'), 5000);
-    },
-  });
+  
+  // Estados para streaming manual
+  const [status, setStatus] = useState<StreamingStatus>('idle');
+  const [messages, setMessages] = useState<StreamMessage[]>([]);
+  const [currentMessage, setCurrentMessage] = useState<string>('');
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const handleGenerate = useCallback(async () => {
     const incomers = getIncomers({ id }, getNodes(), getEdges());
@@ -118,14 +119,25 @@ export const TextTransform = ({
       return;
     }
 
+    // System prompt padrão
+    const systemPrompt = `You are a helpful assistant that synthesizes an answer or content.
+The user will provide a collection of data from disparate sources.
+They may also provide instructions for how to synthesize the content.
+If the instructions are a question, then your goal is to answer the question based on the context provided.
+You will then synthesize the content based on the user's instructions and the context provided.
+The output should be a concise summary of the content, no more than 100 words.`;
+
+    // Preparar prompt principal com mensagem atual e mensagens anteriores
     const content: string[] = [];
 
+    // Adicionar mensagem atual (instruções do usuário)
     if (data.instructions) {
-      content.push('--- Instructions ---', data.instructions);
+      content.push('--- Current Message ---', data.instructions);
     }
 
+    // Adicionar mensagens anteriores
     if (textPrompts.length) {
-      content.push('--- Text Prompts ---', ...textPrompts);
+      content.push('--- Previous Messages ---', ...textPrompts);
     }
 
     if (audioPrompts.length) {
@@ -149,38 +161,100 @@ export const TextTransform = ({
       fileCount: files.length,
     });
 
-    const attachments: FileUIPart[] = [];
+    // Preparar input para Replicate com system prompt separado
+    const replicateInput: any = {
+      prompt: content.join('\n'),
+      system_prompt: systemPrompt,
+      verbosity: 'medium',
+      reasoning_effort: 'minimal',
+      max_completion_tokens: 4000,
+    };
 
-    for (const image of images) {
-      attachments.push({
-        mediaType: image.type,
-        url: image.url,
-        type: 'file',
-      });
+    // Adicionar imagens se houver
+    if (images.length > 0) {
+      replicateInput.image_input = images.map(img => img.url);
     }
 
-    for (const file of files) {
-      attachments.push({
-        mediaType: file.type,
-        url: file.url,
-        type: 'file',
-      });
-    }
+    try {
+      setStatus('generating');
+      setMessages([]);
+      setCurrentMessage('');
+      
+      // Criar AbortController para cancelamento
+      abortControllerRef.current = new AbortController();
 
-    setMessages([]);
-    await sendMessage(
-      {
-        text: content.join('\n'),
-        files: attachments,
-      },
-      {
-        body: {
-          modelId,
+      // Fazer chamada para API do Replicate via endpoint local
+      const response = await fetch('/api/replicate-stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          model: modelId,
+          input: replicateInput,
+        }),
+        signal: abortControllerRef.current.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    );
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No reader available');
+      }
+
+      setStatus('streaming');
+      let fullText = '';
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        fullText += chunk;
+        setCurrentMessage(fullText);
+      }
+
+      // Finalizar streaming
+      const finalMessage: StreamMessage = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: fullText,
+      };
+
+      setMessages([finalMessage]);
+      setStatus('completed');
+
+      // Atualizar dados do nó
+      updateNodeData(id, {
+        generated: {
+          text: fullText,
+        },
+        updatedAt: new Date().toISOString(),
+      });
+
+      setReasoning((oldReasoning) => ({
+        ...oldReasoning,
+        isGenerating: false,
+      }));
+
+      toast.success('Text generated successfully');
+      setTimeout(() => mutate('credits'), 5000);
+
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        setStatus('idle');
+        toast.info('Generation cancelled');
+      } else {
+        setStatus('error');
+        handleError('Error generating text', error);
+      }
+    }
   }, [
-    sendMessage,
     data.instructions,
     getEdges,
     getNodes,
@@ -188,8 +262,17 @@ export const TextTransform = ({
     modelId,
     type,
     analytics.track,
-    setMessages,
+    updateNodeData,
+    setReasoning,
   ]);
+
+  const handleStop = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setStatus('idle');
+  }, []);
 
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
     event
@@ -200,29 +283,39 @@ export const TextTransform = ({
     toast.success('Copied to clipboard');
   }, []);
 
+  const handleModelChange = useCallback((value: string) => {
+    updateNodeData(id, { model: value });
+  }, [id, updateNodeData]);
+
   const toolbar = useMemo(() => {
     const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];
 
+    // Seletor de modelo customizado
     items.push({
       children: (
-        <ModelSelector
-          value={modelId}
-          options={models}
-          key={id}
-          className="w-[160px] rounded-full"
-          onChange={(value) => updateNodeData(id, { model: value })}
-        />
+        <Select value={modelId} onValueChange={handleModelChange}>
+          <SelectTrigger className="w-[160px] rounded-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
+              <SelectItem key={key} value={key}>
+                {model.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       ),
     });
 
-    if (status === 'submitted' || status === 'streaming') {
+    if (status === 'generating' || status === 'streaming') {
       items.push({
         tooltip: 'Stop',
         children: (
           <Button
             size="icon"
             className="rounded-full"
-            onClick={stop}
+            onClick={handleStop}
             disabled={!project?.id}
           >
             <SquareIcon size={12} />
@@ -233,10 +326,7 @@ export const TextTransform = ({
       const text = messages.length
         ? messages
             .filter((message) => message.role === 'assistant')
-            .map(
-              (message) =>
-                message.parts.find((part) => part.type === 'text')?.text ?? ''
-            )
+            .map((message) => message.content)
             .join('\n')
         : data.generated?.text;
 
@@ -302,47 +392,48 @@ export const TextTransform = ({
     data.generated?.text,
     data.updatedAt,
     handleGenerate,
-    updateNodeData,
+    handleModelChange,
     modelId,
     id,
     messages,
     project?.id,
     status,
-    stop,
+    handleStop,
     handleCopy,
-    models,
   ]);
 
   const nonUserMessages = messages.filter((message) => message.role !== 'user');
 
-  useEffect(() => {
-    const hasReasoning = messages.some((message) =>
-      message.parts.some((part) => part.type === 'reasoning')
-    );
-
-    if (hasReasoning && !reasoning.isReasoning && status === 'streaming') {
-      setReasoning({ isReasoning: true, isGenerating: true });
-    }
-  }, [messages, reasoning, status, setReasoning]);
-
   return (
     <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
       <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-4">
-        {status === 'submitted' && (
+        {status === 'generating' && (
           <div className="flex flex-col gap-2">
             <Skeleton className="h-4 w-60 animate-pulse rounded-lg" />
             <Skeleton className="h-4 w-40 animate-pulse rounded-lg" />
             <Skeleton className="h-4 w-50 animate-pulse rounded-lg" />
           </div>
         )}
+        
+        {status === 'streaming' && currentMessage && (
+          <AIMessage from="assistant" className="p-0 [&>div]:max-w-none">
+            <AIMessageContent className="bg-transparent p-0">
+              <AIResponse>{currentMessage}</AIResponse>
+            </AIMessageContent>
+          </AIMessage>
+        )}
+        
         {data.generated?.text &&
           !nonUserMessages.length &&
-          status !== 'submitted' && (
+          status !== 'generating' &&
+          status !== 'streaming' && (
             <ReactMarkdown>{data.generated.text}</ReactMarkdown>
           )}
+          
         {!data.generated?.text &&
           !nonUserMessages.length &&
-          status !== 'submitted' && (
+          status !== 'generating' &&
+          status !== 'streaming' && (
             <div className="flex aspect-video w-full items-center justify-center bg-secondary">
               <p className="text-muted-foreground text-sm">
                 Press <PlayIcon size={12} className="-translate-y-px inline" />{' '}
@@ -350,8 +441,10 @@ export const TextTransform = ({
               </p>
             </div>
           )}
+          
         {Boolean(nonUserMessages.length) &&
-          status !== 'submitted' &&
+          status !== 'generating' &&
+          status !== 'streaming' &&
           nonUserMessages.map((message) => (
             <AIMessage
               key={message.id}
@@ -359,36 +452,22 @@ export const TextTransform = ({
               className="p-0 [&>div]:max-w-none"
             >
               <div>
-                {Boolean(
-                  message.parts.filter((part) => part.type === 'source-url')
-                    ?.length
-                ) && (
+                {Boolean(message.sources?.length) && (
                   <AISources>
-                    <AISourcesTrigger
-                      count={
-                        message.parts.filter(
-                          (part) => part.type === 'source-url'
-                        ).length
-                      }
-                    />
+                    <AISourcesTrigger count={message.sources?.length || 0} />
                     <AISourcesContent>
-                      {message.parts
-                        .filter((part) => part.type === 'source-url')
-                        .map(({ url, title }) => (
-                          <AISource
-                            key={url ?? ''}
-                            href={url}
-                            title={title ?? new URL(url).hostname}
-                          />
-                        ))}
+                      {message.sources?.map(({ url, title }) => (
+                        <AISource
+                          key={url}
+                          href={url}
+                          title={title ?? new URL(url).hostname}
+                        />
+                      ))}
                     </AISourcesContent>
                   </AISources>
                 )}
                 <AIMessageContent className="bg-transparent p-0">
-                  <AIResponse>
-                    {message.parts.find((part) => part.type === 'text')?.text ??
-                      ''}
-                  </AIResponse>
+                  <AIResponse>{message.content}</AIResponse>
                 </AIMessageContent>
               </div>
             </AIMessage>
@@ -397,15 +476,11 @@ export const TextTransform = ({
       <Textarea
         value={data.instructions ?? ''}
         onChange={handleInstructionsChange}
-        placeholder="Enter instructions"
+        placeholder="Current Message"
         className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
       />
       <ReasoningTunnel.In>
-        {messages.flatMap((message) =>
-          message.parts
-            .filter((part) => part.type === 'reasoning')
-            .flatMap((part) => part.text ?? '')
-        )}
+        {messages.flatMap((message) => message.content)}
       </ReasoningTunnel.In>
     </NodeLayout>
   );
