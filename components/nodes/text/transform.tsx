@@ -54,7 +54,7 @@ type TextTransformProps = TextNodeProps & {
   title: string;
 };
 
-// Modelos disponíveis
+// Modelos disponíveis - todos usando Replicate API
 const AVAILABLE_MODELS = {
   'openai/gpt-5': {
     name: 'GPT-5',

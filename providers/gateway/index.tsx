@@ -8,11 +8,8 @@ type GatewayProviderProps = {
 
 export const GatewayProvider = async ({ children }: GatewayProviderProps) => {
   const { models } = await gateway.getAvailableModels();
-  
-  // Filtrar apenas os modelos especificados (apenas os que existem)
-  const allowedModels = ['openai/gpt-5', 'openai/gpt-5-mini'];
   const gatewayTextModels = models.filter(
-    (model) => allowedModels.includes(model.id) && !model.id.toLowerCase().includes('embed')
+    (model) => !model.name.toLocaleLowerCase().includes('embed')
   );
 
   return (
