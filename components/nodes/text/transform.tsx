@@ -120,36 +120,36 @@ export const TextTransform = ({
     }
 
     // System prompt padrão
-    const systemPrompt = `You are a helpful assistant that synthesizes an answer or content.
-The user will provide a collection of data from disparate sources.
-They may also provide instructions for how to synthesize the content.
-If the instructions are a question, then your goal is to answer the question based on the context provided.
-You will then synthesize the content based on the user's instructions and the context provided.
-The output should be a concise summary of the content, no more than 100 words.`;
+    const systemPrompt = `Você é um assistente útil que sintetiza uma resposta ou conteúdo.
+O usuário fornecerá uma coleção de dados de fontes diferentes.
+Eles também podem fornecer instruções sobre como sintetizar o conteúdo.
+Se as instruções forem uma pergunta, então seu objetivo é responder à pergunta com base no contexto fornecido.
+Você deve sintetizar o conteúdo com base nas instruções do usuário e no contexto fornecido.
+A saída deve ser um resumo conciso do conteúdo, não mais que 100 palavras.`;
 
     // Preparar prompt principal com mensagem atual e mensagens anteriores
     const content: string[] = [];
 
     // Adicionar mensagem atual (instruções do usuário)
     if (data.instructions) {
-      content.push('--- Current Message ---', data.instructions);
+      content.push('--- Mensagem Atual ---', data.instructions);
     }
 
     // Adicionar mensagens anteriores
     if (textPrompts.length) {
-      content.push('--- Previous Messages ---', ...textPrompts);
+      content.push('--- Mensagens Anteriores ---', ...textPrompts);
     }
 
     if (audioPrompts.length) {
-      content.push('--- Audio Prompts ---', ...audioPrompts);
+      content.push('--- Prompts de Áudio ---', ...audioPrompts);
     }
 
     if (imageDescriptions.length) {
-      content.push('--- Image Descriptions ---', ...imageDescriptions);
+      content.push('--- Descrições de Imagens ---', ...imageDescriptions);
     }
 
     if (tweetContent.length) {
-      content.push('--- Tweet Content ---', ...tweetContent);
+      content.push('--- Conteúdo de Tweets ---', ...tweetContent);
     }
 
     analytics.track('canvas', 'node', 'generate', {

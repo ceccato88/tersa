@@ -113,29 +113,16 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
               onChange={({ target }) => setName(target.value)}
             />
           </div>
-          {/* Campos ocultos conforme solicitado */}
-          {/* <div className="grid gap-2">
-            <Label htmlFor="transcriptionModel">Transcription model</Label>
-            <ModelSelector
-              id="transcriptionModel"
-              value={transcriptionModel}
-              options={transcriptionModels}
-              width={462}
-              onChange={setTranscriptionModel}
-              disabled={!isSubscribed || plan === 'hobby'}
-            />
-          </div>
           <div className="grid gap-2">
-            <Label htmlFor="visionModel">Vision model</Label>
+            <Label htmlFor="visionModel">Modelo de Visão</Label>
             <ModelSelector
               id="visionModel"
               value={visionModel}
               options={visionModels}
               onChange={setVisionModel}
-              width={462}
               disabled={!isSubscribed || plan === 'hobby'}
             />
-          </div> */}
+          </div>
           <Button type="submit" disabled={isUpdating || !name.trim()}>
             Update
           </Button>
