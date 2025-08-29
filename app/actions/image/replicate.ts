@@ -100,12 +100,16 @@ export const generateImageReplicateAction = async ({
       ...(seed && { seed: parseInt(seed.toString(), 10) }),
     };
 
-    // Adicionar imagem se fornecida
-    if (image) {
-      input.image = image;
-    } else if (imageInputs && imageInputs.length > 0) {
-      // imageInputs contém objetos {url: string, type: string}, mas o Replicate espera apenas a URL
-      input.image = imageInputs[0].url;
+    // Adicionar imagem se fornecida - usar parâmetro correto baseado no modelo
+    const imageUrl = image || (imageInputs && imageInputs.length > 0 ? imageInputs[0].url : null);
+    
+    if (imageUrl) {
+      // Flux Pro 1.1 usa image_prompt, outros modelos usam image
+      if (modelId === 'black-forest-labs/flux-1.1-pro') {
+        input.image_prompt = imageUrl;
+      } else {
+        input.image = imageUrl;
+      }
     }
 
     // Executar o modelo Replicate e aguardar conclusão
