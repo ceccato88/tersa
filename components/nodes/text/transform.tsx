@@ -126,6 +126,13 @@ export const TextTransform = ({
     const tweetContent = getTweetContentFromTweetNodes(incomers);
     const files = getFilesFromFileNodes(incomers);
 
+    if (!data.instructions?.trim()) {
+      toast.error('Campo obrigatório', {
+        description: 'Por favor, digite suas instruções antes de gerar o texto.'
+      });
+      return;
+    }
+    
     if (!textPrompts.length && !audioPrompts.length && !data.instructions) {
       handleError('Error generating text', 'No prompts found');
       return;

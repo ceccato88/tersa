@@ -61,6 +61,13 @@ export const VideoTransform = ({
       const textPrompts = getTextFromTextNodes(incomers);
       const images = getImagesFromImageNodes(incomers);
 
+      if (!data.instructions?.trim()) {
+        toast.error('Campo obrigatório', {
+          description: 'Por favor, digite suas instruções antes de gerar o vídeo.'
+        });
+        return;
+      }
+      
       if (!textPrompts.length && !images.length) {
         throw new Error('No prompts found');
       }

@@ -155,6 +155,13 @@ export const ImageTransform = ({
     const imageNodes = getImagesFromImageNodes(incomers);
 
     try {
+      if (!data.instructions?.trim()) {
+        toast.error('Campo obrigatório', {
+          description: 'Por favor, digite suas instruções antes de gerar a imagem.'
+        });
+        return;
+      }
+      
       if (!textNodes.length && !imageNodes.length && !data.instructions) {
         throw new Error('Nenhum prompt fornecido');
       }
