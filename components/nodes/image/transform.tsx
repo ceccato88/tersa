@@ -328,18 +328,23 @@ export const ImageTransform = ({
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       {loading && (
         <Skeleton
-          className="flex w-full animate-pulse items-center justify-center rounded-b-xl"
+          className="flex w-full animate-pulse items-center justify-center rounded-b-xl min-h-[200px]"
           style={{ aspectRatio }}
         >
-          <Loader2Icon
-            size={16}
-            className="size-4 animate-spin text-muted-foreground"
-          />
+          <div className="flex flex-col items-center gap-2">
+            <Loader2Icon
+              size={20}
+              className="animate-spin text-muted-foreground"
+            />
+            <p className="text-muted-foreground text-sm animate-pulse">
+              Gerando imagem...
+            </p>
+          </div>
         </Skeleton>
       )}
       {!loading && !data.generated?.url && (
         <div
-          className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4"
+          className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4 min-h-[200px]"
           style={{ aspectRatio }}
         >
           <p className="text-muted-foreground text-sm">
