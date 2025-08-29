@@ -84,20 +84,20 @@ export const generateImageReplicateAction = async ({
       numOutputs,
     });
 
-    // Preparar input para o modelo
+    // Preparar input para o modelo - converter valores para tipos corretos conforme API Flux Dev
     const input: any = {
       prompt: finalPrompt,
-      aspect_ratio: aspectRatio,
-      guidance: guidance,
-      num_outputs: numOutputs,
-      output_format: outputFormat,
-      output_quality: outputQuality,
-      megapixels: megapixels.toString(),
-      prompt_strength: promptStrength,
-      num_inference_steps: numInferenceSteps,
-      disable_safety_checker: disableSafetyChecker,
-      go_fast: goFast,
-      ...(seed && { seed: parseInt(seed.toString(), 10) }),
+      aspect_ratio: aspectRatio, // string
+      guidance: typeof guidance === 'string' ? parseFloat(guidance) : guidance, // number
+      num_outputs: typeof numOutputs === 'string' ? parseInt(numOutputs, 10) : numOutputs, // integer
+      output_format: outputFormat, // string
+      output_quality: typeof outputQuality === 'string' ? parseInt(outputQuality, 10) : outputQuality, // integer
+      megapixels: megapixels.toString(), // string (API espera string)
+      prompt_strength: typeof promptStrength === 'string' ? parseFloat(promptStrength) : promptStrength, // number
+      num_inference_steps: typeof numInferenceSteps === 'string' ? parseInt(numInferenceSteps, 10) : numInferenceSteps, // integer
+      disable_safety_checker: Boolean(disableSafetyChecker), // boolean
+      go_fast: Boolean(goFast), // boolean
+      ...(seed && { seed: parseInt(seed.toString(), 10) }), // integer
     };
 
     // Adicionar imagem se fornecida - usar parâmetro correto baseado no modelo

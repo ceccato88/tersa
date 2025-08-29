@@ -50,7 +50,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         name: 'guidance',
         type: 'input',
         label: 'Guidance',
-        placeholder: '3.5',
+        placeholder: '4.5',
         defaultValue: 3.5,
         gridColumn: 1
       },
@@ -175,8 +175,17 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults[field.name] = field.defaultValue;
   });
   
-  // Adicionar valores padrão para campos ocultos nos modelos flux-dev e flux-krea-dev
-  if (modelId === 'black-forest-labs/flux-dev' || modelId === 'black-forest-labs/flux-krea-dev') {
+  // Adicionar valores padrão para campos ocultos no modelo flux-dev
+  if (modelId === 'black-forest-labs/flux-dev') {
+    defaults.megapixels = 1;
+    defaults.outputFormat = 'png';
+    defaults.outputQuality = 100;
+    defaults.disableSafetyChecker = false;
+    defaults.goFast = false;
+  }
+  
+  // Adicionar valores padrão para campos ocultos no modelo flux-krea-dev
+  if (modelId === 'black-forest-labs/flux-krea-dev') {
     defaults.megapixels = 1;
     defaults.outputFormat = 'png';
     defaults.outputQuality = 100;

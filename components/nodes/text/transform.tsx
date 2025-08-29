@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useReasoning } from '@/hooks/use-reasoning';
 import { handleError } from '@/lib/error/handle';
@@ -395,83 +396,6 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
   return (
     <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
       <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-6">
-        {/* Controles internos do nó */}
-        <div className="mb-4 flex items-center gap-2">
-          <Select value={modelId} onValueChange={handleModelChange}>
-            <SelectTrigger className="w-[160px] h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
-                <SelectItem key={key} value={key}>
-                  {model.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Input
-            id="variations"
-            type="number"
-            min="1"
-            value={variationCount}
-            onChange={(e) => handleVariationCountChange(parseInt(e.target.value) || 1)}
-            className="w-16 h-8 text-center"
-            title="Número de variações"
-          />
-          
-          {status === 'generating' || status === 'streaming' ? (
-            <Button
-              size="sm"
-              onClick={handleStop}
-              disabled={!project?.id}
-              variant="outline"
-            >
-              <SquareIcon size={12} className="mr-1" />
-              Parar
-            </Button>
-          ) : messages.length || data.generated?.text ? (
-            <Button
-              size="sm"
-              onClick={handleGenerate}
-              disabled={!project?.id}
-            >
-              <RotateCcwIcon size={12} className="mr-1" />
-              Regenerar
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              onClick={handleGenerate}
-              disabled={!project?.id}
-            >
-              <PlayIcon size={12} className="mr-1" />
-              Gerar
-            </Button>
-          )}
-          
-          {(messages.length || data.generated?.text) && (
-            <Button
-              size="sm"
-              variant="ghost"
-              disabled={!((messages.length
-                ? messages
-                    .filter((message) => message.role === 'assistant')
-                    .map((message) => message.content)
-                    .join('\n')
-                : data.generated?.text))}
-              onClick={() => handleCopy((messages.length
-                ? messages
-                    .filter((message) => message.role === 'assistant')
-                    .map((message) => message.content)
-                    .join('\n')
-                : data.generated?.text) ?? '')}
-            >
-              <CopyIcon size={12} className="mr-1" />
-              Copiar
-            </Button>
-          )}
-        </div>
         {status === 'generating' && (
           <div className="flex flex-col gap-2">
             <Skeleton className="h-4 w-60 animate-pulse rounded-lg" />
@@ -538,12 +462,105 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
             </AIMessage>
           ))}
       </div>
-      <Textarea
-        value={data.instructions ?? ''}
-        onChange={handleInstructionsChange}
-        placeholder="Digite as instruções (obrigatório)"
-        className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
-      />
+      <div className="space-y-4 p-4">
+        <Textarea
+          value={data.instructions ?? ''}
+          onChange={handleInstructionsChange}
+          placeholder="*Digite as instruções (obrigatório)"
+          className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
+        />
+        
+        {/* Modelo e Quantidade lado a lado */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Modelo</Label>
+            <Select value={modelId} onValueChange={handleModelChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
+                  <SelectItem key={key} value={key}>
+                    {model.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Quantidade</Label>
+            <Select
+              value={variationCount.toString()}
+              onValueChange={(value) => handleVariationCountChange(parseInt(value))}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <SelectItem key={num} value={num.toString()}>
+                    {num} {num === 1 ? 'variação' : 'variações'}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
+        {/* Botões Gerar e Copiar lado a lado */}
+        <div className="grid grid-cols-2 gap-4">
+          {status === 'generating' || status === 'streaming' ? (
+            <Button
+              className="w-full"
+              onClick={handleStop}
+              disabled={!project?.id}
+              variant="outline"
+            >
+              <SquareIcon className="mr-2 h-4 w-4" />
+              Parar
+            </Button>
+          ) : messages.length || data.generated?.text ? (
+            <Button
+              className="w-full"
+              onClick={handleGenerate}
+              disabled={!project?.id}
+            >
+              <RotateCcwIcon className="mr-2 h-4 w-4" />
+              Regenerar
+            </Button>
+          ) : (
+            <Button
+              className="w-full"
+              onClick={handleGenerate}
+              disabled={!project?.id}
+            >
+              <PlayIcon className="mr-2 h-4 w-4" />
+              Gerar
+            </Button>
+          )}
+          
+          <Button
+            className="w-full"
+            variant="outline"
+            disabled={!((messages.length
+              ? messages
+                  .filter((message) => message.role === 'assistant')
+                  .map((message) => message.content)
+                  .join('\n')
+              : data.generated?.text))}
+            onClick={() => handleCopy((messages.length
+              ? messages
+                  .filter((message) => message.role === 'assistant')
+                  .map((message) => message.content)
+                  .join('\n')
+              : data.generated?.text) ?? '')}
+          >
+            <CopyIcon className="mr-2 h-4 w-4" />
+            Copiar
+          </Button>
+        </div>
+      </div>
       <ReasoningTunnel.In>
         {messages.flatMap((message) => message.content)}
       </ReasoningTunnel.In>
