@@ -369,11 +369,11 @@ export const ImageTransform = ({
       )}
       <div className="space-y-4 p-4">
         <Textarea
-          value={data.instructions ?? ''}
-          onChange={handleInstructionsChange}
-          placeholder="Digite as instruções"
-          className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
-        />
+              value={data.instructions ?? ''}
+              onChange={handleInstructionsChange}
+              placeholder="Digite as instruções (obrigatório)"
+              className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
+            />
         
         {/* Modelo e Aspect Ratio lado a lado */}
         <div className="grid grid-cols-2 gap-4">

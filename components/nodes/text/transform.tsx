@@ -541,7 +541,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
       <Textarea
         value={data.instructions ?? ''}
         onChange={handleInstructionsChange}
-        placeholder="Mensagem Atual"
+        placeholder="Digite as instruções (obrigatório)"
         className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
       />
       <ReasoningTunnel.In>
