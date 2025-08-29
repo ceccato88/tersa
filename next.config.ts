@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: '127.0.0.1',
       },
+      
+      // Replicate delivery URLs
+      {
+        protocol: 'https',
+        hostname: 'replicate.delivery',
+      },
     ],
   },
 

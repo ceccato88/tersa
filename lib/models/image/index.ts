@@ -8,7 +8,7 @@ import { luma } from '@ai-sdk/luma';
 import { openai } from '@ai-sdk/openai';
 import { xai } from '@ai-sdk/xai';
 import type { ImageModel } from 'ai';
-import { AmazonBedrockIcon, GrokIcon } from '../../icons';
+import { AmazonBedrockIcon, GrokIcon } from '../icons';
 import { blackForestLabs } from './black-forest-labs';
 
 const million = 1000000;

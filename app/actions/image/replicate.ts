@@ -161,31 +161,9 @@ export const generateImageReplicateAction = async ({
 
     // Usar a primeira imagem para o nó atual
     const primaryImageUrl = imageUrls[0];
-
-    // Fazer download da imagem e salvar no Supabase
-    const imageResponse = await fetch(primaryImageUrl);
-    if (!imageResponse.ok) {
-      throw new Error('Falha ao fazer download da imagem');
-    }
-
-    const imageBlob = await imageResponse.blob();
-    const fileExtension = outputFormat === 'jpeg' ? 'jpg' : outputFormat;
-    const imageName = `${nanoid()}.${fileExtension}`;
+    
+    console.log('🔗 Usando URL direta do Replicate:', primaryImageUrl);
     const mimeType = outputFormat === 'jpeg' ? 'image/jpeg' : `image/${outputFormat}`;
-
-    const uploadResult = await client.storage
-      .from('files')
-      .upload(`${user.id}/${imageName}`, imageBlob, {
-        contentType: mimeType,
-      });
-
-    if (uploadResult.error) {
-      throw new Error(uploadResult.error.message);
-    }
-
-    const { data: downloadUrl } = client.storage
-      .from('files')
-      .getPublicUrl(uploadResult.data.path);
 
     // Créditos infinitos - não rastrear uso
     console.log('💳 Créditos infinitos - pulando rastreamento do Stripe');
@@ -216,7 +194,7 @@ export const generateImageReplicateAction = async ({
       ...(existingNode.data ?? {}),
       updatedAt: new Date().toISOString(),
       generated: {
-        url: downloadUrl.publicUrl,
+        url: primaryImageUrl, // Usar URL direta do Replicate
         type: mimeType,
       },
     };

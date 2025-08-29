@@ -1,4 +1,4 @@
-import { ReplicateIcon } from '@/lib/icons';
+import { ReplicateIcon, WanIcon } from '@/lib/icons';
 import {
   type TersaModel,
   type TersaProvider,
@@ -119,7 +119,6 @@ export const videoModels: Record<string, TersaVideoModel> = {
         getCost: () => 0.5,
       },
     ],
-    default: true,
   },
   'runway-gen3a-turbo': {
     label: 'Gen3a Turbo',
@@ -295,5 +294,30 @@ export const videoModels: Record<string, TersaVideoModel> = {
         },
       },
     ],
+  },
+  'wan-video/wan-2.2-i2v-a14b': {
+    label: 'WAN Video I2V',
+    chef: providers.replicate,
+    icon: WanIcon,
+    providers: [
+      {
+        ...providers.replicate,
+        icon: WanIcon,
+        model: {
+          modelId: 'wan-video/wan-2.2-i2v-a14b',
+          generate: async ({ prompt, imagePrompt, duration, aspectRatio }) => {
+            // Este modelo usa nossa API customizada
+            throw new Error('Use the custom API endpoint for WAN Video');
+          },
+        },
+
+        // Estimativa de custo para WAN Video
+        getCost: ({ duration }) => {
+          const unitCost = 0.15;
+          return unitCost * duration;
+        },
+      },
+    ],
+    default: true,
   },
 };

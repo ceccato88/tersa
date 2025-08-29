@@ -1693,6 +1693,15 @@ export const MoonshotAiIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const WanIcon = (props: SVGProps<SVGSVGElement>) => (
+  <img
+    src="https://tjzk.replicate.delivery/models_organizations_avatar/3f376d34-057f-4002-9c23-911959d60460/200620180.png"
+    alt="WAN"
+    className="size-4 shrink-0"
+    {...props}
+  />
+);
+
 export const MorphIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

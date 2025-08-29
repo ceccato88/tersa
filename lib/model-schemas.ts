@@ -17,6 +17,56 @@ export interface ModelSchema {
 }
 
 export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
+  'wan-video/wan-2.2-i2v-a14b': {
+    label: 'WAN Video I2V',
+    aspectRatios: [
+      { label: '480p (832x480)', value: '480p' },
+      { label: '720p (1280x720)', value: '720p' }
+    ],
+    fields: [
+      {
+        name: 'seed',
+        type: 'input',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: '',
+        gridColumn: 1
+      },
+      {
+        name: 'numOutputs',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      {
+        name: 'resolution',
+        type: 'select',
+        label: 'Resolução',
+        options: [
+          { value: '480p', label: '480p' },
+          { value: '720p', label: '720p' }
+        ],
+        defaultValue: '480p',
+        gridColumn: 1
+      },
+      {
+        name: 'frames_per_second',
+        type: 'select',
+        label: 'FPS',
+        options: [
+          { value: 5, label: '5 FPS' },
+          { value: 8, label: '8 FPS' },
+          { value: 12, label: '12 FPS' },
+          { value: 16, label: '16 FPS' },
+          { value: 20, label: '20 FPS' },
+          { value: 24, label: '24 FPS' }
+        ],
+        defaultValue: 16,
+        gridColumn: 2
+      }
+    ]
+  },
   'black-forest-labs/flux-dev': {
     label: 'FLUX Dev',
     aspectRatios: [
@@ -199,6 +249,14 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.outputQuality = 100;
     defaults.safetyTolerance = 2;
     defaults.promptUpsampling = false;
+  }
+  
+  // Adicionar valores padrão para campos ocultos no modelo wan-video
+  if (modelId === 'wan-video/wan-2.2-i2v-a14b') {
+    defaults.go_fast = false;
+    defaults.num_frames = 81;
+    defaults.sample_steps = 40;
+    defaults.sample_shift = 5;
   }
   
   return defaults;

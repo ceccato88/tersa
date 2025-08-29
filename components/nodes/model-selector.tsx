@@ -136,7 +136,8 @@ const ModelIcon = ({
     return <data.icon className={cn('size-4 shrink-0', className)} />;
   }
 
-  return <chef.icon className={cn('size-4 shrink-0', className)} />;
+  const IconComponent = chef?.icon;
+  return IconComponent ? <IconComponent className={cn('size-4 shrink-0', className)} /> : null;
 };
 
 export const ModelSelector = ({
@@ -267,14 +268,16 @@ export const ModelSelector = ({
                             value === id && 'bg-primary-foreground/10'
                           )}
                         >
-                          <provider.icon
-                            className={cn(
-                              'size-3 shrink-0',
-                              value === id
-                                ? 'text-primary-foreground'
-                                : 'text-muted-foreground'
-                            )}
-                          />
+                          {provider.icon && (
+                            <provider.icon
+                              className={cn(
+                                'size-3 shrink-0',
+                                value === id
+                                  ? 'text-primary-foreground'
+                                  : 'text-muted-foreground'
+                              )}
+                            />
+                          )}
                         </div>
                       </div>
                     ))}
