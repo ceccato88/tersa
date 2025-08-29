@@ -308,8 +308,7 @@ export const VideoTransform = ({
           muted
           loop
           playsInline
-          className="w-full rounded-b-xl object-cover"
-          style={{ aspectRatio }}
+          className="w-full rounded-b-xl"
           onError={(e) => {
             console.error('Erro ao carregar vídeo:', e);
             console.error('URL do vídeo com erro:', data.generated.url);
