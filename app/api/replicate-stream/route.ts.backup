@@ -94,6 +94,13 @@ export const POST = async (req: Request) => {
         { role: 'user', content: input.prompt }
       ];
     }
+  } else if (model.includes('llava') || model.includes('vision') || input.image) {
+    // Modelos de visão específicos (LLaVA, etc.) usam schema mais simples
+    adjustedInput = {
+      prompt: input.prompt || '',
+      image: input.image,
+      max_tokens: input.max_tokens || 500,
+    };
   }
 
   try {

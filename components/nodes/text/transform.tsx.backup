@@ -357,7 +357,103 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
   const toolbar = useMemo(() => {
     const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];
 
-    // Botões de ação foram movidos para dentro do nó
+    // Seletor de modelo customizado
+    items.push({
+      children: (
+        <Select value={modelId} onValueChange={handleModelChange}>
+          <SelectTrigger className="w-[160px] rounded-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
+              <SelectItem key={key} value={key}>
+                {model.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ),
+    });
+    
+    // Controle de variações
+    items.push({
+      children: (
+        <Input
+           id="variations"
+           type="number"
+           min="1"
+           value={variationCount}
+           onChange={(e) => handleVariationCountChange(parseInt(e.target.value) || 1)}
+           className="w-16 h-8 rounded-full text-center"
+           title="Número de variações"
+         />
+      ),
+    });
+
+    if (status === 'generating' || status === 'streaming') {
+      items.push({
+        tooltip: 'Parar',
+        children: (
+          <Button
+            size="icon"
+            className="rounded-full"
+            onClick={handleStop}
+            disabled={!project?.id}
+          >
+            <SquareIcon size={12} />
+          </Button>
+        ),
+      });
+    } else if (messages.length || data.generated?.text) {
+      const text = messages.length
+        ? messages
+            .filter((message) => message.role === 'assistant')
+            .map((message) => message.content)
+            .join('\n')
+        : data.generated?.text;
+
+      items.push({
+        tooltip: 'Regenerar',
+        children: (
+          <Button
+            size="icon"
+            className="rounded-full"
+            onClick={handleGenerate}
+            disabled={!project?.id}
+          >
+            <RotateCcwIcon size={12} />
+          </Button>
+        ),
+      });
+      items.push({
+        tooltip: 'Copiar',
+        children: (
+          <Button
+            size="icon"
+            className="rounded-full"
+            disabled={!text}
+            onClick={() => handleCopy(text ?? '')}
+            variant="ghost"
+          >
+            <CopyIcon size={12} />
+          </Button>
+        ),
+      });
+    } else {
+      items.push({
+        tooltip: 'Gerar',
+        children: (
+          <Button
+            size="icon"
+            className="rounded-full"
+            onClick={handleGenerate}
+            disabled={!project?.id}
+          >
+            <PlayIcon size={12} />
+          </Button>
+        ),
+      });
+    }
 
     if (data.updatedAt) {
       items.push({
@@ -395,83 +491,6 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
   return (
     <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
       <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-6">
-        {/* Controles internos do nó */}
-        <div className="mb-4 flex items-center gap-2">
-          <Select value={modelId} onValueChange={handleModelChange}>
-            <SelectTrigger className="w-[160px] h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
-                <SelectItem key={key} value={key}>
-                  {model.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Input
-            id="variations"
-            type="number"
-            min="1"
-            value={variationCount}
-            onChange={(e) => handleVariationCountChange(parseInt(e.target.value) || 1)}
-            className="w-16 h-8 text-center"
-            title="Número de variações"
-          />
-          
-          {status === 'generating' || status === 'streaming' ? (
-            <Button
-              size="sm"
-              onClick={handleStop}
-              disabled={!project?.id}
-              variant="outline"
-            >
-              <SquareIcon size={12} className="mr-1" />
-              Parar
-            </Button>
-          ) : messages.length || data.generated?.text ? (
-            <Button
-              size="sm"
-              onClick={handleGenerate}
-              disabled={!project?.id}
-            >
-              <RotateCcwIcon size={12} className="mr-1" />
-              Regenerar
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              onClick={handleGenerate}
-              disabled={!project?.id}
-            >
-              <PlayIcon size={12} className="mr-1" />
-              Gerar
-            </Button>
-          )}
-          
-          {(messages.length || data.generated?.text) && (
-            <Button
-              size="sm"
-              variant="ghost"
-              disabled={!((messages.length
-                ? messages
-                    .filter((message) => message.role === 'assistant')
-                    .map((message) => message.content)
-                    .join('\n')
-                : data.generated?.text))}
-              onClick={() => handleCopy((messages.length
-                ? messages
-                    .filter((message) => message.role === 'assistant')
-                    .map((message) => message.content)
-                    .join('\n')
-                : data.generated?.text) ?? '')}
-            >
-              <CopyIcon size={12} className="mr-1" />
-              Copiar
-            </Button>
-          )}
-        </div>
         {status === 'generating' && (
           <div className="flex flex-col gap-2">
             <Skeleton className="h-4 w-60 animate-pulse rounded-lg" />

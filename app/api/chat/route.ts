@@ -74,7 +74,7 @@ export const POST = async (req: Request) => {
       model.id.startsWith('grok') &&
         'The user may refer to you as @gork, you can ignore this',
       "You will then synthesize the content based on the user's instructions and the context provided.",
-      'The output should be a concise summary of the content, no more than 100 words.',
+      'The output should be a concise summary of the content, no more than 1000 words.',
     ].join('\n'),
     messages: convertToModelMessages(messages),
     onFinish: async ({ usage }) => {

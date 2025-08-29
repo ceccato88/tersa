@@ -1,7 +1,7 @@
 import { getSubscribedUser } from '@/lib/auth';
 import { parseError } from '@/lib/error/parse';
 import { createRateLimiter, slidingWindow } from '@/lib/rate-limit';
-import { trackCreditUsage } from '@/lib/stripe';
+// import { trackCreditUsage } from '@/lib/stripe'; // Desativado - créditos infinitos
 import Replicate from 'replicate';
 
 // Allow streaming responses up to 30 seconds
@@ -52,6 +52,9 @@ export const POST = async (req: Request) => {
     return new Response('Input is required', { status: 400 });
   }
 
+  // Detectar se é um modelo de imagem
+  const isImageModel = model.includes('flux') || model.includes('stable-diffusion') || model.includes('midjourney') || model.includes('dall-e');
+  
   // Ajustar input baseado no modelo específico
   let adjustedInput = { ...input };
   
@@ -116,26 +119,23 @@ export const POST = async (req: Request) => {
           // Stream the response
           for await (const event of stream) {
             if (event.event === 'output') {
-              const chunk = new TextEncoder().encode(event.data);
-              controller.enqueue(chunk);
+              if (isImageModel) {
+                // Para modelos de imagem, enviar o JSON completo
+                const jsonData = JSON.stringify({ output: event.data });
+                const chunk = new TextEncoder().encode(`data: ${jsonData}\n\n`);
+                controller.enqueue(chunk);
+              } else {
+                // Para modelos de texto, enviar apenas o texto
+                const chunk = new TextEncoder().encode(event.data);
+                controller.enqueue(chunk);
+              }
             }
           }
 
           controller.close();
 
-          // Track credit usage (approximate cost) only on success
-          // Skip credit tracking if using test Stripe key
-          if (!process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_')) {
-            try {
-              await trackCreditUsage({
-                action: 'text-generation',
-                cost: 0.001, // Approximate cost per request
-              });
-            } catch (creditError) {
-              console.warn('Credit tracking failed:', creditError);
-              // Don't fail the request if credit tracking fails
-            }
-          }
+          // Stripe tracking desativado - usuário tem créditos infinitos
+          console.log('Stripe tracking pulado - créditos infinitos');
         } catch (error) {
           console.error('Replicate streaming error:', error);
           controller.error(error);
