@@ -42,7 +42,15 @@ export const POST = async (req: Request) => {
     }
   }
 
-  const { model, input } = await req.json();
+  let model, input;
+  try {
+    const body = await req.json();
+    model = body.model;
+    input = body.input;
+  } catch (error) {
+    console.error('Error parsing JSON:', error);
+    return new Response('Invalid JSON in request body', { status: 400 });
+  }
 
   if (typeof model !== 'string') {
     return new Response('Model must be a string', { status: 400 });

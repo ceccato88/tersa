@@ -223,7 +223,7 @@ export const ImageTransform = ({
             const newNodeId = `${id}-variation-${i}`;
             const newNode = {
               id: newNodeId,
-              type: 'transform',
+              type: 'image',
               position: {
                 x: currentNode.position.x + (i * 420), // 384px (w-sm) + 36px spacing
                 y: baseY, // Usar Y fixo do nó original
@@ -328,7 +328,7 @@ export const ImageTransform = ({
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       {loading && (
         <Skeleton
-          className="flex w-full animate-pulse items-center justify-center rounded-b-xl min-h-[200px]"
+          className="flex w-full animate-pulse items-center justify-center rounded-b-xl min-h-[300px]"
           style={{ aspectRatio }}
         >
           <div className="flex flex-col items-center gap-2">
@@ -344,7 +344,7 @@ export const ImageTransform = ({
       )}
       {!loading && !data.generated?.url && (
         <div
-          className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4 min-h-[200px]"
+          className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4 min-h-[300px]"
           style={{ aspectRatio }}
         >
           <p className="text-muted-foreground text-sm">

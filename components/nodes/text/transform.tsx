@@ -34,6 +34,7 @@ import { getIncomers, useReactFlow } from '@xyflow/react';
 import {
   ClockIcon,
   CopyIcon,
+  Loader2Icon,
   PlayIcon,
   RotateCcwIcon,
   SquareIcon,
@@ -110,6 +111,12 @@ export const TextTransform = ({
   // Estado para múltiplas variações
   const [variationCount, setVariationCount] = useState(data.variationCount ?? 1);
 
+  // Calcular aspect ratio dinâmico (similar ao nó de imagem)
+  const aspectRatio = useMemo(() => {
+    // Usar aspect ratio padrão para texto
+    return '16/9';
+  }, []);
+
   const handleGenerate = useCallback(async () => {
     const incomers = getIncomers({ id }, getNodes(), getEdges());
     const textPrompts = getTextFromTextNodes(incomers);
@@ -166,10 +173,12 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
       fileCount: files.length,
     });
 
-    // Preparar input para Replicate com system prompt separado
+    // Preparar input para Replicate com formato de messages correto
     const replicateInput: any = {
-      prompt: content.join('\n'),
-      system_prompt: systemPrompt,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: content.join('\n') }
+      ],
       verbosity: 'medium',
       reasoning_effort: 'minimal',
       max_completion_tokens: 4000,
@@ -188,8 +197,6 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
       // Criar AbortController para cancelamento
       abortControllerRef.current = new AbortController();
 
-      setStatus('streaming');
-      
       // Gerar múltiplas variações
       const variations: string[] = [];
       
@@ -204,7 +211,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
             model: modelId,
             input: replicateInput,
           }),
-          signal: abortControllerRef.current.signal,
+          signal: abortControllerRef.current?.signal,
         });
 
         if (!response.ok) {
@@ -226,11 +233,6 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
           
           const chunk = decoder.decode(value, { stream: true });
           fullText += chunk;
-          
-          // Mostrar progresso apenas da primeira variação
-          if (i === 0) {
-            setCurrentMessage(fullText);
-          }
         }
         
         variations.push(fullText);
@@ -395,78 +397,79 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
 
   return (
     <NodeLayout id={id} data={data} title={title} type={type} toolbar={toolbar}>
-      <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-6">
-        {status === 'generating' && (
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-4 w-60 animate-pulse rounded-lg" />
-            <Skeleton className="h-4 w-40 animate-pulse rounded-lg" />
-            <Skeleton className="h-4 w-50 animate-pulse rounded-lg" />
+      {/* Área de conteúdo com tamanho fixo durante geração */}
+      {status === 'generating' && (
+        <Skeleton
+          className="flex w-full animate-pulse items-center justify-center rounded-b-xl min-h-[300px]"
+          style={{ aspectRatio }}
+        >
+          <div className="flex flex-col items-center gap-2">
+            <Loader2Icon
+              size={20}
+              className="animate-spin text-muted-foreground"
+            />
+            <p className="text-muted-foreground text-sm animate-pulse">
+              Gerando texto...
+            </p>
           </div>
-        )}
-        
-        {status === 'streaming' && currentMessage && (
-          <AIMessage from="assistant" className="p-0 py-0 [&>div]:max-w-none">
-            <AIMessageContent className="bg-transparent p-0 py-0">
-              <AIResponse>{currentMessage}</AIResponse>
-            </AIMessageContent>
-          </AIMessage>
-        )}
-        
-        {data.generated?.text &&
-          !nonUserMessages.length &&
-          status !== 'generating' &&
-          status !== 'streaming' && (
+        </Skeleton>
+      )}
+      
+
+      
+      {status !== 'generating' && !data.generated?.text && !nonUserMessages.length && (
+        <div
+          className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4 min-h-[300px]"
+          style={{ aspectRatio }}
+        >
+          <p className="text-muted-foreground text-sm">
+            Pressione <PlayIcon size={12} className="-translate-y-px inline" />{' '}
+            para gerar texto
+          </p>
+        </div>
+      )}
+      
+      {status !== 'generating' && (data.generated?.text || nonUserMessages.length) && (
+        <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-6">
+          {data.generated?.text && !nonUserMessages.length && (
             <ReactMarkdown>{data.generated.text}</ReactMarkdown>
           )}
           
-        {!data.generated?.text &&
-          !nonUserMessages.length &&
-          status !== 'generating' &&
-          status !== 'streaming' && (
-            <div className="flex aspect-video w-full items-center justify-center bg-secondary">
-              <p className="text-muted-foreground text-sm">
-                Pressione <PlayIcon size={12} className="-translate-y-px inline" />{' '}
-                para gerar texto
-              </p>
-            </div>
-          )}
-          
-        {Boolean(nonUserMessages.length) &&
-          status !== 'generating' &&
-          status !== 'streaming' &&
-          nonUserMessages.map((message) => (
-            <AIMessage
-              key={message.id}
-              from={message.role === 'assistant' ? 'assistant' : 'user'}
-              className="p-0 py-0 [&>div]:max-w-none"
-            >
-              <div>
-                {Boolean(message.sources?.length) && (
-                  <AISources>
-                    <AISourcesTrigger count={message.sources?.length || 0} />
-                    <AISourcesContent>
-                      {message.sources?.map(({ url, title }) => (
-                        <AISource
-                          key={url}
-                          href={url}
-                          title={title ?? new URL(url).hostname}
-                        />
-                      ))}
-                    </AISourcesContent>
-                  </AISources>
-                )}
-                <AIMessageContent className="bg-transparent p-0 py-0">
-                  <AIResponse>{message.content}</AIResponse>
-                </AIMessageContent>
-              </div>
-            </AIMessage>
-          ))}
-      </div>
+          {Boolean(nonUserMessages.length) &&
+            nonUserMessages.map((message) => (
+              <AIMessage
+                key={message.id}
+                from={message.role === 'assistant' ? 'assistant' : 'user'}
+                className="p-0 py-0 [&>div]:max-w-none"
+              >
+                <div>
+                  {Boolean(message.sources?.length) && (
+                    <AISources>
+                      <AISourcesTrigger count={message.sources?.length || 0} />
+                      <AISourcesContent>
+                        {message.sources?.map(({ url, title }) => (
+                          <AISource
+                            key={url}
+                            href={url}
+                            title={title ?? new URL(url).hostname}
+                          />
+                        ))}
+                      </AISourcesContent>
+                    </AISources>
+                  )}
+                  <AIMessageContent className="bg-transparent p-0 py-0">
+                    <AIResponse>{message.content}</AIResponse>
+                  </AIMessageContent>
+                </div>
+              </AIMessage>
+            ))}
+        </div>
+      )}
       <div className="space-y-4 p-4">
         <Textarea
           value={data.instructions ?? ''}
           onChange={handleInstructionsChange}
-          placeholder="*Digite as instruções (obrigatório)"
+          placeholder="Digite as instruções (obrigatório)"
           className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
         />
         
@@ -510,7 +513,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
         
         {/* Botões Gerar e Copiar lado a lado */}
         <div className="grid grid-cols-2 gap-4">
-          {status === 'generating' || status === 'streaming' ? (
+          {status === 'generating' ? (
             <Button
               className="w-full"
               onClick={handleStop}

@@ -29,7 +29,14 @@ export const ImageNode = (props: ImageNodeProps) => {
     id: props.id,
     handleType: 'target',
   });
-  const Component = connections.length ? ImageTransform : ImagePrimitive;
+  const hasConnections = connections.length > 0;
+  const hasGeneratedContent = Boolean(props.data.generated?.url);
 
-  return <Component {...props} title="Imagem" />;
+  // Se tem conexões de entrada OU conteúdo gerado, usa ImageTransform (com IA)
+  // Se não tem conexões nem conteúdo gerado, usa ImagePrimitive (editor simples)
+  if (hasConnections || hasGeneratedContent) {
+    return <ImageTransform {...props} title="Imagem" />;
+  }
+
+  return <ImagePrimitive {...props} title="Imagem" />;
 };

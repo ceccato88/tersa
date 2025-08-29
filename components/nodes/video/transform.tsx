@@ -173,10 +173,14 @@ export const VideoTransform = ({
     event
   ) => updateNodeData(id, { instructions: event.target.value });
 
+  // Calcular aspect ratio dinâmico baseado nas dimensões do vídeo
+  const aspectRatio = data.width && data.height ? data.width / data.height : 16 / 9;
+  const aspectRatioStyle = { aspectRatio: aspectRatio.toString() };
+
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       {loading && (
-        <Skeleton className="flex aspect-video w-full animate-pulse items-center justify-center rounded-b-xl">
+        <Skeleton className="flex min-h-[300px] w-full animate-pulse items-center justify-center rounded-b-xl" style={aspectRatioStyle}>
           <Loader2Icon
             size={16}
             className="size-4 animate-spin text-muted-foreground"
@@ -184,7 +188,7 @@ export const VideoTransform = ({
         </Skeleton>
       )}
       {!loading && !data.generated?.url && (
-        <div className="flex aspect-video w-full items-center justify-center rounded-b-xl bg-secondary">
+        <div className="flex min-h-[300px] w-full items-center justify-center rounded-b-xl bg-secondary" style={aspectRatioStyle}>
           <p className="text-muted-foreground text-sm">
             Pressione <PlayIcon size={12} className="-translate-y-px inline" /> para
             gerar vídeo
@@ -200,7 +204,8 @@ export const VideoTransform = ({
           muted
           loop
           playsInline
-          className="w-full rounded-b-xl object-cover"
+          className="w-full min-h-[300px] rounded-b-xl object-cover"
+          style={aspectRatioStyle}
         />
       )}
       <Textarea

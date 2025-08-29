@@ -58,12 +58,17 @@ export const VideoPrimitive = ({
   return (
     <NodeLayout id={id} data={data} type={type} title={title}>
       {isUploading && (
-        <Skeleton className="flex aspect-video w-full animate-pulse items-center justify-center">
-          <Loader2Icon
-            size={16}
-            className="size-4 animate-spin text-muted-foreground"
-          />
-        </Skeleton>
+        <div className="flex aspect-video w-full min-h-[200px] items-center justify-center bg-secondary">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2Icon
+              size={20}
+              className="animate-spin text-muted-foreground"
+            />
+            <p className="text-muted-foreground text-sm animate-pulse">
+              Fazendo upload do vídeo...
+            </p>
+          </div>
+        </div>
       )}
       {!isUploading && data.content && (
         <video
@@ -86,7 +91,7 @@ export const VideoPrimitive = ({
           onDrop={handleDrop}
           src={files}
           onError={console.error}
-          className="rounded-none border-none bg-transparent p-0 shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+          className="aspect-video rounded-none border-none bg-transparent p-0 shadow-none hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent min-h-[200px]"
         >
           <DropzoneEmptyState className="p-4" />
           <DropzoneContent />
