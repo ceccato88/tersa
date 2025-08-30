@@ -1,0 +1,467 @@
+import { generateImageReplicateAction } from '@/app/actions/image/replicate';
+import { generateImageFalAction } from '@/app/actions/image/fal';
+import { NodeLayout } from '@/components/nodes/layout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { getModelSchema, getModelDefaults } from '@/lib/model-schemas';
+import { useFilteredModels, getFirstAvailableModel } from '@/lib/model-filtering';
+import { providers } from '@/lib/providers';
+import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
+import { useProject } from '@/providers/project';
+import { getIncomers, useReactFlow, useNodes } from '@xyflow/react';
+import {
+  Loader2Icon,
+  PlayIcon,
+  RotateCcwIcon,
+  Settings,
+} from 'lucide-react';
+import Image from 'next/image';
+import {
+  type ChangeEventHandler,
+  useCallback,
+  useState,
+} from 'react';
+import { toast } from 'sonner';
+import type { ImageNodeProps } from '.';
+import { ModelSelector } from '../model-selector';
+import { AdvancedParamsPopup } from './advanced-params-popup';
+
+type HybridImageTransformProps = ImageNodeProps & {
+  title: string;
+};
+
+const AVAILABLE_MODELS = {
+  // Modelos Replicate
+  'black-forest-labs/flux-dev': {
+    label: 'FLUX.1 [dev] (Replicate)',
+    chef: providers.replicate,
+    providers: [providers.replicate],
+    aspectRatios: [
+      { label: '1:1 (1024x1024)', value: '1:1' },
+      { label: '9:16 (832x1216)', value: '9:16' },
+      { label: '16:9 (1216x832)', value: '16:9' },
+      { label: '4:5 (896x1152)', value: '4:5' },
+      { label: '5:4 (1152x896)', value: '5:4' },
+      { label: '3:4 (768x1024)', value: '3:4' },
+      { label: '4:3 (1024x768)', value: '4:3' },
+      { label: '2:3 (832x1216)', value: '2:3' },
+      { label: '3:2 (1216x832)', value: '3:2' },
+    ],
+    default: true,
+  },
+  'black-forest-labs/flux-krea-dev': {
+    label: 'FLUX Krea Dev (Replicate)',
+    chef: providers.replicate,
+    providers: [providers.replicate],
+    aspectRatios: [
+      { label: '1:1 (1024x1024)', value: '1:1' },
+      { label: '9:16 (832x1216)', value: '9:16' },
+      { label: '16:9 (1216x832)', value: '16:9' },
+      { label: '4:5 (896x1152)', value: '4:5' },
+      { label: '5:4 (1152x896)', value: '5:4' },
+      { label: '3:4 (768x1024)', value: '3:4' },
+      { label: '4:3 (1024x768)', value: '4:3' },
+      { label: '2:3 (832x1216)', value: '2:3' },
+      { label: '3:2 (1216x832)', value: '3:2' },
+    ],
+    default: false,
+  },
+  'black-forest-labs/flux-1.1-pro': {
+    label: 'FLUX 1.1 Pro (Replicate)',
+    chef: providers.replicate,
+    providers: [providers.replicate],
+    aspectRatios: [
+      { label: '1:1 (1024x1024)', value: '1:1' },
+      { label: '16:9 (1216x832)', value: '16:9' },
+      { label: '3:2 (1216x832)', value: '3:2' },
+      { label: '2:3 (832x1216)', value: '2:3' },
+      { label: '4:5 (896x1152)', value: '4:5' },
+      { label: '5:4 (1152x896)', value: '5:4' },
+      { label: '9:16 (832x1216)', value: '9:16' },
+      { label: '3:4 (768x1024)', value: '3:4' },
+      { label: '4:3 (1024x768)', value: '4:3' },
+    ],
+    default: false,
+  },
+  // Modelos FAL
+  'fal-ai/flux-dev': {
+    label: 'FLUX.1 [dev] (FAL)',
+    chef: providers.fal,
+    providers: [providers.fal],
+    aspectRatios: [
+      { label: '1:1 (1024x1024)', value: '1:1' },
+      { label: '4:3 (1024x768)', value: '4:3' },
+      { label: '3:4 (768x1024)', value: '3:4' },
+      { label: '16:9 (1216x832)', value: '16:9' },
+      { label: '9:16 (832x1216)', value: '9:16' },
+    ],
+    default: false,
+  },
+  'fal-ai/flux-schnell': {
+    label: 'FLUX Schnell (FAL)',
+    chef: providers.fal,
+    providers: [providers.fal],
+    aspectRatios: [
+      { label: '1:1 (1024x1024)', value: '1:1' },
+      { label: '4:3 (1024x768)', value: '4:3' },
+      { label: '3:4 (768x1024)', value: '3:4' },
+      { label: '16:9 (1216x832)', value: '16:9' },
+      { label: '9:16 (832x1216)', value: '9:16' },
+    ],
+    default: false,
+  },
+};
+
+const getDefaultModel = () => {
+  const defaultModel = Object.entries(AVAILABLE_MODELS).find(
+    ([_, model]) => model.default
+  );
+  return defaultModel?.[0] || 'black-forest-labs/flux-dev';
+};
+
+export const HybridImageTransform = ({
+  data,
+  id,
+  type,
+  title,
+}: HybridImageTransformProps) => {
+  const { updateNodeData, getNodes, getEdges } = useReactFlow();
+  const [loading, setLoading] = useState(false);
+  const [showAdvancedParams, setShowAdvancedParams] = useState(false);
+  const project = useProject();
+  const analytics = useAnalytics();
+  
+  // Obter nó atual e aplicar filtragem de modelos
+  const allNodes = getNodes();
+  const allEdges = getEdges();
+  const currentNode = allNodes.find(node => node.id === id);
+  const filteredModels = useFilteredModels(currentNode || null, allNodes, allEdges, 'image', AVAILABLE_MODELS);
+  
+  // Usar modelo filtrado ou padrão
+  const defaultModelId = getFirstAvailableModel(filteredModels) || getDefaultModel();
+  const modelId = data.model ?? defaultModelId;
+  const selectedModel = AVAILABLE_MODELS[modelId];
+  const aspectRatio = data.aspectRatio || '1:1';
+  const seed = data.seed || '';
+  
+  // Determinar quantidade baseado no modelo (FAL usa num_images, Replicate usa numOutputs)
+  const isFalModel = selectedModel?.chef?.id === 'fal';
+  const quantity = isFalModel ? (data.num_images || 1) : (data.numOutputs || 1);
+
+  const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = useCallback(
+    (event) => {
+      updateNodeData(id, { instructions: event.target.value });
+    },
+    [id, updateNodeData]
+  );
+
+  const handleGenerate = useCallback(async () => {
+    if (loading || !project?.id) {
+      return;
+    }
+
+    const incomers = getIncomers({ id }, getNodes(), getEdges());
+    const textNodes = getTextFromTextNodes(incomers);
+    const imageNodes = getImagesFromImageNodes(incomers);
+
+    try {
+      if (!data.instructions?.trim()) {
+        toast.error('Campo obrigatório', {
+          description: 'Por favor, digite suas instruções antes de gerar a imagem.'
+        });
+        return;
+      }
+      
+      if (!textNodes.length && !imageNodes.length && !data.instructions) {
+        throw new Error('Nenhum prompt fornecido');
+      }
+
+      setLoading(true);
+
+      analytics.track('canvas', 'node', 'generate', {
+        type,
+        textPromptsLength: textNodes.length,
+        imagePromptsLength: imageNodes.length,
+        model: modelId,
+        instructionsLength: data.instructions?.length ?? 0,
+        aspectRatio: aspectRatio,
+        seed: seed ?? null,
+        quantity: quantity,
+      });
+
+      // Gerar múltiplas variações
+      const variations: any[] = [];
+      
+      // Determinar qual action usar baseado no provider do modelo
+      const selectedModel = AVAILABLE_MODELS[modelId];
+      const isFalModel = selectedModel?.chef?.id === 'fal';
+      
+      for (let i = 0; i < quantity; i++) {
+        let response;
+        
+        if (isFalModel) {
+          // Usar FAL action
+          response = await generateImageFalAction(
+            textNodes.join('\n'),
+            {
+              model: modelId,
+              aspectRatio: aspectRatio,
+              seed: seed,
+              guidanceScale: data.guidance_scale || data.guidance || 3.5,
+              steps: data.num_inference_steps || data.numInferenceSteps || 28,
+              strength: data.promptStrength || 0.8,
+              num_images: 1, // Sempre 1 por chamada
+              sync_mode: data.sync_mode ?? true,
+              enable_safety_checker: data.enable_safety_checker ?? true,
+              output_format: data.output_format || 'webp',
+              acceleration: data.acceleration || 'none',
+            },
+            imageNodes.length > 0 ? imageNodes : undefined
+          );
+        } else {
+          // Usar Replicate action
+          response = await generateImageReplicateAction({
+            modelId,
+            prompt: textNodes.join('\n'),
+            instructions: data.instructions,
+            nodeId: id,
+            projectId: project.id,
+            aspectRatio: aspectRatio,
+            seed: seed,
+            numOutputs: 1, // Sempre 1 por chamada
+            imageInputs: imageNodes,
+            guidance: data.guidance || 3.5,
+            megapixels: data.megapixels || 1,
+            outputFormat: data.outputFormat || "png",
+            outputQuality: data.outputQuality || 100,
+            promptStrength: data.promptStrength || 0.8,
+            numInferenceSteps: data.numInferenceSteps || 28,
+            disableSafetyChecker: data.disableSafetyChecker || false,
+            goFast: data.goFast || false,
+            image: data.image,
+          });
+        }
+
+        if ('error' in response) {
+          throw new Error(response.error);
+        }
+
+        variations.push(response.nodeData);
+      }
+      
+      // A primeira variação fica no nó atual
+      const mainVariation = variations[0];
+      updateNodeData(id, {
+        ...mainVariation,
+        [isFalModel ? 'num_images' : 'numOutputs']: quantity,
+        updatedAt: new Date().toISOString(),
+      });
+      
+      // Criar nós adicionais para as outras variações
+      if (variations.length > 1) {
+        const currentNode = getNodes().find(node => node.id === id);
+        if (currentNode) {
+          const newNodes = [];
+          const baseY = currentNode.position.y;
+          
+          for (let i = 1; i < variations.length; i++) {
+            const newNodeId = `${id}-variation-${i}`;
+            const newNode = {
+              id: newNodeId,
+              type: 'image',
+              position: {
+                x: currentNode.position.x + (i * 420),
+                y: baseY,
+              },
+              data: {
+                ...variations[i],
+                model: modelId,
+                aspectRatio: aspectRatio,
+                seed: seed,
+                instructions: data.instructions,
+                updatedAt: new Date().toISOString(),
+              },
+            };
+            newNodes.push(newNode);
+          }
+          
+          if (newNodes.length > 0) {
+            const { addNodes } = useReactFlow.getState();
+            addNodes(newNodes);
+          }
+        }
+      }
+      
+    } catch (error) {
+      console.error('Erro ao gerar imagem:', error);
+      toast.error('Erro ao gerar imagem', {
+        description: error instanceof Error ? error.message : 'Erro desconhecido'
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [loading, project?.id, id, data, modelId, aspectRatio, seed, quantity, type, analytics, updateNodeData, getNodes, getEdges]);
+
+  return (
+    <NodeLayout
+      id={id}
+      title={title}
+      type={type}
+      selected={false}
+      className="w-96"
+    >
+      {/* Imagem */}
+      {loading && (
+        <Skeleton
+          className="flex w-full animate-pulse items-center justify-center rounded-b-xl min-h-[300px]"
+          style={{ aspectRatio }}
+        >
+          <div className="flex flex-col items-center gap-2">
+            <Loader2Icon
+              size={20}
+              className="animate-spin text-muted-foreground"
+            />
+            <p className="text-muted-foreground text-sm animate-pulse">
+              Gerando imagem...
+            </p>
+          </div>
+        </Skeleton>
+      )}
+      {!loading && !data.generated?.url && (
+        <div
+          className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4 min-h-[300px]"
+          style={{ aspectRatio }}
+        >
+          <p className="text-muted-foreground text-sm">
+            Pressione <PlayIcon size={12} className="-translate-y-px inline" /> para
+            criar uma imagem
+          </p>
+        </div>
+      )}
+      {!loading && data.generated?.url && (
+        <Image
+          src={data.generated.url}
+          alt="Imagem gerada"
+          width={1000}
+          height={1000}
+          className="w-full rounded-b-xl object-cover"
+          priority
+          onError={(e) => {
+            console.error('Erro ao carregar imagem:', e);
+            console.error('URL da imagem com erro:', data.generated.url);
+          }}
+        />
+      )}
+      
+      {/* Controles Compactos */}
+      <div className="space-y-3 p-4">
+        {/* Prompt */}
+        <div className="space-y-1">
+          <Textarea
+            value={data.instructions ?? ''}
+            onChange={handleInstructionsChange}
+            placeholder="Digite as instruções (obrigatório)"
+            className="shrink-0 resize-none border-none bg-transparent shadow-none focus-visible:ring-0 text-sm"
+            rows={2}
+          />
+        </div>
+        
+        {/* Modelo e Quantidade */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Modelo</Label>
+            <ModelSelector
+              value={modelId}
+              options={filteredModels}
+              id={id}
+              className="w-full h-8 text-xs"
+              onChange={(value) => {
+                const defaults = getModelDefaults(value);
+                updateNodeData(id, { model: value, ...defaults });
+              }}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Quantidade</Label>
+            <Select
+              value={quantity.toString()}
+              onValueChange={(value) => {
+                const numValue = parseInt(value);
+                if (isFalModel) {
+                  updateNodeData(id, { num_images: numValue });
+                } else {
+                  updateNodeData(id, { numOutputs: numValue });
+                }
+              }}
+            >
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4].map((num) => (
+                  <SelectItem key={num} value={num.toString()}>
+                    {num} {num === 1 ? 'geração' : 'gerações'}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
+        {/* Botões */}
+        <div className="flex gap-2">
+          <Button
+            className="flex-1 h-8 text-xs"
+            onClick={handleGenerate}
+            disabled={loading || !project?.id}
+          >
+            {loading ? (
+              <>
+                <Loader2Icon className="mr-1 h-3 w-3 animate-spin" />
+                Gerando...
+              </>
+            ) : (
+              <>
+                {data.generated?.url ? (
+                  <>
+                    <RotateCcwIcon className="mr-1 h-3 w-3" />
+                    Regenerar
+                  </>
+                ) : (
+                  <>
+                    <PlayIcon className="mr-1 h-3 w-3" />
+                    Gerar
+                  </>
+                )}
+              </>
+            )}
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-2"
+            onClick={() => setShowAdvancedParams(true)}
+          >
+            <Settings size={14} />
+          </Button>
+        </div>
+      </div>
+      
+      {/* Popup de Parâmetros Avançados */}
+      <AdvancedParamsPopup
+        isOpen={showAdvancedParams}
+        onClose={() => setShowAdvancedParams(false)}
+        nodeId={id}
+        data={data}
+        modelId={modelId}
+      />
+    </NodeLayout>
+  );
+};

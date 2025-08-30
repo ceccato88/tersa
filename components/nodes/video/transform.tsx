@@ -45,7 +45,7 @@ type VideoTransformProps = VideoNodeProps & {
 
 const AVAILABLE_MODELS = {
   'wan-video/wan-2.2-i2v-a14b': {
-    label: 'WAN Video I2V',
+    label: 'WAN Video I2V (Replicate)',
     chef: providers.replicate,
     icon: WanIcon,
     providers: [{
@@ -53,6 +53,12 @@ const AVAILABLE_MODELS = {
       icon: WanIcon,
     }],
     default: true,
+  },
+  'fal-ai/stable-video-diffusion': {
+    label: 'Stable Video Diffusion (FAL)',
+    chef: providers.fal,
+    providers: [providers.fal],
+    default: false,
   },
 };
 
@@ -149,20 +155,54 @@ export const VideoTransform = ({
         ...modelDefaults, // Adiciona campos ocultos
       };
 
-      // Usar a action diretamente como na imagem
-      console.log('🔄 Chamando generateVideoReplicateAction...');
-      const result = await generateVideoReplicateAction({
-        modelId,
-        prompt: textNodes.join('\n'),
-        instructions: data.instructions || '',
-        nodeId: id,
-        projectId: project.id,
-        imageUrl: imageNodes[0], // URL da imagem de entrada
-        seed: seed,
-        numOutputs,
-        resolution: resolution,
-        frames_per_second: framesPerSecond,
-      });
+      // Determinar qual action usar baseado no provider do modelo
+      const selectedModel = AVAILABLE_MODELS[modelId];
+      const isFalModel = selectedModel?.chef?.id === 'fal';
+      
+      let result;
+      
+      if (isFalModel) {
+        console.log('🔄 Chamando FAL Video API...');
+        const falResponse = await fetch('/api/fal-video', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            prompt: textNodes.join('\n'),
+            params: {
+              model: modelId,
+              imageUrl: imageNodes[0],
+              seed: seed,
+              fps: framesPerSecond,
+              duration: 3, // Duração padrão
+              motionStrength: 0.8, // Força do movimento padrão
+            },
+            images: imageNodes.length > 0 ? imageNodes : undefined
+          })
+        });
+        
+        if (!falResponse.ok) {
+          throw new Error('Failed to generate video with FAL');
+        }
+        
+        const falResult = await falResponse.json();
+        result = falResult.data;
+      } else {
+        console.log('🔄 Chamando generateVideoReplicateAction...');
+        result = await generateVideoReplicateAction({
+          modelId,
+          prompt: textNodes.join('\n'),
+          instructions: data.instructions || '',
+          nodeId: id,
+          projectId: project.id,
+          imageUrl: imageNodes[0], // URL da imagem de entrada
+          seed: seed,
+          numOutputs,
+          resolution: resolution,
+          frames_per_second: framesPerSecond,
+        });
+      }
 
       if (result.error) {
         throw new Error(result.error);

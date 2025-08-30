@@ -2,11 +2,14 @@
 
 export interface ModelField {
   name: string;
-  type: 'input' | 'select' | 'checkbox' | 'number';
+  type: 'input' | 'select' | 'checkbox' | 'number' | 'hidden';
   label: string;
   placeholder?: string;
   options?: Array<{ value: any; label: string }>;
   defaultValue: any;
+  min?: number;
+  max?: number;
+  step?: number;
   gridColumn?: 1 | 2; // Para layout em grid
 }
 
@@ -207,6 +210,180 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       }
     ]
+  },
+  // Modelos FAL
+  'fal-ai/flux-dev': {
+    label: 'FLUX Dev (FAL)',
+    aspectRatios: [
+      { label: 'Square 1:1', value: 'square' },
+      { label: 'Square 1:1 HD', value: 'square_hd' },
+      { label: '4:3', value: 'landscape_4_3' },
+      { label: '3:4', value: 'portrait_4_3' },
+      { label: '9:16', value: 'portrait_16_9' },
+      { label: '16:9', value: 'landscape_16_9' },
+    ],
+    fields: [
+      // Campos que aparecem no nó principal: prompt, image_size, num_images (quantidade)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem no popup
+      {
+        name: 'num_inference_steps',
+        type: 'number',
+        label: 'Número de Inferências (1-50)',
+        placeholder: '28',
+        defaultValue: 28,
+        min: 1,
+        max: 50,
+        gridColumn: 1
+      },
+      {
+        name: 'seed',
+        type: 'input',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: '',
+        gridColumn: 2
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance (1-20)',
+        placeholder: '3.5',
+        defaultValue: 3.5,
+        min: 1,
+        max: 20,
+        gridColumn: 1
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 2
+      },
+      
+      // Campos que só aparecem no código (não renderizados na UI)
+      {
+        name: 'sync_mode',
+        type: 'hidden',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
+        name: 'enable_safety_checker',
+        type: 'hidden',
+        label: 'Safety Checker',
+        defaultValue: true,
+        gridColumn: 1
+      },
+      {
+        name: 'acceleration',
+        type: 'hidden',
+        label: 'Aceleração',
+        defaultValue: 'none',
+        gridColumn: 1
+      }
+    ]
+  },
+  'fal-ai/flux-schnell': {
+    label: 'FLUX Schnell (FAL)',
+    aspectRatios: [
+      { label: '1:1 (1024x1024)', value: '1:1' },
+      { label: '4:3 (1024x768)', value: '4:3' },
+      { label: '3:4 (768x1024)', value: '3:4' },
+      { label: '16:9 (1216x832)', value: '16:9' },
+      { label: '9:16 (832x1216)', value: '9:16' },
+    ],
+    fields: [
+      {
+        name: 'seed',
+        type: 'input',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: '',
+        gridColumn: 1
+      },
+      {
+        name: 'numOutputs',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      {
+        name: 'numInferenceSteps',
+        type: 'input',
+        label: 'Inference Steps',
+        placeholder: '4',
+        defaultValue: 4,
+        gridColumn: 1
+      }
+    ]
+  },
+  'fal-ai/stable-video-diffusion': {
+    label: 'Stable Video Diffusion (FAL)',
+    aspectRatios: [
+      { label: '1:1 (512x512)', value: '1:1' },
+      { label: '4:3 (640x480)', value: '4:3' },
+      { label: '3:4 (480x640)', value: '3:4' },
+      { label: '16:9 (854x480)', value: '16:9' },
+      { label: '9:16 (480x854)', value: '9:16' },
+    ],
+    fields: [
+      {
+        name: 'seed',
+        type: 'input',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: '',
+        gridColumn: 1
+      },
+      {
+        name: 'fps',
+        type: 'select',
+        label: 'FPS',
+        options: [
+          { value: 6, label: '6 FPS' },
+          { value: 12, label: '12 FPS' },
+          { value: 24, label: '24 FPS' }
+        ],
+        defaultValue: 24,
+        gridColumn: 2
+      },
+      {
+        name: 'duration',
+        type: 'select',
+        label: 'Duração',
+        options: [
+          { value: 2, label: '2 segundos' },
+          { value: 3, label: '3 segundos' },
+          { value: 4, label: '4 segundos' },
+          { value: 5, label: '5 segundos' }
+        ],
+        defaultValue: 3,
+        gridColumn: 1
+      },
+      {
+        name: 'motionStrength',
+        type: 'input',
+        label: 'Motion Strength',
+        placeholder: '127',
+        defaultValue: 127,
+        gridColumn: 2
+      }
+    ]
   }
 };
 
@@ -249,6 +426,11 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.outputQuality = 100;
     defaults.safetyTolerance = 2;
     defaults.promptUpsampling = false;
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux-dev
+  if (modelId === 'fal-ai/flux-dev') {
+    defaults.image_size = 'landscape_4_3';
   }
   
   // Adicionar valores padrão para campos ocultos no modelo wan-video

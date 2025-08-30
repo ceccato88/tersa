@@ -456,5 +456,212 @@ C:\ai\tersa\lib\models\video\replicate.ts
 
 ---
 
-**Última atualização:** Documento criado para mapear a arquitetura atual de modelos e APIs.
+## 📤 Processo de Upload no Supabase e Renderização nos Nós
+
+### Visão Geral do Fluxo
+
+Todos os providers (Replicate e FAL) seguem o mesmo padrão:
+1. **Geração** → Provider externo gera a imagem
+2. **Download** → Download da URL temporária do provider
+3. **Upload** → Upload para Supabase Storage
+4. **Renderização** → Exibição da URL permanente do Supabase
+
+### Arquitetura do Sistema
+
+```
+Usuário → Nó Canvas → API Action → Provider (Replicate/FAL) → Download → Supabase Storage → Renderização
+```
+
+### 1. Actions de Imagem
+
+#### Replicate Action (`app/actions/image/replicate.ts`)
+```typescript
+// 1. Geração via Replicate
+const completedPrediction = await replicate.wait(prediction);
+const imageUrls = completedPrediction.output;
+const primaryImageUrl = imageUrls[0];
+
+// 2. Download da imagem
+const imageResponse = await fetch(primaryImageUrl);
+const imageBuffer = await imageResponse.arrayBuffer();
+
+// 3. Upload para Supabase
+const fileName = `${nanoid()}.${extension}`;
+const { data: supabaseUrl } = await supabase.storage
+  .from('generated-images')
+  .upload(fileName, imageBuffer);
+
+// 4. Retorno da URL pública
+return {
+  output: supabaseUrl.publicUrl,
+  urls: [supabaseUrl.publicUrl],
+  metadata: {
+    supabase_url: supabaseUrl.publicUrl,
+    original_replicate_url: primaryImageUrl
+  }
+};
+```
+
+#### FAL Action (`app/actions/image/fal.ts`)
+```typescript
+// 1. Geração via FAL
+const result = await fal.subscribe(falModel, { input });
+const primaryImageUrl = result.data.images?.[0]?.url;
+
+// 2. Download da imagem
+const imageResponse = await fetch(primaryImageUrl);
+const imageBuffer = await imageResponse.arrayBuffer();
+
+// 3. Upload para Supabase
+const fileName = `${nanoid()}.${extension}`;
+const { data: supabaseUrl } = await supabase.storage
+  .from('generated-images')
+  .upload(fileName, imageBuffer);
+
+// 4. Retorno da URL pública
+return {
+  output: supabaseUrl.publicUrl,
+  urls: [supabaseUrl.publicUrl],
+  metadata: {
+    supabase_url: supabaseUrl.publicUrl,
+    original_fal_url: primaryImageUrl
+  }
+};
+```
+
+### 2. Processamento nos Componentes
+
+#### Estrutura de Resposta Esperada
+```typescript
+interface ImageResponse {
+  success: boolean;
+  data: {
+    output: string; // URL pública do Supabase
+    seed?: number;
+    prompt: string;
+    model: string;
+    provider: 'replicate' | 'fal';
+    metadata: {
+      supabase_url: string;
+      original_url?: string;
+    };
+  };
+}
+```
+
+#### Transform Component (`components/nodes/image/transform.tsx`)
+```typescript
+// Para FAL (após correção)
+if (falResult.success && falResult.data && falResult.data.output) {
+  response = {
+    nodeData: {
+      url: falResult.data.output, // URL do Supabase
+      width: 1024,
+      height: 1024,
+      contentType: 'image/jpeg',
+      seed: falResult.data.seed,
+      prompt: falResult.data.prompt,
+      provider: 'fal',
+      model: falResult.data.model
+    }
+  };
+}
+```
+
+#### Hybrid Transform Component (`components/nodes/image/hybrid-transform.tsx`)
+```typescript
+// Para FAL (após correção)
+if (falResult.success && falResult.data && falResult.data.output) {
+  const newData = {
+    ...existingNode.data,
+    updatedAt: new Date().toISOString(),
+    generated: {
+      url: falResult.data.output, // URL do Supabase
+      type: 'image/jpeg',
+    },
+    seed: falResult.data.seed,
+    prompt: falResult.data.prompt,
+    provider: 'fal',
+    model: falResult.data.model
+  };
+}
+```
+
+### 3. Renderização no Canvas
+
+#### Componente de Imagem
+```typescript
+<Image
+  src={data.generated?.url} // URL pública do Supabase
+  alt={data.generated?.prompt || 'Generated image'}
+  width={data.generated?.width || 1024}
+  height={data.generated?.height || 1024}
+  className="rounded-lg"
+/>
+```
+
+### 4. Configuração do Supabase Storage
+
+#### Bucket: `generated-images`
+- **Acesso público** para leitura
+- **Upload restrito** para usuários autenticados
+- **Estrutura**: `[nanoid].{jpg|png|webp}`
+
+#### Políticas de Segurança
+```sql
+-- Leitura pública
+CREATE POLICY "Public read access" ON storage.objects
+FOR SELECT USING (bucket_id = 'generated-images');
+
+-- Upload autenticado
+CREATE POLICY "Authenticated upload" ON storage.objects
+FOR INSERT WITH CHECK (
+  bucket_id = 'generated-images' AND 
+  auth.role() = 'authenticated'
+);
+```
+
+### 5. Vantagens do Sistema
+
+#### Persistência
+- ✅ URLs não expiram
+- ✅ Imagens sempre disponíveis
+- ✅ Backup automático
+
+#### Performance
+- ✅ CDN do Supabase
+- ✅ Cache automático
+- ✅ Redução de dependência externa
+
+#### Consistência
+- ✅ Mesmo fluxo para todos providers
+- ✅ URLs padronizadas
+- ✅ Estrutura unificada
+
+### 6. Troubleshooting
+
+#### Problema: Imagem não renderiza
+**Causa**: Estrutura de resposta incorreta
+**Solução**: Verificar se está acessando `falResult.data.output`
+
+#### Problema: URLs expiram
+**Causa**: Usando URL direta do provider
+**Solução**: Garantir upload para Supabase
+
+#### Problema: Upload falha
+**Causa**: Configuração/permissões incorretas
+**Solução**: Verificar env vars e políticas do bucket
+
+### 7. Monitoramento
+
+Logs detalhados em cada etapa:
+```typescript
+logger.info('🔗 Fazendo download da imagem da FAL:', primaryImageUrl);
+logger.info('📤 Fazendo upload para Supabase Storage');
+logger.info('✅ Upload concluído:', supabaseUrl.publicUrl);
+```
+
+---
+
+**Última atualização:** Janeiro 2025 - Adicionada documentação do processo de upload Supabase
 **Responsável:** Documentação automática do sistema.

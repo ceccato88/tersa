@@ -15,28 +15,54 @@ export interface FilteredModel {
 
 // Modelos de imagem disponíveis
 const IMAGE_MODELS = {
+  // Modelos Replicate
   'black-forest-labs/flux-dev': {
     id: 'black-forest-labs/flux-dev',
-    label: 'FLUX Dev',
+    label: 'FLUX.1 [dev] (Replicate)',
+    provider: 'replicate',
     supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
   },
   'black-forest-labs/flux-krea-dev': {
     id: 'black-forest-labs/flux-krea-dev',
-    label: 'FLUX Krea Dev',
+    label: 'FLUX Krea Dev (Replicate)',
+    provider: 'replicate',
     supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
   },
   'black-forest-labs/flux-1.1-pro': {
     id: 'black-forest-labs/flux-1.1-pro',
-    label: 'FLUX 1.1 Pro',
+    label: 'FLUX 1.1 Pro (Replicate)',
+    provider: 'replicate',
+    supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
+  },
+  // Modelos FAL
+  'fal-ai/flux-dev': {
+    id: 'fal-ai/flux-dev',
+    label: 'FLUX.1 [dev] (FAL)',
+    provider: 'fal',
+    supportedInputs: ['none', 'text-primitive', 'text-transform']
+  },
+  'fal-ai/flux-schnell': {
+    id: 'fal-ai/flux-schnell',
+    label: 'FLUX Schnell (FAL)',
+    provider: 'fal',
     supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
   }
 };
 
 // Modelos de vídeo disponíveis
 const VIDEO_MODELS = {
+  // Modelos Replicate
   'wan-video/wan-2.2-i2v-a14b': {
     id: 'wan-video/wan-2.2-i2v-a14b',
-    label: 'WAN Video I2V',
+    label: 'WAN Video I2V (Replicate)',
+    provider: 'replicate',
+    supportedInputs: ['image-primitive', 'image-transform']
+  },
+  // Modelos FAL
+  'fal-ai/stable-video-diffusion': {
+    id: 'fal-ai/stable-video-diffusion',
+    label: 'Stable Video Diffusion (FAL)',
+    provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform']
   }
   // Futuros modelos text-to-video serão adicionados aqui
@@ -63,7 +89,11 @@ export const filterImageModels = (
     const modelInfo = IMAGE_MODELS[modelId as keyof typeof IMAGE_MODELS];
     
     if (modelInfo && modelInfo.supportedInputs.includes(connectionType)) {
-      filteredModels[modelId] = modelConfig;
+      filteredModels[modelId] = {
+        ...modelConfig,
+        provider: modelInfo.provider,
+        label: modelInfo.label
+      };
     }
   });
   
@@ -86,7 +116,11 @@ export const filterVideoModels = (
     const modelInfo = VIDEO_MODELS[modelId as keyof typeof VIDEO_MODELS];
     
     if (modelInfo && modelInfo.supportedInputs.includes(connectionType)) {
-      filteredModels[modelId] = modelConfig;
+      filteredModels[modelId] = {
+        ...modelConfig,
+        provider: modelInfo.provider,
+        label: modelInfo.label
+      };
     }
   });
   
