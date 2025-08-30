@@ -10,10 +10,11 @@ import { useAnalytics } from '@/hooks/use-analytics';
 import { download } from '@/lib/download';
 import { handleError } from '@/lib/error/handle';
 import { getModelSchema, getModelDefaults } from '@/lib/model-schemas';
+import { useFilteredModels, getFirstAvailableModel } from '@/lib/model-filtering';
 import { providers } from '@/lib/providers';
 import { getDescriptionsFromImageNodes, getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
 import { useProject } from '@/providers/project';
-import { getIncomers, useReactFlow } from '@xyflow/react';
+import { getIncomers, useReactFlow, useNodes } from '@xyflow/react';
 import {
   ClockIcon,
   DownloadIcon,
@@ -134,12 +135,22 @@ export const ImageTransform = ({
 }: ImageTransformProps) => {
   const { updateNodeData, getNodes, getEdges, addNodes } = useReactFlow();
   const [loading, setLoading] = useState(false);
+  const [abortController, setAbortController] = useState<AbortController | null>(null);
   const project = useProject();
+  const analytics = useAnalytics();
+  
+  // Obter nó atual e aplicar filtragem de modelos
+  const allNodes = getNodes();
+  const allEdges = getEdges();
+  const currentNode = allNodes.find(node => node.id === id);
+  const filteredModels = useFilteredModels(currentNode || null, allNodes, allEdges, 'image', AVAILABLE_MODELS);
+  
+  // Usar modelo filtrado ou padrão
+  const defaultModelId = getFirstAvailableModel(filteredModels) || getDefaultModel();
+  const modelId = data.model ?? defaultModelId;
   const hasIncomingImageNodes =
     getImagesFromImageNodes(getIncomers({ id }, getNodes(), getEdges()))
       .length > 0;
-  const modelId = data.model ?? getDefaultModel();
-  const analytics = useAnalytics();
   const selectedModel = AVAILABLE_MODELS[modelId];
   const aspectRatio = data.aspectRatio || '1:1';
   const seed = data.seed || '';
@@ -388,7 +399,7 @@ export const ImageTransform = ({
             <Label>Modelo</Label>
             <ModelSelector
               value={modelId}
-              options={AVAILABLE_MODELS}
+              options={filteredModels}
               id={id}
               className="w-full"
               onChange={(value) => {

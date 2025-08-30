@@ -1,7 +1,206 @@
-# Documentação - Modelos de Texto e Imagem
+# Documentação - Modelos de IA e Sistema de Filtragem
 
 ## Visão Geral
-Este documento mapeia onde são configurados os modelos de texto e imagem, schemas e chamadas de API no projeto Tersa.
+Este documento mapeia onde são configurados os modelos de IA (texto, imagem e vídeo), schemas, sistema de filtragem dinâmica e chamadas de API no projeto Tersa.
+
+## 🔄 Sistema de Filtragem Dinâmica (Implementado em 2025-01-21)
+
+### Visão Geral do Sistema
+Sistema que filtra dinamicamente os modelos disponíveis nos nós de imagem e vídeo baseado no tipo de conexão anterior na cadeia de processamento.
+
+### Arquivos Principais
+
+#### 1. Detector de Conexões
+**Arquivo:** `C:\ai\tersa\lib\node-connection-detector.ts`
+- **Função:** `detectPreviousNodeType()` - Detecta o tipo de nó conectado anteriormente
+- **Tipos detectados:**
+  - `none` - Nenhuma conexão
+  - `text-primitive` - Nó de texto simples
+  - `text-transform` - Nó de texto com IA
+  - `image-primitive` - Nó de imagem simples
+  - `image-transform` - Nó de imagem com IA
+  - `video-primitive` - Nó de vídeo simples
+  - `video-transform` - Nó de vídeo com IA
+
+#### 2. Sistema de Filtragem
+**Arquivo:** `C:\ai\tersa\lib\model-filtering.ts`
+- **Modelos de Imagem:** Definição com `supportedInputs` (none, text, image, video)
+- **Modelos de Vídeo:** Definição com `supportedInputs` (none, text, image, video)
+- **Hook:** `useFilteredModels()` - Retorna modelos filtrados para um nó específico
+- **Funções auxiliares:**
+  - `filterImageModels()` - Filtra modelos de imagem
+  - `filterVideoModels()` - Filtra modelos de vídeo
+  - `getFirstAvailableModel()` - Obtém primeiro modelo disponível
+  - `hasAvailableModels()` - Verifica se há modelos disponíveis
+
+### Regras de Filtragem
+
+#### Para Nós de Imagem:
+- **Sem conexão:** Todos os modelos text-to-image
+- **Conexão de texto:** Modelos que suportam text-to-image
+- **Conexão de imagem:** Modelos que suportam image-to-image
+- **Conexão de vídeo:** Modelos que suportam video-to-image
+
+#### Para Nós de Vídeo:
+- **Sem conexão:** Nenhum modelo (mensagem: "Conecte um nó de imagem")
+- **Conexão de texto:** Nenhum modelo (mensagem: "Modelos text-to-video em breve")
+- **Conexão de imagem:** Modelos que suportam image-to-video
+- **Conexão de vídeo:** Nenhum modelo (mensagem: "Modelos video-to-video em breve")
+
+### Integração nos Componentes
+
+#### Nós de Imagem
+**Arquivo:** `C:\ai\tersa\components\nodes\image\transform.tsx`
+- Importa `useFilteredModels`, `getFirstAvailableModel`
+- Usa modelos filtrados no `ModelSelector`
+- Aplica modelo padrão baseado na filtragem
+
+#### Nós de Vídeo
+**Arquivo:** `C:\ai\tersa\components\nodes\video\transform.tsx`
+- Importa sistema de filtragem completo
+- Exibe mensagens contextuais quando não há modelos
+- Usa modelos filtrados no `ModelSelector`
+
+## 📝 Como Cadastrar Novos Modelos
+
+### 1. Adicionando Modelos de Imagem
+
+#### Passo 1: Definir o Modelo
+**Arquivo:** `C:\ai\tersa\lib\model-filtering.ts`
+```typescript
+const IMAGE_MODELS = {
+  'novo-modelo/versao': {
+    label: 'Nome do Modelo',
+    chef: providers.replicate,
+    icon: IconeDoModelo,
+    providers: [{
+      ...providers.replicate,
+      icon: IconeDoModelo,
+    }],
+    supportedInputs: ['none', 'text', 'image'], // Tipos de entrada suportados
+    default: false, // Se é modelo padrão
+  },
+};
+```
+
+#### Passo 2: Configurar Schema (se necessário)
+**Arquivo:** `C:\ai\tersa\lib\model-schemas.ts`
+```typescript
+export const getModelSchema = (modelId: string) => {
+  switch (modelId) {
+    case 'novo-modelo/versao':
+      return {
+        aspectRatio: { type: 'select', options: ['1:1', '16:9', '9:16'] },
+        seed: { type: 'number', min: 0, max: 999999 },
+        // outros parâmetros...
+      };
+  }
+};
+```
+
+### 2. Adicionando Modelos de Vídeo
+
+#### Passo 1: Definir o Modelo
+**Arquivo:** `C:\ai\tersa\lib\model-filtering.ts`
+```typescript
+const VIDEO_MODELS = {
+  'novo-video-modelo/versao': {
+    label: 'Nome do Modelo de Vídeo',
+    chef: providers.replicate,
+    icon: IconeDoModelo,
+    providers: [{
+      ...providers.replicate,
+      icon: IconeDoModelo,
+    }],
+    supportedInputs: ['image'], // Apenas image-to-video por enquanto
+    default: false,
+  },
+};
+```
+
+### 3. Tipos de Entrada Suportados
+
+- **`'none'`** - Modelo pode ser usado sem conexão anterior (text-to-image/video)
+- **`'text'`** - Modelo aceita entrada de texto
+- **`'image'`** - Modelo aceita entrada de imagem
+- **`'video'`** - Modelo aceita entrada de vídeo
+
+### 4. Configuração de Actions
+
+#### Para Modelos de Imagem
+**Arquivo:** `C:\ai\tersa\app\actions\image\replicate.ts`
+- Adicionar lógica específica do modelo se necessário
+- Configurar parâmetros específicos
+
+#### Para Modelos de Vídeo
+**Arquivo:** `C:\ai\tersa\app\actions\video\replicate.ts`
+- Adicionar lógica específica do modelo se necessário
+- Configurar parâmetros específicos
+
+## 🧪 Como Testar o Sistema de Filtragem
+
+### Cenários de Teste
+
+#### 1. Teste de Nó de Imagem Isolado
+- **Ação:** Criar um nó de imagem sem conexões
+- **Resultado esperado:** Todos os modelos text-to-image disponíveis
+- **Verificação:** Seletor deve mostrar modelos como FLUX.1 [dev], FLUX.1 [schnell]
+
+#### 2. Teste de Conexão Texto → Imagem
+- **Ação:** Conectar nó de texto a nó de imagem
+- **Resultado esperado:** Modelos que suportam text-to-image
+- **Verificação:** Filtragem baseada em `supportedInputs: ['text']`
+
+#### 3. Teste de Conexão Imagem → Vídeo
+- **Ação:** Conectar nó de imagem a nó de vídeo
+- **Resultado esperado:** Modelos image-to-video (ex: WAN Video I2V)
+- **Verificação:** Seletor deve mostrar apenas modelos compatíveis
+
+#### 4. Teste de Nó de Vídeo Isolado
+- **Ação:** Criar um nó de vídeo sem conexões
+- **Resultado esperado:** Mensagem "Conecte um nó de imagem para gerar vídeos"
+- **Verificação:** Nenhum modelo disponível, mensagem explicativa
+
+### Comandos para Teste
+
+```bash
+# Subir a aplicação
+wsl pnpm dev
+
+# Aguardar compilação (até 2 minutos)
+# Acessar: http://localhost:3000
+```
+
+### Debugging
+
+#### Verificar Detecção de Conexões
+```typescript
+// No console do navegador
+console.log('Tipo de conexão:', detectPreviousNodeType(nodeId, nodes, edges));
+```
+
+#### Verificar Modelos Filtrados
+```typescript
+// No console do navegador
+console.log('Modelos filtrados:', useFilteredModels('image', nodeId));
+```
+
+## 📋 Checklist de Implementação
+
+### ✅ Concluído (2025-01-21)
+- [x] Sistema de detecção de conexões (`node-connection-detector.ts`)
+- [x] Sistema de filtragem de modelos (`model-filtering.ts`)
+- [x] Integração em nós de imagem (`image/transform.tsx`)
+- [x] Integração em nós de vídeo (`video/transform.tsx`)
+- [x] Mensagens contextuais para casos sem modelos
+- [x] Testes básicos de funcionamento
+
+### 🔄 Próximos Passos
+- [ ] Adicionar mais modelos de imagem com diferentes `supportedInputs`
+- [ ] Implementar modelos text-to-video
+- [ ] Implementar modelos video-to-video
+- [ ] Adicionar testes automatizados
+- [ ] Otimizar performance da filtragem
 
 ## 🎯 Componentes Principais
 

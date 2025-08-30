@@ -11,6 +11,8 @@ import { download } from '@/lib/download';
 import { handleError } from '@/lib/error/handle';
 import { WanIcon } from '@/lib/icons';
 import { getModelSchema, getModelDefaults } from '@/lib/model-schemas';
+import { useFilteredModels, getFirstAvailableModel, hasAvailableModels } from '@/lib/model-filtering';
+import { detectPreviousNodeType } from '@/lib/node-connection-detector';
 import { providers } from '@/lib/providers';
 import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
 import { useProject } from '@/providers/project';
@@ -76,8 +78,21 @@ export const VideoTransform = ({
   const [loading, setLoading] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const project = useProject();
-  const modelId = data.model ?? getDefaultModel();
   const analytics = useAnalytics();
+  
+  // Obter nó atual e aplicar filtragem de modelos
+  const allNodes = getNodes();
+  const allEdges = getEdges();
+  const currentNode = allNodes.find(node => node.id === id);
+  const filteredModels = useFilteredModels(currentNode || null, allNodes, allEdges, 'video', AVAILABLE_MODELS);
+  
+  // Detectar tipo de conexão para verificar se há modelos disponíveis
+  const connectionType = currentNode ? detectPreviousNodeType(currentNode, allNodes, allEdges) : 'none';
+  const hasModels = hasAvailableModels(connectionType, 'video');
+  
+  // Usar modelo filtrado ou padrão
+  const defaultModelId = getFirstAvailableModel(filteredModels) || getDefaultModel();
+  const modelId = data.model ?? defaultModelId;
   const seed = data.seed || '';
   const numOutputs = data.numOutputs || 1;
   const resolution = data.resolution || '480p';
@@ -329,17 +344,31 @@ export const VideoTransform = ({
         {/* Modelo */}
         <div className="space-y-2">
           <Label>Modelo</Label>
-          <ModelSelector
-            value={modelId}
-            options={AVAILABLE_MODELS}
-            id={id}
-            className="w-full"
-            onChange={(value) => {
-              // Ao mudar o modelo, aplicar valores padrão do novo modelo
-              const defaults = getModelDefaults(value);
-              updateNodeData(id, { model: value, ...defaults });
-            }}
-          />
+          {hasModels ? (
+            <ModelSelector
+              value={modelId}
+              options={filteredModels}
+              id={id}
+              className="w-full"
+              onChange={(value) => {
+                // Ao mudar o modelo, aplicar valores padrão do novo modelo
+                const defaults = getModelDefaults(value);
+                updateNodeData(id, { model: value, ...defaults });
+              }}
+            />
+          ) : (
+            <div className="rounded-md border border-dashed border-muted-foreground/25 p-4 text-center text-sm text-muted-foreground">
+              {connectionType === 'none' ? (
+                'Conecte um nó de imagem para gerar vídeos'
+              ) : connectionType.startsWith('text') ? (
+                'Modelos text-to-video em breve'
+              ) : connectionType.startsWith('video') ? (
+                'Modelos video-to-video em breve'
+              ) : (
+                'Conecte um nó de imagem para gerar vídeos'
+              )}
+            </div>
+          )}
         </div>
         
         {/* Campos dinâmicos baseados no modelo selecionado */}
