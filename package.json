@@ -110,6 +110,7 @@
     "openai": "^5.3.0",
     "openapi-fetch": "^0.14.0",
     "perfect-cursors": "^1.0.5",
+    "pg": "^8.16.3",
     "postgres": "^3.4.7",
     "posthog-js": "^1.252.0",
     "posthog-node": "^5.1.0",
