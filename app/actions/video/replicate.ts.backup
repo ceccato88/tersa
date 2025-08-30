@@ -3,11 +3,9 @@
 import { getSubscribedUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
-import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
 import type { Edge, Node, Viewport } from '@xyflow/react';
 import { eq } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
 
 type GenerateVideoReplicateActionProps = {
   modelId: string;
@@ -108,35 +106,6 @@ export const generateVideoReplicateAction = async ({
       throw new Error('URL do vídeo não encontrada na resposta do Replicate');
     }
 
-    console.log('🔗 Fazendo download do vídeo do Replicate:', videoUrl);
-    
-    // Download do vídeo do Replicate
-    const videoResponse = await fetch(videoUrl);
-    if (!videoResponse.ok) {
-      throw new Error(`Erro ao fazer download do vídeo: ${videoResponse.statusText}`);
-    }
-    const videoArrayBuffer = await videoResponse.arrayBuffer();
-
-    // Upload para Supabase Storage
-    const client = await createClient();
-    const fileName = `${user.id}/${nanoid()}.mp4`;
-    const uploadResult = await client.storage
-      .from('files')
-      .upload(fileName, videoArrayBuffer, {
-        contentType: 'video/mp4',
-      });
-
-    if (uploadResult.error) {
-      throw new Error(`Erro no upload para Supabase: ${uploadResult.error.message}`);
-    }
-
-    // Obter URL pública do Supabase
-    const { data: supabaseUrl } = client.storage
-      .from('files')
-      .getPublicUrl(uploadResult.data.path);
-
-    console.log('✅ Vídeo salvo no Supabase Storage:', supabaseUrl.publicUrl);
-
     // Buscar projeto
     const project = await database.query.projects.findFirst({
       where: eq(projects.id, projectId),
@@ -163,7 +132,7 @@ export const generateVideoReplicateAction = async ({
       ...(existingNode.data ?? {}),
       updatedAt: new Date().toISOString(),
       generated: {
-        url: supabaseUrl.publicUrl, // Usar URL do Supabase Storage
+        url: videoUrl, // Usar URL direta do Replicate
         type: 'video/mp4',
       },
       model: modelId,

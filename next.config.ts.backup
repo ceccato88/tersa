@@ -21,12 +21,6 @@ const nextConfig: NextConfig = {
         hostname: '127.0.0.1',
       },
       
-      // Supabase storage, custom IP
-      {
-        protocol: 'http',
-        hostname: '216.238.105.79',
-      },
-      
       // Replicate delivery URLs
       {
         protocol: 'https',

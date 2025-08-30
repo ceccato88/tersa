@@ -5,6 +5,7 @@
 Este manual documenta os procedimentos para:
 1. Executar migrations do banco de dados usando Drizzle
 2. Criar usuários com créditos ilimitados no sistema
+3. Configurar buckets do Supabase Storage
 
 ## 🔧 Pré-requisitos
 
@@ -17,7 +18,9 @@ Este manual documenta os procedimentos para:
 ### Arquivos Necessários
 - `package.json` com scripts de migration
 - `create-unlimited-user.js` (script personalizado)
+- `setup-supabase-storage.js` (script de configuração de storage)
 - Configuração de banco em `lib/database.ts`
+- Arquivo `supabase/seed.sql` com configurações de storage
 
 ## 🗄️ Parte 1: Executando Migrations
 
@@ -67,16 +70,193 @@ Este comando deve mostrar:
 - Tabela `auth.users` com todas as colunas
 - Tabela `public.profile` com todas as colunas
 
-## 👤 Parte 2: Criando Usuários com Créditos Ilimitados
+## 🗄️ Parte 2: Configurando Supabase Storage
 
-### 2.1 Script de Criação
+### 2.1 Problema: Tela Branca com Imagens do Supabase
+
+**Sintoma:** Após configurar os buckets e gerar imagens, a aplicação apresenta tela branca com erro no console:
+
+```
+Uncaught Error: Invalid src prop (http://216.238.105.79:8000/storage/v1/object/public/files/...) on `next/image`, hostname "216.238.105.79" is not configured under images in your `next.config.js`
+```
+
+**Causa:** O Next.js bloqueia imagens de hostnames não configurados por segurança.
+
+**Solução:** Adicionar o IP da VPS na configuração de imagens do Next.js.
+
+#### 2.1.1 Correção Manual
+
+1. **Criar backup do next.config.ts:**
+```bash
+wsl cp next.config.ts next.config.ts.backup
+```
+
+2. **Editar next.config.ts e adicionar o IP da VPS:**
+```typescript
+images: {
+  formats: ['image/avif', 'image/webp'],
+  remotePatterns: [
+    // ... outras configurações ...
+    
+    // Supabase storage, custom IP
+    {
+      protocol: 'http',
+      hostname: '216.238.105.79', // Substitua pelo IP da sua VPS
+    },
+    
+    // ... outras configurações ...
+  ],
+},
+```
+
+3. **Reiniciar o servidor:**
+```bash
+wsl pnpm dev
+```
+
+#### 2.1.2 Correção Automatizada
+
+Para facilitar futuras instalações, use o script automatizado:
+
+```bash
+# Verificar IP atual
+wsl node scripts/update-vps-ip.js --check
+
+# Atualizar para novo IP
+wsl node scripts/update-vps-ip.js 192.168.1.100
+
+# Reiniciar servidor
+wsl pnpm dev
+```
+
+**Comandos disponíveis:**
+- `--check` ou `-c`: Verifica IP atual sem alterar
+- `--help` ou `-h`: Mostra ajuda completa
+
+### 2.2 Visão Geral dos Buckets
+
+O sistema utiliza três buckets principais:
+
+#### `avatars`
+- **Propósito**: Imagens de perfil dos usuários
+- **Tipos permitidos**: JPEG, PNG, WebP, GIF
+- **Tamanho máximo**: 50MB
+- **Acesso**: Público para leitura, usuários gerenciam apenas seus arquivos
+
+#### `files` 
+- **Propósito**: Arquivos gerais dos projetos (imagens e vídeos gerados)
+- **Tipos permitidos**: Imagens, documentos, vídeos, áudios
+- **Tamanho máximo**: 50MB
+- **Acesso**: Público para leitura, usuários gerenciam apenas seus arquivos
+
+#### `screenshots`
+- **Propósito**: Capturas de tela do sistema
+- **Tipos permitidos**: JPEG, PNG, WebP
+- **Tamanho máximo**: 50MB
+- **Acesso**: Público para leitura, usuários gerenciam apenas seus arquivos
+
+### 2.2 Script de Configuração
+
+O script `setup-supabase-storage.js` automatiza:
+- Verificação de buckets existentes
+- Criação de buckets necessários
+- Configuração de políticas de segurança (RLS)
+- Validação da configuração final
+
+### 2.3 Comandos Disponíveis
+
+#### Configuração Completa
+```bash
+wsl node scripts/setup-supabase-storage.js
+```
+
+#### Apenas Verificar Configuração
+```bash
+wsl node scripts/setup-supabase-storage.js --check-only
+```
+
+#### Forçar Recriação dos Buckets
+```bash
+wsl node scripts/setup-supabase-storage.js --force-recreate
+```
+
+### 2.4 Resultado Esperado
+
+Após executar o script, você deve ver:
+
+```
+🚀 CONFIGURAÇÃO DO SUPABASE STORAGE
+=====================================
+
+🔗 Verificando conexão com Supabase...
+✅ Conexão estabelecida. Buckets existentes: 0
+
+📄 Aplicando seed.sql...
+✅ Seed.sql aplicado com sucesso
+
+📦 CRIANDO BUCKETS NECESSÁRIOS...
+📦 Criando bucket 'avatars'...
+✅ Bucket 'avatars' criado com sucesso
+🔒 Configurando políticas RLS para 'avatars'...
+✅ Políticas RLS configuradas para 'avatars'
+
+📦 Criando bucket 'files'...
+✅ Bucket 'files' criado com sucesso
+🔒 Configurando políticas RLS para 'files'...
+✅ Políticas RLS configuradas para 'files'
+
+📦 Criando bucket 'screenshots'...
+✅ Bucket 'screenshots' criado com sucesso
+🔒 Configurando políticas RLS para 'screenshots'...
+✅ Políticas RLS configuradas para 'screenshots'
+
+🔍 VALIDANDO CONFIGURAÇÃO...
+✅ Bucket 'avatars' encontrado
+✅ Bucket 'files' encontrado
+✅ Bucket 'screenshots' encontrado
+
+🧪 Testando upload básico...
+✅ Teste de upload bem-sucedido
+
+🎉 CONFIGURAÇÃO CONCLUÍDA COM SUCESSO!
+```
+
+### 2.5 Troubleshooting
+
+#### Erro "Bucket not found"
+Se você receber este erro durante geração de imagens/vídeos:
+
+```bash
+# Execute a configuração do storage
+wsl node scripts/setup-supabase-storage.js
+```
+
+#### Erro de Permissão
+Se houver problemas de permissão:
+
+```bash
+# Verifique se as políticas RLS foram aplicadas
+wsl node scripts/setup-supabase-storage.js --check-only
+```
+
+#### Recriar Buckets Completamente
+Se houver problemas persistentes:
+
+```bash
+# Force a recriação de todos os buckets
+wsl node scripts/setup-supabase-storage.js --force-recreate
+```
+
+## 👤 Parte 3: Criando Usuários com Créditos Ilimitados
+
+### 3.1 Script de Criação
 
 O script `create-unlimited-user.js` permite:
 - Criar usuários com créditos ilimitados
 - Listar usuários existentes
 - Verificar usuários criados
 
-### 2.2 Comandos Disponíveis
+### 3.2 Comandos Disponíveis
 
 #### Criar Novo Usuário
 ```bash
@@ -313,9 +493,64 @@ wsl node create-unlimited-user.js list
 wsl node create-unlimited-user.js verify <email>
 ```
 
-## 📝 Parte 4: Procedimento Completo Passo a Passo
+## 🛠️ Parte 4: Scripts Auxiliares
 
-### 4.1 Primeira Execução (Setup Inicial)
+### 4.1 Script de Atualização do IP da VPS
+
+**Arquivo:** `scripts/update-vps-ip.js`
+
+**Propósito:** Automatizar a atualização do IP da VPS no `next.config.ts` quando a infraestrutura muda.
+
+#### 4.1.1 Comandos Disponíveis
+
+```bash
+# Verificar IP atual configurado
+wsl node scripts/update-vps-ip.js --check
+
+# Atualizar para novo IP
+wsl node scripts/update-vps-ip.js <novo-ip>
+
+# Mostrar ajuda
+wsl node scripts/update-vps-ip.js --help
+```
+
+#### 4.1.2 Exemplo de Uso
+
+```bash
+# Cenário: VPS mudou de 216.238.105.79 para 192.168.1.100
+
+# 1. Verificar IP atual
+wsl node scripts/update-vps-ip.js --check
+# Output: IP configurado: 216.238.105.79
+
+# 2. Atualizar para novo IP
+wsl node scripts/update-vps-ip.js 192.168.1.100
+# Output: ✅ IP atualizado para: 192.168.1.100
+
+# 3. Reiniciar servidor
+wsl pnpm dev
+```
+
+#### 4.1.3 Recursos do Script
+
+- ✅ **Backup automático:** Cria `next.config.ts.backup` antes da primeira alteração
+- ✅ **Validação de IP:** Verifica formato antes de aplicar
+- ✅ **Detecção automática:** Encontra e substitui o IP da VPS automaticamente
+- ✅ **Feedback detalhado:** Mostra status e próximos passos
+- ✅ **Segurança:** Mantém backup para rollback se necessário
+
+#### 4.1.4 Quando Usar
+
+- 🔄 **Nova instalação:** IP da VPS diferente
+- 🏗️ **Mudança de infraestrutura:** Migração de servidor
+- 🔧 **Troubleshooting:** Corrigir problemas de imagem
+- 📦 **Deploy:** Configuração de ambiente de produção
+
+---
+
+## 📝 Parte 5: Procedimento Completo Passo a Passo
+
+### 5.1 Primeira Execução (Setup Inicial)
 
 ```bash
 # 1. Navegar para o projeto
@@ -340,7 +575,7 @@ wsl node create-unlimited-user.js create admin@tersa.com senha123456
 wsl node create-unlimited-user.js list
 ```
 
-### 4.2 Criação de Usuários Subsequentes
+### 5.2 Criação de Usuários Subsequentes
 
 ```bash
 # 1. Navegar para o projeto
@@ -353,7 +588,7 @@ wsl node create-unlimited-user.js create <email> <senha>
 wsl node create-unlimited-user.js verify <email>
 ```
 
-### 4.3 Exclusão de Usuários
+### 5.3 Exclusão de Usuários
 
 ```bash
 # 1. Navegar para o projeto
@@ -372,7 +607,7 @@ wsl node delete-user.js delete <email>
 wsl node delete-user.js list
 ```
 
-### 4.4 Teste Completo do Sistema de Exclusão
+### 5.4 Teste Completo do Sistema de Exclusão
 
 **⚠️ IMPORTANTE: Execute este teste para validar o funcionamento completo**
 
@@ -457,9 +692,15 @@ Em caso de problemas:
 - [ ] Usuário listado corretamente
 - [ ] Verificação de usuário realizada
 - [ ] **Scripts de exclusão testados** (`delete-user.js`)
-- [ ] **Teste completo do sistema de exclusão executado** (seção 4.4)
+- [ ] **Teste completo do sistema de exclusão executado** (seção 5.4)
 - [ ] Dependência `pg` instalada (`wsl pnpm install pg`)
 - [ ] Backup de dados críticos realizado (antes de exclusões)
+
+### Configuração de Imagens
+- [ ] IP da VPS adicionado ao `next.config.ts`
+- [ ] Servidor reiniciado após alteração
+- [ ] Imagens do Supabase carregando sem erro
+- [ ] Sem tela branca na geração de imagens
 
 ### Validação Final
 - [ ] Todos os scripts funcionando corretamente

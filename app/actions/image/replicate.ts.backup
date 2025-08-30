@@ -84,28 +84,32 @@ export const generateImageReplicateAction = async ({
       numOutputs,
     });
 
-    // Preparar input para o modelo
+    // Preparar input para o modelo - converter valores para tipos corretos conforme API Flux Dev
     const input: any = {
       prompt: finalPrompt,
-      aspect_ratio: aspectRatio,
-      guidance: guidance,
-      num_outputs: numOutputs,
-      output_format: outputFormat,
-      output_quality: outputQuality,
-      megapixels: megapixels.toString(),
-      prompt_strength: promptStrength,
-      num_inference_steps: numInferenceSteps,
-      disable_safety_checker: disableSafetyChecker,
-      go_fast: goFast,
-      ...(seed && { seed: parseInt(seed.toString(), 10) }),
+      aspect_ratio: aspectRatio, // string
+      guidance: typeof guidance === 'string' ? parseFloat(guidance) : guidance, // number
+      num_outputs: typeof numOutputs === 'string' ? parseInt(numOutputs, 10) : numOutputs, // integer
+      output_format: outputFormat, // string
+      output_quality: typeof outputQuality === 'string' ? parseInt(outputQuality, 10) : outputQuality, // integer
+      megapixels: megapixels.toString(), // string (API espera string)
+      prompt_strength: typeof promptStrength === 'string' ? parseFloat(promptStrength) : promptStrength, // number
+      num_inference_steps: typeof numInferenceSteps === 'string' ? parseInt(numInferenceSteps, 10) : numInferenceSteps, // integer
+      disable_safety_checker: Boolean(disableSafetyChecker), // boolean
+      go_fast: Boolean(goFast), // boolean
+      ...(seed && { seed: parseInt(seed.toString(), 10) }), // integer
     };
 
-    // Adicionar imagem se fornecida
-    if (image) {
-      input.image = image;
-    } else if (imageInputs && imageInputs.length > 0) {
-      // imageInputs contém objetos {url: string, type: string}, mas o Replicate espera apenas a URL
-      input.image = imageInputs[0].url;
+    // Adicionar imagem se fornecida - usar parâmetro correto baseado no modelo
+    const imageUrl = image || (imageInputs && imageInputs.length > 0 ? imageInputs[0].url : null);
+    
+    if (imageUrl) {
+      // Flux Pro 1.1 usa image_prompt, outros modelos usam image
+      if (modelId === 'black-forest-labs/flux-1.1-pro') {
+        input.image_prompt = imageUrl;
+      } else {
+        input.image = imageUrl;
+      }
     }
 
     // Executar o modelo Replicate e aguardar conclusão
@@ -157,29 +161,9 @@ export const generateImageReplicateAction = async ({
 
     // Usar a primeira imagem para o nó atual
     const primaryImageUrl = imageUrls[0];
-
-    // Fazer download da imagem e salvar no Supabase
-    const imageResponse = await fetch(primaryImageUrl);
-    if (!imageResponse.ok) {
-      throw new Error('Falha ao fazer download da imagem');
-    }
-
-    const imageBlob = await imageResponse.blob();
-    const imageName = `${nanoid()}.webp`;
-
-    const uploadResult = await client.storage
-      .from('files')
-      .upload(`${user.id}/${imageName}`, imageBlob, {
-        contentType: 'image/webp',
-      });
-
-    if (uploadResult.error) {
-      throw new Error(uploadResult.error.message);
-    }
-
-    const { data: downloadUrl } = client.storage
-      .from('files')
-      .getPublicUrl(uploadResult.data.path);
+    
+    console.log('🔗 Usando URL direta do Replicate:', primaryImageUrl);
+    const mimeType = outputFormat === 'jpeg' ? 'image/jpeg' : `image/${outputFormat}`;
 
     // Créditos infinitos - não rastrear uso
     console.log('💳 Créditos infinitos - pulando rastreamento do Stripe');
@@ -210,8 +194,8 @@ export const generateImageReplicateAction = async ({
       ...(existingNode.data ?? {}),
       updatedAt: new Date().toISOString(),
       generated: {
-        url: downloadUrl.publicUrl,
-        type: 'image/webp',
+        url: primaryImageUrl, // Usar URL direta do Replicate
+        type: mimeType,
       },
     };
 

@@ -162,8 +162,34 @@ export const generateImageReplicateAction = async ({
     // Usar a primeira imagem para o nó atual
     const primaryImageUrl = imageUrls[0];
     
-    console.log('🔗 Usando URL direta do Replicate:', primaryImageUrl);
+    console.log('🔗 Fazendo download da imagem do Replicate:', primaryImageUrl);
     const mimeType = outputFormat === 'jpeg' ? 'image/jpeg' : `image/${outputFormat}`;
+
+    // Download da imagem do Replicate
+    const imageResponse = await fetch(primaryImageUrl);
+    if (!imageResponse.ok) {
+      throw new Error(`Erro ao fazer download da imagem: ${imageResponse.statusText}`);
+    }
+    const imageArrayBuffer = await imageResponse.arrayBuffer();
+
+    // Upload para Supabase Storage
+    const fileName = `${user.id}/${nanoid()}.${outputFormat}`;
+    const uploadResult = await client.storage
+      .from('files')
+      .upload(fileName, imageArrayBuffer, {
+        contentType: mimeType,
+      });
+
+    if (uploadResult.error) {
+      throw new Error(`Erro no upload para Supabase: ${uploadResult.error.message}`);
+    }
+
+    // Obter URL pública do Supabase
+    const { data: supabaseUrl } = client.storage
+      .from('files')
+      .getPublicUrl(uploadResult.data.path);
+
+    console.log('✅ Imagem salva no Supabase Storage:', supabaseUrl.publicUrl);
 
     // Créditos infinitos - não rastrear uso
     console.log('💳 Créditos infinitos - pulando rastreamento do Stripe');
@@ -194,7 +220,7 @@ export const generateImageReplicateAction = async ({
       ...(existingNode.data ?? {}),
       updatedAt: new Date().toISOString(),
       generated: {
-        url: primaryImageUrl, // Usar URL direta do Replicate
+        url: supabaseUrl.publicUrl, // Usar URL do Supabase Storage
         type: mimeType,
       },
     };
