@@ -78,14 +78,22 @@ export const getImagesFromImageNodes = (nodes: Node[]) => {
 };
 
 export const isValidSourceTarget = (source: Node, target: Node) => {
-  if (source.type === 'video' || source.type === 'drop') {
+  // Prevent drop nodes from being sources
+  if (source.type === 'drop') {
     return false;
   }
 
+  // File nodes can only connect to text, image, and video nodes
+  if (source.type === 'file' && !['text', 'image', 'video'].includes(target.type)) {
+    return false;
+  }
+
+  // Audio nodes only accept text as input
   if (target.type === 'audio' && source.type !== 'text') {
     return false;
   }
 
+  // File nodes don't accept any input
   if (target.type === 'file') {
     return false;
   }

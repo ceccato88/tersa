@@ -58,7 +58,12 @@ export const NodeLayout = ({
       return incomers.length > 0;
     }
     if (type === 'video') {
-      return true; // Nós de vídeo sempre têm entrada disponível
+      // Para nós de vídeo, só mostrar entrada se já tiver conexões (transform)
+      // Nós primitivos (sem conexões) não devem ter entrada
+      const node = getNode(id);
+      if (!node) return false;
+      const incomers = getIncomers(node, getNodes(), getEdges());
+      return incomers.length > 0;
     }
     return type !== 'file' && type !== 'tweet';
   };
@@ -150,7 +155,7 @@ export const NodeLayout = ({
           )}
         </ContextMenuContent>
       </ContextMenu>
-      {type !== 'file' && type !== 'tweet' && <Handle type="source" position={Position.Right} />}
+      {type !== 'tweet' && <Handle type="source" position={Position.Right} />}
       <Dialog open={showData} onOpenChange={setShowData}>
         <DialogContent>
           <DialogHeader>

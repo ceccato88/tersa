@@ -62,11 +62,11 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
         throw new Error(response.error);
       }
 
-      toast.success('Project updated successfully');
+      toast.success('Projeto atualizado com sucesso');
       setOpen(false);
       router.refresh();
     } catch (error) {
-      handleError('Error updating project', error);
+      handleError('Erro ao atualizar o projeto', error);
     } finally {
       setIsUpdating(false);
     }
@@ -80,11 +80,11 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
         throw new Error(response.error);
       }
 
-      toast.success('Project deleted successfully');
+      toast.success('Projeto excluído com sucesso');
       setOpen(false);
       router.push('/');
     } catch (error) {
-      handleError('Error deleting project', error);
+      handleError('Erro ao excluir projeto', error);
     }
   };
   return (

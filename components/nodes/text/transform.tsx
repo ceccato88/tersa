@@ -436,7 +436,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
         </div>
       )}
       
-      {status !== 'generating' && (data.generated?.text || nonUserMessages.length) && (
+      {status !== 'generating' && (data.generated?.text || Boolean(nonUserMessages.length)) && (
         <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-6">
           {data.generated?.text && !nonUserMessages.length && (
             <ReactMarkdown>{data.generated.text}</ReactMarkdown>

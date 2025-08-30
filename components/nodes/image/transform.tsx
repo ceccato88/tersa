@@ -361,23 +361,18 @@ export const ImageTransform = ({
         </div>
       )}
       {!loading && data.generated?.url && (
-        <>
-          {console.log('Renderizando imagem com URL:', data.generated.url)}
-          <Image
-            src={data.generated.url}
-            alt="Imagem gerada"
-            width={1000}
-            height={1000}
-            className="w-full rounded-b-xl object-cover"
-            onError={(e) => {
-              console.error('Erro ao carregar imagem:', e);
-              console.error('URL da imagem com erro:', data.generated.url);
-            }}
-            onLoad={() => {
-              console.log('Imagem carregada com sucesso:', data.generated.url);
-            }}
-          />
-        </>
+        <Image
+          src={data.generated.url}
+          alt="Imagem gerada"
+          width={1000}
+          height={1000}
+          className="w-full rounded-b-xl object-cover"
+          priority
+          onError={(e) => {
+            console.error('Erro ao carregar imagem:', e);
+            console.error('URL da imagem com erro:', data.generated.url);
+          }}
+        />
       )}
       <div className="space-y-4 p-4">
         <Textarea
