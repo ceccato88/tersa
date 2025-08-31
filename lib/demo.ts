@@ -58,18 +58,7 @@ export const sampleNodes: Node[] = [
     },
     origin: [0, 0.5],
   },
-  {
-    id: 'LChjpwMpTwx4CaEypTsAr',
-    type: 'audio',
-    data: {
-      content: {
-        url: '/demo/delphiniums-primitive.mp3',
-        type: 'audio/mpeg',
-      },
-    },
-    position: { x: -256, y: 150 },
-    origin: [0, 0.5],
-  },
+
   {
     id: 'lMrWEm_K9EbGledg2JzAY',
     type: 'video',
@@ -108,19 +97,7 @@ export const sampleNodes: Node[] = [
     position: { x: 800, y: 400 },
     origin: [0, 0.5],
   },
-  {
-    id: '-UWhefN0_XOKHo7XbN2pY',
-    type: 'audio',
-    data: {
-      generated: {
-        url: '/demo/delphiniums-transform.mp3',
-        type: 'audio/mpeg',
-      },
-      instructions: 'Speak in an excited tone.',
-    },
-    position: { x: 259, y: 380 },
-    origin: [0, 0.5],
-  },
+
 ];
 
 export const sampleEdges: Edge[] = [
@@ -154,18 +131,7 @@ export const sampleEdges: Edge[] = [
     type: 'animated',
     id: 'xy-edge__wiHfpZJA_mGy1vQOULuOA-lMrWEm_K9EbGledg2JzAY',
   },
-  {
-    source: 'vgWgaLMHG6Y6MMwu_VF1D',
-    target: '-UWhefN0_XOKHo7XbN2pY',
-    type: 'animated',
-    id: 'xy-edge__vgWgaLMHG6Y6MMwu_VF1D--UWhefN0_XOKHo7XbN2pY',
-  },
-  {
-    source: 'LChjpwMpTwx4CaEypTsAr',
-    target: 'wiHfpZJA_mGy1vQOULuOA',
-    type: 'animated',
-    id: 'xy-edge__LChjpwMpTwx4CaEypTsAr-wiHfpZJA_mGy1vQOULuOA',
-  },
+
 ];
 
 export const sampleViewport: Viewport = {

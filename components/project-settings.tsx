@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { handleError } from '@/lib/error/handle';
-import { transcriptionModels } from '@/lib/models/transcription';
+
 import { visionModels } from '@/lib/models/vision';
 import { useSubscription } from '@/providers/subscription';
 import type { projects } from '@/schema';
@@ -33,9 +33,7 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
   const [open, setOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [name, setName] = useState(data.name);
-  const [transcriptionModel, setTranscriptionModel] = useState(
-    data.transcriptionModel
-  );
+
   const [visionModel, setVisionModel] = useState(data.visionModel);
   const router = useRouter();
   const { isSubscribed, plan } = useSubscription();
@@ -54,7 +52,6 @@ export const ProjectSettings = ({ data }: ProjectSettingsProps) => {
 
       const response = await updateProjectAction(data.id, {
         name,
-        transcriptionModel,
         visionModel,
       });
 

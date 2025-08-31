@@ -28,8 +28,6 @@ import {
   getFilesFromFileNodes,
   getImagesFromImageNodes,
   getTextFromTextNodes,
-  getTranscriptionFromAudioNodes,
-  getTweetContentFromTweetNodes,
 } from '@/lib/xyflow';
 import { useGateway } from '@/providers/gateway/client';
 import { useProject } from '@/providers/project';
@@ -111,10 +109,8 @@ export const TextTransform = ({
   const handleGenerate = useCallback(async () => {
     const incomers = getIncomers({ id }, getNodes(), getEdges());
     const textPrompts = getTextFromTextNodes(incomers);
-    const audioPrompts = getTranscriptionFromAudioNodes(incomers);
     const images = getImagesFromImageNodes(incomers);
     const imageDescriptions = getDescriptionsFromImageNodes(incomers);
-    const tweetContent = getTweetContentFromTweetNodes(incomers);
     const files = getFilesFromFileNodes(incomers);
 
     if (!data.instructions?.trim()) {
@@ -124,7 +120,7 @@ export const TextTransform = ({
       return;
     }
     
-    if (!textPrompts.length && !audioPrompts.length && !data.instructions) {
+    if (!textPrompts.length && !data.instructions) {
       handleError('Error generating text', 'No prompts found');
       return;
     }
@@ -150,16 +146,8 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
       content.push('--- Mensagens Anteriores ---', ...textPrompts);
     }
 
-    if (audioPrompts.length) {
-      content.push('--- Prompts de Áudio ---', ...audioPrompts);
-    }
-
     if (imageDescriptions.length) {
       content.push('--- Descrições de Imagens ---', ...imageDescriptions);
-    }
-
-    if (tweetContent.length) {
-      content.push('--- Conteúdo de Tweets ---', ...tweetContent);
     }
 
     analytics.track('canvas', 'node', 'generate', {

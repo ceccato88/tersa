@@ -20,7 +20,7 @@ export const download = (
   let extension = defaultExtension;
   if (data.type && data.type.includes('/')) {
     const extractedExtension = data.type.split('/').at(-1);
-    if (extractedExtension && extractedExtension !== 'image' && extractedExtension !== 'video' && extractedExtension !== 'audio') {
+    if (extractedExtension && extractedExtension !== 'image' && extractedExtension !== 'video') {
       extension = extractedExtension;
     }
   }

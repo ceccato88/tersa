@@ -69,9 +69,7 @@ export const FilePrimitive = ({
         throw new Error('Nenhum arquivo selecionado');
       }
 
-      if (files.some((file) => file.type.startsWith('audio'))) {
-        throw new Error('Use o nó de áudio para fazer upload de arquivos de áudio.');
-      }
+
 
       if (files.some((file) => file.type.startsWith('video'))) {
         throw new Error('Use o nó de vídeo para fazer upload de arquivos de vídeo.');

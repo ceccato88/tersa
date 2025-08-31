@@ -234,7 +234,7 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
       const edges = getEdges();
       const target = nodes.find((node) => node.id === connection.target);
 
-      // Prevent connecting audio nodes to anything except transcribe nodes
+
       if (connection.source) {
         const source = nodes.find((node) => node.id === connection.source);
 

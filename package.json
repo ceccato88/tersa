@@ -17,8 +17,8 @@
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^3.0.9",
     "@ai-sdk/gateway": "^1.0.8",
-    "@ai-sdk/hume": "^1.0.4",
-    "@ai-sdk/lmnt": "^1.0.4",
+
+
     "@ai-sdk/luma": "^1.0.4",
     "@ai-sdk/openai": "^2.0.16",
     "@ai-sdk/provider": "^2.0.0",
@@ -124,7 +124,7 @@
     "react-hotkeys-hook": "^5.1.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^3.0.3",
-    "react-tweet": "^3.2.2",
+
     "recharts": "^2.15.3",
     "remark-gfm": "^4.0.1",
     "replicate": "^1.0.1",

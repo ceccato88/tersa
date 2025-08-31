@@ -1,7 +1,5 @@
 import { CableIcon, GrabIcon, MoveIcon, PlayIcon } from 'lucide-react';
-import { CodeDemo } from './code-demo';
 import { ImageDemo } from './image-demo';
-import { SpeechDemo } from './speech-demo';
 import { TextDemo } from './text-demo';
 import { VideoDemo } from './video-demo';
 
@@ -115,37 +113,7 @@ export const Features = () => (
           </div>
         </div>
 
-        <div className="grid gap-4 border-b border-dotted p-8 sm:border-r sm:border-b-0">
-          <div className="aspect-video w-full overflow-hidden rounded-lg border">
-            <SpeechDemo />
-          </div>
-          <div className="grid gap-2">
-            <h3 className="font-medium text-xl sm:text-2xl">
-              Capture and narrate speech
-            </h3>
-            <p className="text-muted-foreground text-sm sm:text-base">
-              Use models like OpenAI's Whisper to transcribe audio from incoming
-              nodes. Connect text nodes to provide prompts and audio nodes to
-              attach them to the request.
-            </p>
-          </div>
-        </div>
 
-        <div className="grid gap-4 p-8">
-          <div className="aspect-video w-full overflow-hidden rounded-lg border">
-            <CodeDemo />
-          </div>
-          <div className="grid gap-2">
-            <h3 className="font-medium text-xl sm:text-2xl">
-              Transform and refactor code
-            </h3>
-            <p className="text-muted-foreground text-sm sm:text-base">
-              Use AI models to analyze, refactor, and optimize your code.
-              Connect code nodes to provide source files and text nodes to
-              specify transformation instructions or requirements.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
     <div className="border-b border-dotted" />

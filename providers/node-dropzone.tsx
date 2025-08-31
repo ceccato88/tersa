@@ -48,8 +48,7 @@ export const NodeDropzoneProvider = ({
           nodeType = 'image';
         } else if (data.type.startsWith('video/')) {
           nodeType = 'video';
-        } else if (data.type.startsWith('audio/')) {
-          nodeType = 'audio';
+
         }
 
         addNode(nodeType, {
