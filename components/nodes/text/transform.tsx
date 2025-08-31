@@ -16,6 +16,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+// Removido ModelSelector - usando modelo fixo
+// import { ModelSelector } from '@/components/nodes/model-selector';
+// import { TEXT_MODELS, getDefaultTextModel } from '@/lib/text-models';
+// import { getFirstAvailableModel } from '@/lib/model-filtering';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useReasoning } from '@/hooks/use-reasoning';
 import { handleError } from '@/lib/error/handle';
@@ -57,23 +61,6 @@ type TextTransformProps = TextNodeProps & {
   title: string;
 };
 
-// Modelos disponíveis - todos usando Replicate API
-const AVAILABLE_MODELS = {
-  'openai/gpt-5': {
-    name: 'GPT-5',
-    provider: 'replicate',
-    default: true,
-  },
-  'openai/gpt-5-mini': {
-    name: 'GPT-5 Mini',
-    provider: 'replicate',
-  },
-  'anthropic/claude-4-sonnet': {
-    name: 'Claude 4 Sonnet',
-    provider: 'replicate',
-  },
-};
-
 type StreamingStatus = 'idle' | 'generating' | 'streaming' | 'completed' | 'error';
 
 interface StreamMessage {
@@ -83,13 +70,6 @@ interface StreamMessage {
   sources?: Array<{ url: string; title?: string }>;
 }
 
-const getDefaultModel = () => {
-  const defaultModel = Object.entries(AVAILABLE_MODELS).find(
-    ([_, model]) => model.default
-  );
-  return defaultModel ? defaultModel[0] : 'openai/gpt-5';
-};
-
 export const TextTransform = ({
   data,
   id,
@@ -98,7 +78,16 @@ export const TextTransform = ({
 }: TextTransformProps) => {
   const { updateNodeData, getNodes, getEdges, addNodes, addEdges } = useReactFlow();
   const project = useProject();
-  const modelId = data.model ?? getDefaultModel();
+  
+  // Modelo fixo: openai/gpt-5-chat
+  const modelId = 'openai/gpt-5-chat';
+  const selectedModel = {
+    id: 'openai/gpt-5-chat',
+    label: 'GPT-5 Chat',
+    chef: { id: 'fal' },
+    price: '$$$'
+  };
+  
   const analytics = useAnalytics();
   const [reasoning, setReasoning] = useReasoning();
   
@@ -116,6 +105,8 @@ export const TextTransform = ({
     // Usar aspect ratio padrão para texto
     return '16/9';
   }, []);
+
+
 
   const handleGenerate = useCallback(async () => {
     const incomers = getIncomers({ id }, getNodes(), getEdges());
@@ -151,7 +142,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
 
     // Adicionar mensagem atual (instruções do usuário)
     if (data.instructions) {
-      content.push('--- Mensagem Atual ---', data.instructions);
+      content.push('--- Mensagem Atual ---', `User: ${data.instructions}`);
     }
 
     // Adicionar mensagens anteriores
@@ -191,11 +182,6 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
       max_completion_tokens: 4000,
     };
 
-    // Adicionar imagens se houver
-    if (images.length > 0) {
-      replicateInput.image_input = images.map(img => img.url);
-    }
-
     try {
       setStatus('generating');
       setMessages([]);
@@ -207,17 +193,38 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
       // Gerar múltiplas variações
       const variations: string[] = [];
       
+      // Determinar qual endpoint usar baseado no provider do modelo
+      const isFalModel = selectedModel?.chef?.id === 'fal';
+      const endpoint = isFalModel ? '/api/fal-stream' : '/api/replicate-stream';
+      
       for (let i = 0; i < variationCount; i++) {
-        // Fazer chamada para API do Replicate via endpoint local
-        const response = await fetch('/api/replicate-stream', {
+        // Preparar input baseado no provider
+        const requestBody = isFalModel ? {
+          model: modelId.replace('fal-ai/', ''), // Remover prefixo fal-ai/
+          input: {
+            prompt: content.join('\n'),
+            system_prompt: systemPrompt,
+            reasoning: true,
+            priority: 'latency',
+            // Adicionar image_url se houver imagens dos nós anteriores
+            ...(images.length > 0 && { image_url: images[0].url })
+          }
+        } : {
+          model: modelId,
+          input: {
+            ...replicateInput,
+            // Adicionar image_input se houver imagens dos nós anteriores
+            ...(images.length > 0 && { image_input: images.map(img => img.url) })
+          },
+        };
+        
+        // Fazer chamada para API via endpoint local
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            model: modelId,
-            input: replicateInput,
-          }),
+          body: JSON.stringify(requestBody),
           signal: abortControllerRef.current?.signal,
         });
 
@@ -354,9 +361,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
     toast.success('Copied to clipboard');
   }, []);
 
-  const handleModelChange = useCallback((value: string) => {
-    updateNodeData(id, { model: value });
-  }, [id, updateNodeData]);
+
   
   const handleVariationCountChange = useCallback((value: number) => {
     const clampedValue = Math.max(1, value); // Mínimo de 1
@@ -388,7 +393,6 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
     data.generated?.text,
     data.updatedAt,
     handleGenerate,
-    handleModelChange,
     handleVariationCountChange,
     modelId,
     id,
@@ -480,42 +484,24 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
           className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
         />
         
-        {/* Modelo e Quantidade lado a lado */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Modelo</Label>
-            <Select value={modelId} onValueChange={handleModelChange}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(AVAILABLE_MODELS).map(([key, model]) => (
-                  <SelectItem key={key} value={key}>
-                    {model.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Quantidade</Label>
-            <Select
-              value={variationCount.toString()}
-              onValueChange={(value) => handleVariationCountChange(parseInt(value))}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5].map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num} {num === 1 ? 'variação' : 'variações'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Apenas controle de quantidade */}
+        <div className="space-y-2">
+          <Label>Quantidade de variações</Label>
+          <Select
+            value={variationCount.toString()}
+            onValueChange={(value) => handleVariationCountChange(parseInt(value))}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {[1, 2, 3, 4, 5].map((num) => (
+                <SelectItem key={num} value={num.toString()}>
+                  {num} {num === 1 ? 'variação' : 'variações'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         
         {/* Botões Gerar e Copiar lado a lado */}

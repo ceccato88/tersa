@@ -54,6 +54,9 @@ export const env = createEnv({
     // Supabase Integration
     NEXT_PUBLIC_SUPABASE_URL: z.string().url().min(1),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+    NEXT_PUBLIC_SUPABASE_UPLOAD_URL: z.string().url().min(1),
+    NEXT_PUBLIC_SUPABASE_DOMAIN: z.string().min(1),
+    NEXT_PUBLIC_SUPABASE_HOSTNAME: z.string().min(1),
   },
   runtimeEnv: {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
@@ -65,6 +68,9 @@ export const env = createEnv({
     POSTGRES_URL: process.env.POSTGRES_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    NEXT_PUBLIC_SUPABASE_UPLOAD_URL: process.env.NEXT_PUBLIC_SUPABASE_UPLOAD_URL,
+    NEXT_PUBLIC_SUPABASE_DOMAIN: process.env.NEXT_PUBLIC_SUPABASE_DOMAIN,
+    NEXT_PUBLIC_SUPABASE_HOSTNAME: process.env.NEXT_PUBLIC_SUPABASE_HOSTNAME,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     MINIMAX_GROUP_ID: process.env.MINIMAX_GROUP_ID,
     MINIMAX_API_KEY: process.env.MINIMAX_API_KEY,

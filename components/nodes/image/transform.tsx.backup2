@@ -1,4 +1,4 @@
-// Removido import do Replicate - usando apenas FAL
+import { generateImageReplicateAction } from '@/app/actions/image/replicate';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,58 @@ type ImageTransformProps = ImageNodeProps & {
 };
 
 const AVAILABLE_MODELS = {
+  // Modelos Replicate
+  'black-forest-labs/flux-dev': {
+    label: 'FLUX.1 [dev] (Replicate)',
+    chef: providers.replicate,
+    providers: [providers.replicate],
+    aspectRatios: [
+      { label: '1:1 (1024x1024)', value: '1:1' },
+      { label: '9:16 (832x1216)', value: '9:16' },
+      { label: '16:9 (1216x832)', value: '16:9' },
+      { label: '4:5 (896x1152)', value: '4:5' },
+      { label: '5:4 (1152x896)', value: '5:4' },
+      { label: '3:4 (768x1024)', value: '3:4' },
+      { label: '4:3 (1024x768)', value: '4:3' },
+      { label: '2:3 (832x1216)', value: '2:3' },
+      { label: '3:2 (1216x832)', value: '3:2' },
+    ],
+    default: true,
+  },
+  'black-forest-labs/flux-krea-dev': {
+    label: 'FLUX Krea Dev (Replicate)',
+    chef: providers.replicate,
+    providers: [providers.replicate],
+    aspectRatios: [
+      { label: '1:1 (1024x1024)', value: '1:1' },
+      { label: '9:16 (832x1216)', value: '9:16' },
+      { label: '16:9 (1216x832)', value: '16:9' },
+      { label: '4:5 (896x1152)', value: '4:5' },
+      { label: '5:4 (1152x896)', value: '5:4' },
+      { label: '3:4 (768x1024)', value: '3:4' },
+      { label: '4:3 (1024x768)', value: '4:3' },
+      { label: '2:3 (832x1216)', value: '2:3' },
+      { label: '3:2 (1216x832)', value: '3:2' },
+    ],
+    default: false,
+  },
+  'black-forest-labs/flux-1.1-pro': {
+    label: 'FLUX 1.1 Pro (Replicate)',
+    chef: providers.replicate,
+    providers: [providers.replicate],
+    aspectRatios: [
+      { label: '1:1 (1024x1024)', value: '1:1' },
+      { label: '16:9 (1216x832)', value: '16:9' },
+      { label: '3:2 (1216x832)', value: '3:2' },
+      { label: '2:3 (832x1216)', value: '2:3' },
+      { label: '4:5 (896x1152)', value: '4:5' },
+      { label: '5:4 (1152x896)', value: '5:4' },
+      { label: '9:16 (832x1216)', value: '9:16' },
+      { label: '3:4 (768x1024)', value: '3:4' },
+      { label: '4:3 (1024x768)', value: '4:3' },
+    ],
+    default: false,
+  },
   // Modelos FAL
   'fal-ai/flux-dev': {
     label: 'FLUX.1 [dev] (FAL)',
@@ -55,7 +107,7 @@ const AVAILABLE_MODELS = {
       { label: '16:9', value: 'landscape_16_9' },
       { label: '9:16', value: 'portrait_16_9' },
     ],
-    default: true,
+    default: false,
   },
   'fal-ai/flux-schnell': {
     label: 'FLUX Schnell (FAL)',
@@ -129,7 +181,7 @@ export const ImageTransform = ({
   const hasIncomingImageNodes =
     getImagesFromImageNodes(getIncomers({ id }, getNodes(), getEdges()))
       .length > 0;
-
+  const selectedModel = AVAILABLE_MODELS[modelId];
   const aspectRatio = data.aspectRatio || '1:1';
   const seed = data.seed || '';
   const numOutputs = data.numOutputs || 1;
@@ -171,64 +223,92 @@ export const ImageTransform = ({
       // Gerar múltiplas variações
       const variations: any[] = [];
       
+      // Determinar qual action usar baseado no provider do modelo
+      const selectedModel = AVAILABLE_MODELS[modelId];
+      const isFalModel = selectedModel?.chef?.id === 'fal';
+      
       for (let i = 0; i < numOutputs; i++) {
         let response;
         
-        // Usar FAL API via route (apenas FAL disponível)
-        const falResponse = await fetch('/api/fal-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            prompt: (() => {
-              const messages = [];
-              if (data.instructions) {
-                messages.push('Mensagem atual');
-                messages.push(`User: ${data.instructions}`);
-              }
-              if (textNodes.length > 0) {
-                messages.push('Mensagens anteriores');
-                textNodes.forEach(text => {
-                  messages.push(text);
-                });
-              }
-              return messages.join('\n');
-            })(),
-            params: {
-              model: modelId,
-              aspectRatio: aspectRatio,
-              seed: seed,
-              guidanceScale: data.guidance || 3.5,
-              steps: data.numInferenceSteps || 28,
-              strength: data.promptStrength || 0.8,
+        if (isFalModel) {
+          // Usar FAL API via route
+          const falResponse = await fetch('/api/fal-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
             },
-            imageNodes: imageNodes.length > 0 ? imageNodes : undefined
-          })
-        });
-        
-        if (!falResponse.ok) {
-          throw new Error('Failed to generate image with FAL');
-        }
-        
-        const falResult = await falResponse.json();
-        
-        // Transformar resposta FAL para o formato esperado pelo nó
-        if (falResult.success && falResult.data && falResult.data.output) {
-          response = {
-            nodeData: {
-              url: falResult.data.output,
-              width: 1024, // Valor padrão, será ajustado quando a imagem carregar
-              height: 1024, // Valor padrão, será ajustado quando a imagem carregar
-              contentType: 'image/jpeg',
-              seed: falResult.data.seed,
-              prompt: falResult.data.prompt,
-              provider: 'fal',
-              model: falResult.data.model
-            }
-          };
+            body: JSON.stringify({
+              prompt: (() => {
+                const messages = [];
+                if (data.instructions) {
+                  messages.push('Mensagem atual');
+                  messages.push(`User: ${data.instructions}`);
+                }
+                if (textNodes.length > 0) {
+                  messages.push('Mensagens anteriores');
+                  textNodes.forEach(text => {
+                    messages.push(text);
+                  });
+                }
+                return messages.join('\n');
+              })(),
+              params: {
+                model: modelId,
+                aspectRatio: aspectRatio,
+                seed: seed,
+                guidanceScale: data.guidance || 3.5,
+                steps: data.numInferenceSteps || 28,
+                strength: data.promptStrength || 0.8,
+              },
+              imageNodes: imageNodes.length > 0 ? imageNodes : undefined
+            })
+          });
+          
+          if (!falResponse.ok) {
+            throw new Error('Failed to generate image with FAL');
+          }
+          
+          const falResult = await falResponse.json();
+          
+          // Transformar resposta FAL para o formato esperado pelo nó
+          if (falResult.success && falResult.data && falResult.data.output) {
+            response = {
+              nodeData: {
+                url: falResult.data.output,
+                width: 1024, // Valor padrão, será ajustado quando a imagem carregar
+                height: 1024, // Valor padrão, será ajustado quando a imagem carregar
+                contentType: 'image/jpeg',
+                seed: falResult.data.seed,
+                prompt: falResult.data.prompt,
+                provider: 'fal',
+                model: falResult.data.model
+              }
+            };
+          } else {
+            throw new Error('Nenhuma imagem foi gerada pela API FAL');
+          }
         } else {
-          throw new Error('Nenhuma imagem foi gerada pela API FAL');
+          // Usar Replicate action
+          response = await generateImageReplicateAction({
+            modelId,
+            prompt: textNodes.join('\n'),
+            instructions: data.instructions,
+            nodeId: id,
+            projectId: project.id,
+            aspectRatio: aspectRatio,
+            seed: seed,
+            numOutputs: 1, // Sempre 1 por chamada
+            imageInputs: imageNodes,
+            guidance: data.guidance || 3.5,
+            megapixels: data.megapixels || 1,
+            outputFormat: data.outputFormat || "png",
+            outputQuality: data.outputQuality || 100,
+            promptStrength: data.promptStrength || 0.8,
+            numInferenceSteps: data.numInferenceSteps || 28,
+            disableSafetyChecker: data.disableSafetyChecker || false,
+            goFast: data.goFast || false,
+            image: data.image,
+          });
         }
 
         if ('error' in response) {
@@ -440,7 +520,7 @@ export const ImageTransform = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {(getModelSchema(modelId)?.aspectRatios || []).map((ratio) => (
+                {(getModelSchema(modelId)?.aspectRatios || selectedModel?.aspectRatios || []).map((ratio) => (
                   <SelectItem key={ratio.value} value={ratio.value}>
                     {ratio.label}
                   </SelectItem>

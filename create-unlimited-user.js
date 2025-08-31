@@ -3,7 +3,7 @@ const { Client } = require('pg');
 
 // Configuração da conexão PostgreSQL
 const client = new Client({
-  host: '216.238.105.79',
+  host: '[IP_DO_SEU_SERVIDOR]',
   port: 6543,
   database: 'postgres',
   user: 'postgres.your-tenant-id',

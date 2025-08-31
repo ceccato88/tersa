@@ -77,7 +77,7 @@ Este comando deve mostrar:
 **Sintoma:** Após configurar os buckets e gerar imagens, a aplicação apresenta tela branca com erro no console:
 
 ```
-Uncaught Error: Invalid src prop (http://216.238.105.79:8000/storage/v1/object/public/files/...) on `next/image`, hostname "216.238.105.79" is not configured under images in your `next.config.js`
+Uncaught Error: Invalid src prop (http://[IP_DO_SEU_SERVIDOR]:8000/storage/v1/object/public/files/...) on `next/image`, hostname "[IP_DO_SEU_SERVIDOR]" is not configured under images in your `next.config.js`
 ```
 
 **Causa:** O Next.js bloqueia imagens de hostnames não configurados por segurança.
@@ -101,7 +101,7 @@ images: {
     // Supabase storage, custom IP
     {
       protocol: 'http',
-      hostname: '216.238.105.79', // Substitua pelo IP da sua VPS
+      hostname: '[IP_DO_SEU_SERVIDOR]', // Substitua pelo IP da sua VPS
     },
     
     // ... outras configurações ...
@@ -388,7 +388,7 @@ wsl node test-postgres-connection.js
 O script `test-postgres-connection.js` realiza os seguintes testes:
 
 **Configurações de Conexão:**
-- Host: `216.238.105.79`
+- Host: `[IP_DO_SEU_SERVIDOR]`
 - Port: `6543`
 - Database: `postgres`
 - User: `postgres.your-tenant-id`
@@ -408,7 +408,7 @@ O script `test-postgres-connection.js` realiza os seguintes testes:
 ================================
 🔧 Usando configuração manual (como pgAdmin)
 📋 Configurações de conexão:
-Host: 216.238.105.79
+Host: [IP_DO_SEU_SERVIDOR]
 Port: 6543
 Database: postgres
 User: postgres.your-tenant-id
@@ -517,11 +517,11 @@ wsl node update-vps-ip.js --help
 #### 4.1.2 Exemplo de Uso
 
 ```bash
-# Cenário: VPS mudou de 216.238.105.79 para 192.168.1.100
+# Cenário: VPS mudou de [IP_DO_SEU_SERVIDOR] para 192.168.1.100
 
 # 1. Verificar IP atual
 wsl node scripts/update-vps-ip.js --check
-# Output: IP configurado: 216.238.105.79
+# Output: IP configurado: [IP_DO_SEU_SERVIDOR]
 
 # 2. Atualizar para novo IP
 wsl node update-vps-ip.js 192.168.1.100

@@ -13,28 +13,8 @@ export interface FilteredModel {
   default?: boolean;
 }
 
-// Modelos de imagem disponíveis
+// Modelos de imagem disponíveis (apenas FAL)
 const IMAGE_MODELS = {
-  // Modelos Replicate
-  'black-forest-labs/flux-dev': {
-    id: 'black-forest-labs/flux-dev',
-    label: 'FLUX.1 [dev] (Replicate)',
-    provider: 'replicate',
-    supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
-  },
-  'black-forest-labs/flux-krea-dev': {
-    id: 'black-forest-labs/flux-krea-dev',
-    label: 'FLUX Krea Dev (Replicate)',
-    provider: 'replicate',
-    supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
-  },
-  'black-forest-labs/flux-1.1-pro': {
-    id: 'black-forest-labs/flux-1.1-pro',
-    label: 'FLUX 1.1 Pro (Replicate)',
-    provider: 'replicate',
-    supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
-  },
-  // Modelos FAL
   'fal-ai/flux-dev': {
     id: 'fal-ai/flux-dev',
     label: 'FLUX.1 [dev] (FAL)',

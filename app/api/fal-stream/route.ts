@@ -1,236 +1,125 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { getSubscribedUser } from '@/lib/auth';
+import { parseError } from '@/lib/error/parse';
+import { createRateLimiter, slidingWindow } from '@/lib/rate-limit';
 import { fal } from '@fal-ai/client';
-import { logger } from '@/lib/logger';
-import { handleError } from '@/lib/error/handle';
-import { env } from '@/lib/env';
+import { NextRequest } from 'next/server';
 
-// Configurar a chave da API FAL
-fal.config({
-  credentials: env.FAL_KEY,
+export const maxDuration = 30;
+
+// Rate limiter para FAL AI stream
+const rateLimiter = createRateLimiter({
+  limiter: slidingWindow(10, '1 m'),
+  prefix: 'api-fal-stream',
 });
 
-export async function POST(request: NextRequest) {
+export const POST = async (req: NextRequest) => {
+  // Verificar autenticação
+  const user = await getSubscribedUser();
+  if (!user) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  // Rate limiting
+  const rateLimitResult = await rateLimiter.limit(user.id);
+  if (!rateLimitResult.success) {
+    return new Response('Rate limit exceeded', { status: 429 });
+  }
+
   try {
-    const body = await request.json();
-    const { model, input, nodeId } = body;
+    const body = await req.json();
+    const { model, input } = body;
 
-    logger.info('🚀 Iniciando stream FAL', {
-      model,
-      nodeId,
-      prompt: input?.prompt?.substring(0, 100),
-    });
+    console.log('🔍 DEBUG - Request body:', JSON.stringify(body, null, 2));
 
-    // Verificar se a chave da API está configurada
-    if (!env.FAL_KEY) {
-      return NextResponse.json(
-        { error: 'FAL_KEY não está configurada' },
-        { status: 500 }
-      );
+    if (!model || !input) {
+      console.log('❌ Missing model or input');
+      return new Response('Missing model or input', { status: 400 });
     }
 
-    // Criar um stream de resposta
+    // Configurar FAL client
+    fal.config({
+      credentials: process.env.FAL_KEY,
+    });
+
+    console.log('🤖 Iniciando geração de texto com FAL AI:', {
+      model,
+      promptLength: input.prompt?.length ?? 0,
+      systemPromptLength: input.system_prompt?.length ?? 0,
+    });
+
+    // Preparar input para FAL AI
+    const falInput: any = {
+      prompt: input.prompt || '',
+      model: 'openai/gpt-5-chat', // Modelo fixo conforme solicitado
+      reasoning: input.reasoning || false,
+      priority: input.priority || 'latency',
+    };
+
+    if (input.system_prompt) {
+      falInput.system_prompt = input.system_prompt;
+    }
+
+    // Incluir image_url se fornecido (agora HTTPS funciona!)
+    if (input.image_url) {
+      falInput.image_url = input.image_url;
+      console.log('📸 Imagem incluída para processamento direto:', input.image_url);
+    }
+
+    console.log('📋 FAL Input sendo enviado:', JSON.stringify(falInput, null, 2));
+
+    // Usar endpoint correto baseado se tem imagem ou não
+    const modelEndpoint = input.image_url ? 'fal-ai/any-llm/vision' : 'fal-ai/any-llm/enterprise';
+    
+    console.log('🎯 Usando endpoint:', modelEndpoint, 'tem image_url:', !!input.image_url);
+    
+    const result = await fal.subscribe(modelEndpoint, {
+      input: falInput,
+      logs: true,
+      onQueueUpdate: (update) => {
+        if (update.status === 'IN_PROGRESS') {
+          update.logs.map((log) => log.message).forEach(console.log);
+        }
+      },
+    });
+
+    console.log('✅ Texto gerado com sucesso:', {
+      outputLength: result.data.output?.length ?? 0,
+      hasReasoning: !!result.data.reasoning,
+    });
+
+    // Retornar o resultado como stream
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          // Submeter a requisição para a fila do FAL
-          const { request_id } = await fal.queue.submit(model, {
-            input,
-          });
-
-          logger.info('📝 Requisição submetida para FAL', {
-            requestId: request_id,
-            model,
-            nodeId,
-          });
-
-          // Enviar o ID da requisição
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: 'request_id',
-                request_id,
-                nodeId,
-              })}\n\n`
-            )
-          );
-
-          // Polling para verificar o status
-          let isCompleted = false;
-          let attempts = 0;
-          const maxAttempts = 300; // 5 minutos com polling a cada segundo
-
-          while (!isCompleted && attempts < maxAttempts) {
-            try {
-              const status = await fal.queue.status(model, {
-                requestId: request_id,
-                logs: true,
-              });
-
-              // Enviar logs se disponíveis
-              if (status.logs && status.logs.length > 0) {
-                for (const log of status.logs) {
-                  controller.enqueue(
-                    encoder.encode(
-                      `data: ${JSON.stringify({
-                        type: 'log',
-                        message: log.message,
-                        level: log.level || 'info',
-                        timestamp: log.timestamp,
-                        nodeId,
-                      })}\n\n`
-                    )
-                  );
-                }
-              }
-
-              // Verificar se está completo
-              if (status.status === 'COMPLETED') {
-                const result = await fal.queue.result(model, {
-                  requestId: request_id,
-                });
-
-                logger.info('✅ FAL stream concluído', {
-                  requestId: request_id,
-                  nodeId,
-                  hasOutput: !!result.data,
-                });
-
-                // Enviar resultado final
-                controller.enqueue(
-                  encoder.encode(
-                    `data: ${JSON.stringify({
-                      type: 'completed',
-                      data: result.data,
-                      requestId: request_id,
-                      nodeId,
-                    })}\n\n`
-                  )
-                );
-
-                isCompleted = true;
-              } else if (status.status === 'FAILED') {
-                logger.error('❌ FAL stream falhou', {
-                  requestId: request_id,
-                  nodeId,
-                  error: status.error,
-                });
-
-                controller.enqueue(
-                  encoder.encode(
-                    `data: ${JSON.stringify({
-                      type: 'error',
-                      error: status.error || 'Falha na geração',
-                      requestId: request_id,
-                      nodeId,
-                    })}\n\n`
-                  )
-                );
-
-                isCompleted = true;
-              } else {
-                // Ainda em progresso
-                controller.enqueue(
-                  encoder.encode(
-                    `data: ${JSON.stringify({
-                      type: 'progress',
-                      status: status.status,
-                      requestId: request_id,
-                      nodeId,
-                    })}\n\n`
-                  )
-                );
-              }
-            } catch (statusError) {
-              logger.error('❌ Erro ao verificar status FAL', {
-                error: statusError instanceof Error ? statusError.message : 'Erro desconhecido',
-                requestId: request_id,
-                nodeId,
-                attempt: attempts,
-              });
-
-              // Continuar tentando por alguns erros temporários
-              if (attempts < maxAttempts - 10) {
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Esperar mais tempo em caso de erro
-              }
-            }
-
-            attempts++;
-            
-            if (!isCompleted && attempts < maxAttempts) {
-              await new Promise(resolve => setTimeout(resolve, 1000)); // Polling a cada segundo
-            }
-          }
-
-          if (!isCompleted) {
-            logger.error('⏰ Timeout no FAL stream', {
-              requestId: request_id,
-              nodeId,
-              attempts,
-            });
-
-            controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({
-                  type: 'error',
-                  error: 'Timeout: A geração demorou mais que o esperado',
-                  requestId: request_id,
-                  nodeId,
-                })}\n\n`
-              )
-            );
-          }
-
-        } catch (error) {
-          logger.error('❌ Erro no FAL stream', {
-            error: error instanceof Error ? error.message : 'Erro desconhecido',
-            nodeId,
-          });
-
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                type: 'error',
-                error: error instanceof Error ? error.message : 'Erro interno do servidor',
-                nodeId,
-              })}\n\n`
-            )
-          );
-        } finally {
-          controller.close();
+      start(controller) {
+        // Enviar o texto gerado
+        if (result.data.output) {
+          controller.enqueue(encoder.encode(result.data.output));
         }
+        
+        // Se houver reasoning, adicionar como seção separada
+        if (result.data.reasoning) {
+          controller.enqueue(encoder.encode('\n\n--- Reasoning ---\n'));
+          controller.enqueue(encoder.encode(result.data.reasoning));
+        }
+        
+        controller.close();
       },
     });
 
     return new Response(stream, {
       headers: {
-        'Content-Type': 'text/event-stream',
+        'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type',
       },
     });
   } catch (error) {
-    logger.error('❌ Erro na rota FAL stream', {
-      error: error instanceof Error ? error.message : 'Erro desconhecido',
-    });
-
-    handleError(error, {
-      context: 'fal-stream-route',
-    });
-
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    );
+    console.error('❌ Erro na geração de texto FAL AI:', error);
+    const message = parseError(error);
+    return new Response(message, { status: 500 });
   }
-}
+};
 
 export async function GET() {
-  return NextResponse.json(
-    { message: 'FAL Stream API - Use POST para submeter requisições' },
-    { status: 200 }
-  );
+  return new Response('Method not allowed', { status: 405 });
 }

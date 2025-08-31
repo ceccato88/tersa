@@ -21,10 +21,16 @@ const nextConfig: NextConfig = {
         hostname: '127.0.0.1',
       },
       
-      // Supabase storage, custom IP
+      // Supabase storage, custom IP (from env)
       {
         protocol: 'http',
-        hostname: '216.238.105.79',
+        hostname: process.env.NEXT_PUBLIC_SUPABASE_HOSTNAME || '[IP_DO_SEU_SERVIDOR]',
+      },
+      
+      // Supabase storage, custom domain (from env)
+      {
+        protocol: 'https',
+        hostname: process.env.NEXT_PUBLIC_SUPABASE_DOMAIN || '[SEU_DOMINIO]',
       },
       
       // Replicate delivery URLs

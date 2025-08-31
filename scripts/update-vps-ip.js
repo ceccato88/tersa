@@ -77,7 +77,7 @@ function showHelp() {
   console.log('');
   console.log('Exemplos:');
   console.log('  node scripts/update-vps-ip.js 192.168.1.100');
-  console.log('  node scripts/update-vps-ip.js 216.238.105.79');
+  console.log('  node scripts/update-vps-ip.js [IP_DO_SEU_SERVIDOR]');
   console.log('');
   console.log('Opções:');
   console.log('  --help, -h    Mostra esta ajuda');

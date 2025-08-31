@@ -4,9 +4,9 @@ import { getSubscribedUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
 import { logServerAction } from '@/lib/logger';
-import { visionModels } from '@/lib/models/vision';
 import { projects } from '@/schema';
 import { eq } from 'drizzle-orm';
+import { fal } from '@fal-ai/client';
 
 export const describeAction = async (
   url: string,
@@ -33,49 +33,44 @@ export const describeAction = async (
         throw new Error('Project not found');
       }
 
-      // Validação do modelo de visão
-      const visionModel = visionModels[project.visionModel];
-
-      if (!visionModel) {
-        throw new Error('Vision model not found');
-      }
-
-      // Processamento da URL da imagem
-      let parsedUrl = url;
-
-      if (process.env.NODE_ENV !== 'production') {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        parsedUrl = `data:${blob.type};base64,${Buffer.from(await blob.arrayBuffer()).toString('base64')}`;
-      }
-
-      // Chamada direta ao Replicate
-      const Replicate = require('replicate');
-      const replicate = new Replicate({
-        auth: process.env.REPLICATE_API_TOKEN,
+      // Configurar FAL client
+      fal.config({
+        credentials: process.env.FAL_KEY,
       });
 
-      // Configuração do input baseado no modelo
-      const replicateInput: any = {
-        prompt: 'Descreva esta imagem em detalhes.',
-        max_tokens: 1024,
+      console.log('🔍 Iniciando descrição de imagem com FAL AI Vision:', {
+        imageUrl: url,
+        projectId
+      });
+
+      // Preparar input para FAL AI Vision
+      const falInput = {
+        prompt: 'Descreva esta imagem em detalhes em português.',
+        image_url: url,
+        model: 'openai/gpt-5-chat',
+        reasoning: false,
+        priority: 'latency',
       };
 
-      // GPT modelos usam image_input como array
-      if (visionModel.replicateModel.includes('openai/gpt')) {
-        replicateInput.image_input = [parsedUrl];
-      } else {
-        // Claude modelos usam image como string
-        replicateInput.image = parsedUrl;
-      }
+      console.log('📋 FAL Vision Input:', JSON.stringify(falInput, null, 2));
 
-      // Chamada direta ao modelo do Replicate
-      const output = await replicate.run(visionModel.replicateModel, {
-        input: replicateInput,
+      // Usar endpoint de visão do FAL AI
+      const result = await fal.subscribe('fal-ai/any-llm/vision', {
+        input: falInput,
+        logs: true,
+        onQueueUpdate: (update) => {
+          if (update.status === 'IN_PROGRESS') {
+            update.logs.map((log) => log.message).forEach(console.log);
+          }
+        },
       });
 
-      // Processamento da resposta
-      const description = Array.isArray(output) ? output.join('') : output;
+      console.log('✅ Descrição gerada com sucesso:', {
+        outputLength: result.data.output?.length ?? 0,
+      });
+
+      // Processar resultado
+      const description = result.data.output;
 
       if (!description || typeof description !== 'string') {
         throw new Error('No description found');

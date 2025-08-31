@@ -3,7 +3,7 @@ require('dotenv').config({ path: '.env.local' });
 
 // Configuração de conexão PostgreSQL
 const dbConfig = {
-  host: '216.238.105.79',
+  host: '[IP_DO_SEU_SERVIDOR]',
   port: 6543,
   database: 'postgres',
   user: 'postgres.your-tenant-id',

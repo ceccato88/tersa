@@ -37,7 +37,7 @@ const FAL_MODEL_MAP: Record<string, string> = {
 export async function generateImageFalAction(
   prompt: string,
   data: Partial<ImageNodeData> & { nodeId?: string; projectId?: string },
-  images?: string[]
+  imageNodes?: string[]
 ) {
   try {
     logger.info('🎨 Iniciando geração de imagem via FAL', {
@@ -73,11 +73,16 @@ export async function generateImageFalAction(
     }
 
     // Se há imagens de entrada (image-to-image)
-    if (images && images.length > 0) {
+    if (imageNodes && imageNodes.length > 0) {
       // Para image-to-image, usar o modelo apropriado
       // Nota: Verificar se o modelo suporta image-to-image
-      input.image_url = images[0];
+      input.image_url = imageNodes[0];
       input.strength = data.strength || 0.8; // Força da transformação
+      
+      logger.info('🖼️ Usando imagem de referência', {
+        imageUrl: imageNodes[0].substring(0, 100) + '...',
+        imageCount: imageNodes.length,
+      });
     }
 
     logger.info('📡 Enviando requisição para FAL', {

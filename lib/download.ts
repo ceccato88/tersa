@@ -16,7 +16,14 @@ export const download = (
   }
 
   const link = document.createElement('a');
-  const extension = data.type.split('/').at(-1) ?? defaultExtension;
+  // Extrair extensão do tipo MIME ou usar padrão
+  let extension = defaultExtension;
+  if (data.type && data.type.includes('/')) {
+    const extractedExtension = data.type.split('/').at(-1);
+    if (extractedExtension && extractedExtension !== 'image' && extractedExtension !== 'video' && extractedExtension !== 'audio') {
+      extension = extractedExtension;
+    }
+  }
   const filename = `tersa-${id}.${extension}`;
 
   // Create a blob URL from the data URL

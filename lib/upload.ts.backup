@@ -1,15 +1,13 @@
 import { nanoid } from 'nanoid';
 import { createClient } from './supabase/client';
-import { createUploadClient } from './supabase/upload-client';
 
 export const uploadFile = async (
   file: File,
   bucket: 'avatars' | 'files' | 'screenshots',
   filename?: string
 ) => {
-  // Usar cliente normal para autenticação
-  const authClient = createClient();
-  const { data } = await authClient.auth.getUser();
+  const client = createClient();
+  const { data } = await client.auth.getUser();
   const extension = file.name.split('.').pop();
 
   if (!data?.user) {
@@ -18,9 +16,7 @@ export const uploadFile = async (
 
   const name = filename ?? `${nanoid()}.${extension}`;
 
-  // Usar cliente específico para upload (IP original) para evitar CORS e limites
-  const uploadClient = createUploadClient();
-  const blob = await uploadClient.storage
+  const blob = await client.storage
     .from(bucket)
     .upload(`${data.user.id}/${name}`, file, {
       contentType: file.type,
@@ -31,8 +27,7 @@ export const uploadFile = async (
     throw new Error(blob.error.message);
   }
 
-  // Obter URL pública usando cliente normal (domínio customizado)
-  const { data: downloadUrl } = authClient.storage
+  const { data: downloadUrl } = client.storage
     .from(bucket)
     .getPublicUrl(blob.data.path);
 

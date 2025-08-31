@@ -55,11 +55,27 @@ export const getTranscriptionFromAudioNodes = (nodes: Node[]) => {
 };
 
 export const getDescriptionsFromImageNodes = (nodes: Node[]) => {
-  const descriptions = nodes
-    .filter((node) => node.type === 'image')
-    .map((node) => (node.data as ImageNodeProps['data']).description)
-    .filter(Boolean) as string[];
-
+  const imageNodes = nodes.filter((node) => node.type === 'image');
+  
+  const descriptions: string[] = [];
+  
+  imageNodes.forEach((node) => {
+    const nodeData = node.data as ImageNodeProps['data'];
+    
+    // Se tem description (nó primitivo), usar ela
+    if (nodeData.description) {
+      descriptions.push(nodeData.description);
+    }
+    // Se não tem description mas tem imagem generated (nó transform), criar uma descrição básica
+    else if (nodeData.generated?.url) {
+      descriptions.push(`Imagem gerada disponível em: ${nodeData.generated.url}`);
+    }
+    // Se não tem description mas tem content (nó primitivo sem description), criar uma descrição básica  
+    else if (nodeData.content?.url) {
+      descriptions.push(`Imagem carregada disponível em: ${nodeData.content.url}`);
+    }
+  });
+  
   return descriptions;
 };
 

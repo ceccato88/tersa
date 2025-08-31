@@ -1,5 +1,4 @@
 import { generateImageReplicateAction } from '@/app/actions/image/replicate';
-import { generateImageFalAction } from '@/app/actions/image/fal';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { download } from '@/lib/download';
 import { getModelSchema, getModelDefaults } from '@/lib/model-schemas';
 import { useFilteredModels, getFirstAvailableModel } from '@/lib/model-filtering';
 import { providers } from '@/lib/providers';
@@ -15,6 +15,8 @@ import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
 import { useProject } from '@/providers/project';
 import { getIncomers, useReactFlow, useNodes } from '@xyflow/react';
 import {
+  ClockIcon,
+  DownloadIcon,
   Loader2Icon,
   PlayIcon,
   RotateCcwIcon,
@@ -23,7 +25,9 @@ import {
 import Image from 'next/image';
 import {
   type ChangeEventHandler,
+  type ComponentProps,
   useCallback,
+  useMemo,
   useState,
 } from 'react';
 import { toast } from 'sonner';
@@ -94,11 +98,12 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: '1:1 (1024x1024)', value: '1:1' },
-      { label: '4:3 (1024x768)', value: '4:3' },
-      { label: '3:4 (768x1024)', value: '3:4' },
-      { label: '16:9 (1216x832)', value: '16:9' },
-      { label: '9:16 (832x1216)', value: '9:16' },
+      { label: 'Square 1:1', value: 'square' },
+      { label: 'Square 1:1 HD', value: 'square_hd' },
+      { label: '4:3', value: 'landscape_4_3' },
+      { label: '3:4', value: 'portrait_4_3' },
+      { label: '16:9', value: 'landscape_16_9' },
+      { label: '9:16', value: 'portrait_16_9' },
     ],
     default: false,
   },
@@ -107,11 +112,12 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: '1:1 (1024x1024)', value: '1:1' },
-      { label: '4:3 (1024x768)', value: '4:3' },
-      { label: '3:4 (768x1024)', value: '3:4' },
-      { label: '16:9 (1216x832)', value: '16:9' },
-      { label: '9:16 (832x1216)', value: '9:16' },
+      { label: 'Square 1:1', value: 'square' },
+      { label: 'Square 1:1 HD', value: 'square_hd' },
+      { label: '4:3', value: 'landscape_4_3' },
+      { label: '3:4', value: 'portrait_4_3' },
+      { label: '16:9', value: 'landscape_16_9' },
+      { label: '9:16', value: 'portrait_16_9' },
     ],
     default: false,
   },
@@ -205,24 +211,69 @@ export const HybridImageTransform = ({
         let response;
         
         if (isFalModel) {
-          // Usar FAL action
-          response = await generateImageFalAction(
-            textNodes.join('\n'),
-            {
-              model: modelId,
-              aspectRatio: aspectRatio,
-              seed: seed,
-              guidanceScale: data.guidance_scale || data.guidance || 3.5,
-              steps: data.num_inference_steps || data.numInferenceSteps || 28,
-              strength: data.promptStrength || 0.8,
-              num_images: 1, // Sempre 1 por chamada
-              sync_mode: data.sync_mode ?? true,
-              enable_safety_checker: data.enable_safety_checker ?? true,
-              output_format: data.output_format || 'webp',
-              acceleration: data.acceleration || 'none',
+          // Usar FAL API via route
+          const falResponse = await fetch('/api/fal-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
             },
-            imageNodes.length > 0 ? imageNodes : undefined
-          );
+            body: JSON.stringify({
+              prompt: (() => {
+                const messages = [];
+                if (data.instructions) {
+                  messages.push('Mensagem atual');
+                  messages.push(`User: ${data.instructions}`);
+                }
+                if (textNodes.length > 0) {
+                  messages.push('Mensagens anteriores');
+                  textNodes.forEach(text => {
+                    messages.push(text);
+                  });
+                }
+                return messages.join('\n');
+              })(),
+              params: {
+                model: modelId,
+                aspectRatio: isFalModel ? (data.image_size || aspectRatio) : aspectRatio,
+                seed: seed,
+                guidance: data.guidance_scale || data.guidance || 3.5,
+                numInferenceSteps: data.num_inference_steps || data.numInferenceSteps || 28,
+                outputFormat: data.output_format || data.outputFormat || 'jpeg',
+                enableSafetyChecker: data.enable_safety_checker !== false,
+                numOutputs: 1
+              },
+              imageNodes: imageNodes.length > 0 ? imageNodes : undefined
+            })
+          });
+          
+          if (!falResponse.ok) {
+            throw new Error('Failed to generate image with FAL');
+          }
+          
+          const falResult = await falResponse.json();
+          
+          // Transformar resposta FAL para o formato esperado pelo nó
+          if (falResult.success && falResult.data && falResult.data.output) {
+            const outputFormat = data.output_format || data.outputFormat || 'jpeg';
+            response = {
+              nodeData: {
+                generated: {
+                  url: falResult.data.output,
+                  type: `image/${outputFormat}`
+                },
+                url: falResult.data.output,
+                width: 1024, // Valor padrão, será ajustado quando a imagem carregar
+                height: 1024, // Valor padrão, será ajustado quando a imagem carregar
+                contentType: 'image/jpeg',
+                seed: falResult.data.seed,
+                prompt: falResult.data.prompt,
+                provider: 'fal',
+                model: falResult.data.model
+              }
+            };
+          } else {
+            throw new Error('Nenhuma imagem foi gerada pela API FAL');
+          }
         } else {
           // Usar Replicate action
           response = await generateImageReplicateAction({
@@ -307,6 +358,50 @@ export const HybridImageTransform = ({
     }
   }, [loading, project?.id, id, data, modelId, aspectRatio, seed, quantity, type, analytics, updateNodeData, getNodes, getEdges]);
 
+  const toolbar = useMemo<ComponentProps<typeof NodeLayout>['toolbar']>(() => {
+    const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];
+
+    if (data.generated) {
+      items.push({
+        tooltip: 'Download',
+        children: (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={() => {
+              // Usar o formato correto baseado nos dados do nó
+              const format = data.output_format || data.outputFormat || 'png';
+              download(data.generated, id, format);
+            }}
+          >
+            <DownloadIcon size={12} />
+          </Button>
+        ),
+      });
+    }
+
+    if (data.updatedAt) {
+      items.push({
+        tooltip: `Última atualização: ${new Intl.DateTimeFormat('pt-BR', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        }).format(new Date(data.updatedAt))}`,
+        children: (
+          <Button size="icon" variant="ghost" className="rounded-full">
+            <ClockIcon size={12} />
+          </Button>
+        ),
+      });
+    }
+
+    return items;
+  }, [
+    data.generated,
+    data.updatedAt,
+    id,
+  ]);
+
   return (
     <NodeLayout
       id={id}
@@ -314,6 +409,7 @@ export const HybridImageTransform = ({
       type={type}
       selected={false}
       className="w-96"
+      toolbar={toolbar}
     >
       {/* Imagem */}
       {loading && (
@@ -371,8 +467,8 @@ export const HybridImageTransform = ({
           />
         </div>
         
-        {/* Modelo e Quantidade */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Modelo, Image Size e Quantidade */}
+        <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Modelo</Label>
             <ModelSelector
@@ -388,11 +484,36 @@ export const HybridImageTransform = ({
           </div>
 
           <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Tamanho</Label>
+            <Select
+              value={isFalModel ? (data.image_size || 'landscape_4_3') : (aspectRatio || '1:1')}
+              onValueChange={(value) => {
+                if (isFalModel) {
+                  updateNodeData(id, { image_size: value });
+                } else {
+                  updateNodeData(id, { aspectRatio: value });
+                }
+              }}
+            >
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedModel?.aspectRatios?.map((ratio) => (
+                  <SelectItem key={ratio.value} value={ratio.value}>
+                    {ratio.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Quantidade</Label>
             <Select
-              value={quantity.toString()}
+              value={String(isFalModel ? (data.num_images || 1) : (data.numOutputs || 1))}
               onValueChange={(value) => {
-                const numValue = parseInt(value);
+                const numValue = parseInt(value, 10);
                 if (isFalModel) {
                   updateNodeData(id, { num_images: numValue });
                 } else {
@@ -404,11 +525,10 @@ export const HybridImageTransform = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {[1, 2, 3, 4].map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num} {num === 1 ? 'geração' : 'gerações'}
-                  </SelectItem>
-                ))}
+                <SelectItem value="1">1</SelectItem>
+                <SelectItem value="2">2</SelectItem>
+                <SelectItem value="3">3</SelectItem>
+                <SelectItem value="4">4</SelectItem>
               </SelectContent>
             </Select>
           </div>

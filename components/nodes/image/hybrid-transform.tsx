@@ -1,4 +1,3 @@
-import { generateImageReplicateAction } from '@/app/actions/image/replicate';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,59 +39,6 @@ type HybridImageTransformProps = ImageNodeProps & {
 };
 
 const AVAILABLE_MODELS = {
-  // Modelos Replicate
-  'black-forest-labs/flux-dev': {
-    label: 'FLUX.1 [dev] (Replicate)',
-    chef: providers.replicate,
-    providers: [providers.replicate],
-    aspectRatios: [
-      { label: '1:1 (1024x1024)', value: '1:1' },
-      { label: '9:16 (832x1216)', value: '9:16' },
-      { label: '16:9 (1216x832)', value: '16:9' },
-      { label: '4:5 (896x1152)', value: '4:5' },
-      { label: '5:4 (1152x896)', value: '5:4' },
-      { label: '3:4 (768x1024)', value: '3:4' },
-      { label: '4:3 (1024x768)', value: '4:3' },
-      { label: '2:3 (832x1216)', value: '2:3' },
-      { label: '3:2 (1216x832)', value: '3:2' },
-    ],
-    default: true,
-  },
-  'black-forest-labs/flux-krea-dev': {
-    label: 'FLUX Krea Dev (Replicate)',
-    chef: providers.replicate,
-    providers: [providers.replicate],
-    aspectRatios: [
-      { label: '1:1 (1024x1024)', value: '1:1' },
-      { label: '9:16 (832x1216)', value: '9:16' },
-      { label: '16:9 (1216x832)', value: '16:9' },
-      { label: '4:5 (896x1152)', value: '4:5' },
-      { label: '5:4 (1152x896)', value: '5:4' },
-      { label: '3:4 (768x1024)', value: '3:4' },
-      { label: '4:3 (1024x768)', value: '4:3' },
-      { label: '2:3 (832x1216)', value: '2:3' },
-      { label: '3:2 (1216x832)', value: '3:2' },
-    ],
-    default: false,
-  },
-  'black-forest-labs/flux-1.1-pro': {
-    label: 'FLUX 1.1 Pro (Replicate)',
-    chef: providers.replicate,
-    providers: [providers.replicate],
-    aspectRatios: [
-      { label: '1:1 (1024x1024)', value: '1:1' },
-      { label: '16:9 (1216x832)', value: '16:9' },
-      { label: '3:2 (1216x832)', value: '3:2' },
-      { label: '2:3 (832x1216)', value: '2:3' },
-      { label: '4:5 (896x1152)', value: '4:5' },
-      { label: '5:4 (1152x896)', value: '5:4' },
-      { label: '9:16 (832x1216)', value: '9:16' },
-      { label: '3:4 (768x1024)', value: '3:4' },
-      { label: '4:3 (1024x768)', value: '4:3' },
-    ],
-    default: false,
-  },
-  // Modelos FAL
   'fal-ai/flux-dev': {
     label: 'FLUX.1 [dev] (FAL)',
     chef: providers.fal,
@@ -105,7 +51,7 @@ const AVAILABLE_MODELS = {
       { label: '16:9', value: 'landscape_16_9' },
       { label: '9:16', value: 'portrait_16_9' },
     ],
-    default: false,
+    default: true,
   },
   'fal-ai/flux-schnell': {
     label: 'FLUX Schnell (FAL)',
@@ -151,13 +97,26 @@ export const HybridImageTransform = ({
   // Usar modelo filtrado ou padrão
   const defaultModelId = getFirstAvailableModel(filteredModels) || getDefaultModel();
   const modelId = data.model ?? defaultModelId;
-  const selectedModel = AVAILABLE_MODELS[modelId];
-  const aspectRatio = data.aspectRatio || '1:1';
+  // Apenas modelos FAL são suportados
   const seed = data.seed || '';
   
-  // Determinar quantidade baseado no modelo (FAL usa num_images, Replicate usa numOutputs)
-  const isFalModel = selectedModel?.chef?.id === 'fal';
-  const quantity = isFalModel ? (data.num_images || 1) : (data.numOutputs || 1);
+  // Calcular aspectRatio baseado no image_size
+  const imageAspectRatio = useMemo(() => {
+    const imageSize = data.image_size || 'landscape_4_3';
+    // Mapear image_size para aspect ratio CSS
+    const aspectRatioMap: Record<string, string> = {
+      'square': '1',
+      'square_hd': '1',
+      'landscape_4_3': '4/3',
+      'portrait_4_3': '3/4',
+      'landscape_16_9': '16/9',
+      'portrait_16_9': '9/16',
+    };
+    return aspectRatioMap[imageSize] || '4/3';
+  }, [data.image_size]);
+  
+  // Usar num_images para modelos FAL
+  const quantity = data.num_images || 1;
 
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (event) => {
@@ -195,7 +154,7 @@ export const HybridImageTransform = ({
         imagePromptsLength: imageNodes.length,
         model: modelId,
         instructionsLength: data.instructions?.length ?? 0,
-        aspectRatio: aspectRatio,
+        aspectRatio: data.image_size || 'landscape_4_3',
         seed: seed ?? null,
         quantity: quantity,
       });
@@ -203,14 +162,10 @@ export const HybridImageTransform = ({
       // Gerar múltiplas variações
       const variations: any[] = [];
       
-      // Determinar qual action usar baseado no provider do modelo
-      const selectedModel = AVAILABLE_MODELS[modelId];
-      const isFalModel = selectedModel?.chef?.id === 'fal';
-      
       for (let i = 0; i < quantity; i++) {
         let response;
         
-        if (isFalModel) {
+        // Usar FAL API (apenas FAL disponível)
           // Usar FAL API via route
           const falResponse = await fetch('/api/fal-image', {
             method: 'POST',
@@ -218,10 +173,23 @@ export const HybridImageTransform = ({
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              prompt: textNodes.join('\n'),
+              prompt: (() => {
+                const messages = [];
+                if (data.instructions) {
+                  messages.push('Mensagem atual');
+                  messages.push(`User: ${data.instructions}`);
+                }
+                if (textNodes.length > 0) {
+                  messages.push('Mensagens anteriores');
+                  textNodes.forEach(text => {
+                    messages.push(text);
+                  });
+                }
+                return messages.join('\n');
+              })(),
               params: {
                 model: modelId,
-                aspectRatio: isFalModel ? (data.image_size || aspectRatio) : aspectRatio,
+                aspectRatio: data.image_size || 'landscape_4_3',
                 seed: seed,
                 guidance: data.guidance_scale || data.guidance || 3.5,
                 numInferenceSteps: data.num_inference_steps || data.numInferenceSteps || 28,
@@ -241,13 +209,13 @@ export const HybridImageTransform = ({
           
           // Transformar resposta FAL para o formato esperado pelo nó
           if (falResult.success && falResult.data && falResult.data.output) {
+            const outputFormat = data.output_format || data.outputFormat || 'jpeg';
             response = {
               nodeData: {
                 generated: {
                   url: falResult.data.output,
-                  type: 'image'
+                  type: `image/${outputFormat}`
                 },
-                url: falResult.data.output,
                 width: 1024, // Valor padrão, será ajustado quando a imagem carregar
                 height: 1024, // Valor padrão, será ajustado quando a imagem carregar
                 contentType: 'image/jpeg',
@@ -260,29 +228,6 @@ export const HybridImageTransform = ({
           } else {
             throw new Error('Nenhuma imagem foi gerada pela API FAL');
           }
-        } else {
-          // Usar Replicate action
-          response = await generateImageReplicateAction({
-            modelId,
-            prompt: textNodes.join('\n'),
-            instructions: data.instructions,
-            nodeId: id,
-            projectId: project.id,
-            aspectRatio: aspectRatio,
-            seed: seed,
-            numOutputs: 1, // Sempre 1 por chamada
-            imageInputs: imageNodes,
-            guidance: data.guidance || 3.5,
-            megapixels: data.megapixels || 1,
-            outputFormat: data.outputFormat || "png",
-            outputQuality: data.outputQuality || 100,
-            promptStrength: data.promptStrength || 0.8,
-            numInferenceSteps: data.numInferenceSteps || 28,
-            disableSafetyChecker: data.disableSafetyChecker || false,
-            goFast: data.goFast || false,
-            image: data.image,
-          });
-        }
 
         if ('error' in response) {
           throw new Error(response.error);
@@ -295,7 +240,7 @@ export const HybridImageTransform = ({
       const mainVariation = variations[0];
       updateNodeData(id, {
         ...mainVariation,
-        [isFalModel ? 'num_images' : 'numOutputs']: quantity,
+        num_images: quantity,
         updatedAt: new Date().toISOString(),
       });
       
@@ -318,7 +263,7 @@ export const HybridImageTransform = ({
               data: {
                 ...variations[i],
                 model: modelId,
-                aspectRatio: aspectRatio,
+                aspectRatio: data.image_size || 'landscape_4_3',
                 seed: seed,
                 instructions: data.instructions,
                 updatedAt: new Date().toISOString(),
@@ -342,7 +287,7 @@ export const HybridImageTransform = ({
     } finally {
       setLoading(false);
     }
-  }, [loading, project?.id, id, data, modelId, aspectRatio, seed, quantity, type, analytics, updateNodeData, getNodes, getEdges]);
+  }, [loading, project?.id, id, data, modelId, seed, quantity, type, analytics, updateNodeData, getNodes, getEdges]);
 
   const toolbar = useMemo<ComponentProps<typeof NodeLayout>['toolbar']>(() => {
     const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];
@@ -355,7 +300,11 @@ export const HybridImageTransform = ({
             variant="ghost"
             size="icon"
             className="rounded-full"
-            onClick={() => download(data.generated, id, 'png')}
+            onClick={() => {
+              // Usar o formato correto baseado nos dados do nó
+              const format = data.output_format || data.outputFormat || 'png';
+              download(data.generated, id, format);
+            }}
           >
             <DownloadIcon size={12} />
           </Button>
@@ -397,7 +346,7 @@ export const HybridImageTransform = ({
       {loading && (
         <Skeleton
           className="flex w-full animate-pulse items-center justify-center rounded-b-xl min-h-[300px]"
-          style={{ aspectRatio }}
+          style={{ aspectRatio: imageAspectRatio }}
         >
           <div className="flex flex-col items-center gap-2">
             <Loader2Icon
@@ -413,7 +362,7 @@ export const HybridImageTransform = ({
       {!loading && !data.generated?.url && (
         <div
           className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4 min-h-[300px]"
-          style={{ aspectRatio }}
+          style={{ aspectRatio: imageAspectRatio }}
         >
           <p className="text-muted-foreground text-sm">
             Pressione <PlayIcon size={12} className="-translate-y-px inline" /> para
@@ -468,20 +417,16 @@ export const HybridImageTransform = ({
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Tamanho</Label>
             <Select
-              value={isFalModel ? (data.image_size || 'landscape_4_3') : (aspectRatio || '1:1')}
+              value={data.image_size || 'landscape_4_3'}
               onValueChange={(value) => {
-                if (isFalModel) {
-                  updateNodeData(id, { image_size: value });
-                } else {
-                  updateNodeData(id, { aspectRatio: value });
-                }
+                updateNodeData(id, { image_size: value });
               }}
             >
               <SelectTrigger className="w-full h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {selectedModel?.aspectRatios?.map((ratio) => (
+                {AVAILABLE_MODELS[modelId]?.aspectRatios?.map((ratio) => (
                   <SelectItem key={ratio.value} value={ratio.value}>
                     {ratio.label}
                   </SelectItem>
@@ -493,14 +438,10 @@ export const HybridImageTransform = ({
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Quantidade</Label>
             <Select
-              value={String(isFalModel ? (data.num_images || 1) : (data.numOutputs || 1))}
+              value={String(data.num_images || 1)}
               onValueChange={(value) => {
                 const numValue = parseInt(value, 10);
-                if (isFalModel) {
-                  updateNodeData(id, { num_images: numValue });
-                } else {
-                  updateNodeData(id, { numOutputs: numValue });
-                }
+                updateNodeData(id, { num_images: numValue });
               }}
             >
               <SelectTrigger className="w-full h-8 text-xs">

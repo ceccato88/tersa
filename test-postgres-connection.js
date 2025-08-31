@@ -7,7 +7,7 @@ async function testPostgresConnection() {
   
   // Configuração manual dos parâmetros (como no pgAdmin)
    const client = new Client({
-     host: '216.238.105.79',
+     host: '[IP_DO_SEU_SERVIDOR]',
      port: 6543,
      database: 'postgres',
      user: 'postgres.your-tenant-id',
@@ -20,7 +20,7 @@ async function testPostgresConnection() {
   
   console.log('🔧 Usando configuração manual (como pgAdmin)');
   console.log('📋 Configurações de conexão:');
-  console.log('Host: 216.238.105.79');
+  console.log('Host: [IP_DO_SEU_SERVIDOR]');
   console.log('Port: 6543');
   console.log('Database: postgres');
   console.log('User: postgres.your-tenant-id');
@@ -72,7 +72,7 @@ async function testPostgresConnection() {
     // Tentativa adicional com configuração alternativa
      console.log('\n🔄 Tentando com configuração alternativa...');
      const clientAlt = new Client({
-        host: '216.238.105.79',
+        host: '[IP_DO_SEU_SERVIDOR]',
         port: 6543,
         database: 'postgres',
         user: 'postgres.your-tenant-id',
