@@ -33,62 +33,48 @@ ssh root@[IP_DO_SEU_SERVIDOR]
 ### Passo 2: Atualizar Sistema
 
 ```bash
-# Atualizar pacotes do sistema
-apt update && apt upgrade -y
-
-# Instalar dependências básicas
-apt install -y curl wget git nano ufw
-```
-
-### Passo 3: Instalar Docker
-
-```bash
-# Remover versões antigas do Docker (se existirem)
-apt remove -y docker docker-engine docker.io containerd runc
-
-# Instalar dependências para HTTPS
-apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
-
-# Adicionar chave GPG oficial do Docker
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-# Adicionar repositório do Docker
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# Atualizar índice de pacotes
+# Atualização automática
 apt update
+apt upgrade
+apt-get install unattended-upgrades
+dpkg-reconfigure unattended-upgrades
 
-# Instalar Docker Engine
-apt install -y docker-ce docker-ce-cli containerd.io
+# Reboot automático
+crontab -e
+0 3 * * 0 /sbin/shutdown -r +5
 ```
 
-### Passo 4: Instalar Docker Compose
+### Passo 3: Firewal
 
 ```bash
-# Baixar Docker Compose (versão mais recente)
-curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-
-# Dar permissão de execução
-chmod +x /usr/local/bin/docker-compose
-
-# Criar link simbólico (opcional, para compatibilidade)
-ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+# Ativar firewal
+apt install ufw
+ufw allow 22
+ufw allow http
+ufw allow https
+ufw status
+ufw enable
 ```
 
-### Passo 5: Verificar Instalação
+### Passo 4: Instalar Docker e Docker Compose
 
 ```bash
-# Verificar versão do Docker
-docker --version
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Verificar versão do Docker Compose
-docker-compose --version
-
-# Testar Docker
-docker run hello-world
-
-# Verificar status do serviço Docker
-systemctl status docker
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable docker.service
+sudo systemctl enable containerd.service
 ```
 
 ### Passo 6: Configurar Docker para Iniciar Automaticamente
@@ -122,8 +108,8 @@ newgrp docker
 ```bash
 # Verificar versões instaladas
 echo "=== VERSÕES INSTALADAS ==="
-docker --version
-docker-compose --version
+docker version
+docker compose version
 
 # Verificar serviços
 echo "=== STATUS DOS SERVIÇOS ==="
@@ -155,34 +141,6 @@ journalctl -u docker.service
 
 # Verificar status detalhado
 systemctl status docker -l
-```
-
----
-
-## 🔧 Informações Gerais
-
-### Dados do Servidor
-```
-IP do Servidor: [IP_DO_SEU_SERVIDOR]
-Usuário SSH: root
-Porta Supabase: 8000
-Domínio: [SEU_DOMINIO]
-Porta HTTP: 80
-Porta HTTPS: 443
-```
-
-### Credenciais Supabase
-```
-Painel: https://[SEU_DOMINIO]
-Usuário: supabase
-Senha: 8Rt10fNWfsbYR0bo
-
-PostgreSQL:
-Usuário: postgres
-Senha: Fu9qWO9KRBTHJJolCqXY
-Porta: 5432
-
-JWT Secret: 8UfvlMR0206Ee2Iwq7EFLdS2PcpN0dRi
 ```
 
 ---
@@ -315,6 +273,10 @@ TTL: 300
 ### Passo 4: Verificar Propagação DNS
 
 ```bash
+
+sudo apt update
+sudo apt install dnsutils
+
 # Verificar se DNS está funcionando
 nslookup [SEU_DOMINIO]
 
@@ -497,17 +459,6 @@ systemctl restart nginx
 # Verificar status
 systemctl status nginx
 ```
-
-### Passo 5: Configurar Firewall
-
-```bash
-# Permitir HTTP e HTTPS
-ufw allow 'Nginx Full'
-
-# Verificar regras
-ufw status
-```
-
 ---
 
 ## 🔒 Configuração SSL com Let's Encrypt
@@ -690,84 +641,79 @@ docker compose ps
 
 # Todos os serviços devem ter status "running (healthy)"
 # Se algum serviço estiver "created" mas não "running":
-docker compose start <service-name>
+docker-compose start <service-name>
 ```
 
 ### Passo 3: Configurar Variáveis de Ambiente
 
-**Arquivo: `.env`**
-
-**Configurações Básicas:**
-```env
-# Portas
-KONG_HTTP_PORT=8000
-KONG_HTTPS_PORT=8443
-
-# URLs do Site
-SITE_URL=https://[SEU_DOMINIO]
-ADDITIONAL_REDIRECT_URLS=https://[SEU_DOMINIO]/auth/callback
-API_EXTERNAL_URL=https://[SEU_DOMINIO]
-SUPABASE_PUBLIC_URL=https://[SEU_DOMINIO]
-
-# Autenticação
-JWT_EXPIRY=3600
-DISABLE_SIGNUP=false
-
-# Database
-PGRST_DB_SCHEMAS=public,storage,graphql_public
-POSTGRES_PASSWORD=Fu9qWO9KRBTHJJolCqXY
-POOLER_TENANT_ID=your-tenant-id
-
-# Dashboard
-DASHBOARD_USERNAME=supabase
-DASHBOARD_PASSWORD=8Rt10fNWfsbYR0bo
-
-# JWT Secret
-JWT_SECRET=8UfvlMR0206Ee2Iwq7EFLdS2PcpN0dRi
-```
-
-### Passo 4: Gerar Chaves API Seguras
-
-**⚠️ IMPORTANTE:** Nunca use as chaves padrão em produção!
-
-#### Gerar JWT Secret
-
 ```bash
-# Gerar secret de 40 caracteres
-openssl rand -base64 32 | tr -d "=+/" | cut -c1-40
+# Restaurar .env limpo (caminho correto)
+cp ../supabase/docker/.env.example .env
+
+# Gerar secrets base
+POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/")
+DASHBOARD_PASSWORD=$(openssl rand -base64 20 | tr -d "=+/")
+JWT_SECRET=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-40)
+POOLER_TENANT_ID=$(openssl rand -hex 8)
+
+# Gerar JWT tokens válidos usando o JWT_SECRET
+HEADER=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 -w0 | tr -d '=')
+ANON_PAYLOAD=$(echo -n '{"iss":"supabase","ref":"supabase.agenciawow.tech","role":"anon","exp":1999999999}' | base64 -w0 | tr -d '=')
+SERVICE_PAYLOAD=$(echo -n '{"iss":"supabase","ref":"supabase.agenciawow.tech","role":"service_role","exp":1999999999}' | base64 -w0 | tr -d '=')
+
+# Gerar assinaturas HMAC
+ANON_SIGNATURE=$(echo -n "$HEADER.$ANON_PAYLOAD" | openssl dgst -sha256 -hmac "$JWT_SECRET" -binary | base64 -w0 | tr -d '=')
+SERVICE_SIGNATURE=$(echo -n "$HEADER.$SERVICE_PAYLOAD" | openssl dgst -sha256 -hmac "$JWT_SECRET" -binary | base64 -w0 | tr -d '=')
+
+# Montar tokens JWT completos
+ANON_KEY="$HEADER.$ANON_PAYLOAD.$ANON_SIGNATURE"
+SERVICE_ROLE_KEY="$HEADER.$SERVICE_PAYLOAD.$SERVICE_SIGNATURE"
+
+# Aplicar configurações básicas
+sed -i "/^POSTGRES_PASSWORD=/c\POSTGRES_PASSWORD=$POSTGRES_PASSWORD" .env
+sed -i "/^DASHBOARD_USERNAME=/c\DASHBOARD_USERNAME=admin" .env  
+sed -i "/^DASHBOARD_PASSWORD=/c\DASHBOARD_PASSWORD=$DASHBOARD_PASSWORD" .env
+sed -i "/^JWT_SECRET=/c\JWT_SECRET=$JWT_SECRET" .env
+sed -i "/^ANON_KEY=/c\ANON_KEY=$ANON_KEY" .env
+sed -i "/^SERVICE_ROLE_KEY=/c\SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" .env
+sed -i "/^POOLER_TENANT_ID=/c\POOLER_TENANT_ID=$POOLER_TENANT_ID" .env
+
+# URLs necessárias
+sed -i "/^SITE_URL=/c\SITE_URL=https://supabase.agenciawow.tech" .env
+sed -i "/^ADDITIONAL_REDIRECT_URLS=/c\ADDITIONAL_REDIRECT_URLS=https://supabase.agenciawow.tech/auth/callback" .env
+sed -i "/^API_EXTERNAL_URL=/c\API_EXTERNAL_URL=https://supabase.agenciawow.tech" .env
+sed -i "/^SUPABASE_PUBLIC_URL=/c\SUPABASE_PUBLIC_URL=https://supabase.agenciawow.tech" .env
+
+# Configurações de STORAGE
+sed -i "/^STORAGE_BACKEND=/c\STORAGE_BACKEND=file" .env
+sed -i "/^FILE_SIZE_LIMIT=/c\FILE_SIZE_LIMIT=52428800" .env
+sed -i "/^FILE_STORAGE_BACKEND_PATH=/c\FILE_STORAGE_BACKEND_PATH=/var/lib/storage" .env
+sed -i "/^STORAGE_PUBLIC_URL=/c\STORAGE_PUBLIC_URL=https://supabase.agenciawow.tech/storage/v1/object/public" .env
+
+# Configurações SMTP - Brevo
+sed -i "/^SMTP_ADMIN_EMAIL=/c\SMTP_ADMIN_EMAIL=contato@agenciawow.tech" .env
+sed -i "/^SMTP_HOST=/c\SMTP_HOST=smtp-relay.brevo.com" .env
+sed -i "/^SMTP_PORT=/c\SMTP_PORT=587" .env
+sed -i "/^SMTP_USER=/c\SMTP_USER=7f33fa005@smtp-brevo.com" .env
+sed -i "/^SMTP_PASS=/c\SMTP_PASS=6593m8yRLMST0rWO" .env
+sed -i "/^SMTP_SENDER_NAME=/c\SMTP_SENDER_NAME=WOW" .env
+
+echo "=== CONFIGURAÇÃO SUPABASE COMPLETA ==="
+echo "URL Principal: https://supabase.agenciawow.tech"
+echo "Callback Auth: https://supabase.agenciawow.tech/auth/callback"
+echo "Dashboard: https://supabase.agenciawow.tech"
+echo "Storage URL: https://supabase.agenciawow.tech/storage/v1/object/public"
+echo "Usuario: admin"
+echo "Senha Dashboard: $DASHBOARD_PASSWORD"
+echo "Senha PostgreSQL: $POSTGRES_PASSWORD"
+echo "Tenant ID: $POOLER_TENANT_ID"
+echo "JWT Secret: $JWT_SECRET"
+echo "ANON Key: $ANON_KEY"
+echo "SERVICE Key: $SERVICE_ROLE_KEY"
+echo "SMTP: contato@agenciawow.tech via Brevo"
 ```
 
-#### Gerar Chaves ANON e SERVICE
-
-Use o JWT Secret para gerar as chaves:
-
-**Para ANON_KEY:**
-```json
-{
-  "role": "anon",
-  "iss": "supabase",
-  "iat": 1756609200,
-  "exp": 1914375600
-}
-```
-
-**Para SERVICE_ROLE_KEY:**
-```json
-{
-  "role": "service_role",
-  "iss": "supabase",
-  "iat": 1756609200,
-  "exp": 1914375600
-}
-```
-
-**Adicionar no `.env`:**
-```env
-ANON_KEY=sua_anon_key_gerada
-SERVICE_ROLE_KEY=sua_service_key_gerada
-```
-
-### Passo 5: Configurações de Storage
+### Passo 4: Configurações de Storage
 
 #### Storage Local (Padrão)
 ```env
@@ -792,7 +738,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=seu_email@gmail.com
 SMTP_PASS=sua_senha_app
-SMTP_SENDER_NAME=Agencia WOW
+SMTP_SENDER_NAME=WOW
 ```
 
 **Recomendação:** Use AWS SES para produção (extremamente barato e confiável).
@@ -817,8 +763,6 @@ docker compose ps
 
 #### Supabase Studio (Dashboard)
 - **URL:** https://[SEU_DOMINIO]
-- **Usuário:** supabase
-- **Senha:** 8Rt10fNWfsbYR0bo
 
 #### APIs Disponíveis
 - **REST:** https://[SEU_DOMINIO]/rest/v1/
