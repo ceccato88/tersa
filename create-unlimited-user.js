@@ -1,14 +1,12 @@
 require('dotenv').config({ path: '.env.local' });
 const { Client } = require('pg');
 
-// Configuração da conexão PostgreSQL
+// Configuração da conexão PostgreSQL usando variáveis de ambiente
 const client = new Client({
-  host: '[IP_DO_SEU_SERVIDOR]',
-  port: 6543,
-  database: 'postgres',
-  user: 'postgres.your-tenant-id',
-  password: 'Fu9qWO9KRBTHJJolCqXY',
-  ssl: false,
+  connectionString: process.env.POSTGRES_URL,
+  ssl: {
+    rejectUnauthorized: false
+  },
   connectionTimeoutMillis: 10000,
   query_timeout: 30000,
   statement_timeout: 30000

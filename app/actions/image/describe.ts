@@ -43,11 +43,11 @@ export const describeAction = async (
         projectId
       });
 
-      // Preparar input para FAL AI Vision
+      // Preparar input para FAL AI Vision com GPT-5 Chat
       const falInput = {
         prompt: 'Descreva esta imagem em detalhes em português.',
         image_url: url,
-        model: 'openai/gpt-5-chat',
+        model: 'openai/gpt-5-chat', // Modelo FAL GPT-5 Chat para análise de visão
         reasoning: false,
         priority: 'latency',
       };

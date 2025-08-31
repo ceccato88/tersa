@@ -4,11 +4,6 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
-      // Supabase storage, production
-      {
-        protocol: 'https',
-        hostname: 'zszbbhofscgnnkvyonow.supabase.co',
-      },
       // Supabase storage, current environment
       {
         protocol: 'https',
@@ -21,16 +16,10 @@ const nextConfig: NextConfig = {
         hostname: '127.0.0.1',
       },
       
-      // Supabase storage, custom IP (from env)
+      // Supabase storage, localhost
       {
         protocol: 'http',
-        hostname: process.env.NEXT_PUBLIC_SUPABASE_HOSTNAME || '[IP_DO_SEU_SERVIDOR]',
-      },
-      
-      // Supabase storage, custom domain (from env)
-      {
-        protocol: 'https',
-        hostname: process.env.NEXT_PUBLIC_SUPABASE_DOMAIN || '[SEU_DOMINIO]',
+        hostname: 'localhost',
       },
       
       // Replicate delivery URLs

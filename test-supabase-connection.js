@@ -30,27 +30,30 @@ async function testSupabaseConnection() {
     console.log('🔄 Testando conexão com Anon Key...');
     const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey);
     
-    // Verificar se consegue fazer uma requisição básica
-    const { data: healthCheck, error: healthError } = await supabaseAnon
-      .from('_health')
-      .select('*')
+    // Verificar se consegue fazer uma requisição básica usando tabelas reais
+    const { data: profileCheck, error: profileError } = await supabaseAnon
+      .from('profile')
+      .select('id')
       .limit(1);
     
-    if (healthError && healthError.code !== 'PGRST116') {
-      console.log(`⚠️  Health check falhou (esperado): ${healthError.message}`);
+    if (profileError) {
+      console.log(`⚠️  Teste de tabela 'profile': ${profileError.message}`);
     } else {
-      console.log('✅ Conexão com Anon Key estabelecida!');
+      console.log('✅ Conexão com Anon Key estabelecida! Tabela profile acessível.');
     }
     
-    // Teste 2: Listar tabelas públicas (se possível)
-    console.log('\n🔄 Tentando listar esquema público...');
-    const { data: tables, error: tablesError } = await supabaseAnon.rpc('get_schema');
+    // Teste 2: Verificar tabela project
+    console.log('\n🔄 Testando acesso à tabela project...');
+    const { data: projectsCheck, error: projectsError } = await supabaseAnon
+      .from('project')
+      .select('id')
+      .limit(1);
     
-    if (tablesError) {
-      console.log(`⚠️  Não foi possível listar tabelas: ${tablesError.message}`);
+    if (projectsError) {
+      console.log(`⚠️  Teste de tabela 'project': ${projectsError.message}`);
     } else {
-      console.log('✅ Esquema acessível!');
-      console.log('Tabelas encontradas:', tables);
+      console.log('✅ Tabela project acessível!');
+      console.log('Projetos encontrados:', projectsCheck?.length || 0);
     }
     
     // Teste 3: Conexão com Service Role Key (se disponível)
@@ -59,11 +62,11 @@ async function testSupabaseConnection() {
       const supabaseService = createClient(supabaseUrl, supabaseServiceKey);
       
       const { data: serviceTest, error: serviceError } = await supabaseService
-        .from('_health')
-        .select('*')
+        .from('profile')
+        .select('id')
         .limit(1);
       
-      if (serviceError && serviceError.code !== 'PGRST116') {
+      if (serviceError) {
         console.log(`⚠️  Service role test falhou: ${serviceError.message}`);
       } else {
         console.log('✅ Conexão com Service Role Key estabelecida!');
