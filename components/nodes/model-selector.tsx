@@ -197,7 +197,7 @@ export const ModelSelector = ({
         disabled={disabled}
         asChild
       >
-        <Button variant="outline">
+        <Button variant="outline" className="h-9">
           {activeModel && (
             <div className="flex w-full items-center gap-2 overflow-hidden">
               <ModelIcon data={activeModel} chef={activeModel.chef} />

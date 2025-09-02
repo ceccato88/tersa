@@ -407,11 +407,11 @@ export const ImageTransform = ({
       )}
       <div className="space-y-4 p-4">
         <Textarea
-              value={data.instructions ?? ''}
-              onChange={handleInstructionsChange}
-              placeholder="Digite as instruções (obrigatório)"
-              className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
-            />
+          value={data.instructions ?? ''}
+          onChange={handleInstructionsChange}
+          placeholder="Digite as instruções (obrigatório)"
+          className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px]"
+        />
         
         {/* Modelo e Aspect Ratio lado a lado */}
         <div className="grid grid-cols-2 gap-4">
@@ -421,7 +421,7 @@ export const ImageTransform = ({
               value={modelId}
               options={filteredModels}
               id={id}
-              className="w-full"
+              className="w-full h-10"
               onChange={(value) => {
                 // Ao mudar o modelo, aplicar valores padrão do novo modelo
                 const defaults = getModelDefaults(value);
@@ -436,7 +436,7 @@ export const ImageTransform = ({
               value={aspectRatio}
               onValueChange={(value) => updateNodeData(id, { aspectRatio: value })}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full h-10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -473,7 +473,7 @@ export const ImageTransform = ({
                       value={numOutputs.toString()}
                       onValueChange={(value) => updateNodeData(id, { numOutputs: parseInt(value) })}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full h-10">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -536,7 +536,7 @@ export const ImageTransform = ({
                           }
                         }}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full h-10">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -558,7 +558,7 @@ export const ImageTransform = ({
                           updateNodeData(id, { [field.name]: parsedValue });
                         }}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full h-10">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

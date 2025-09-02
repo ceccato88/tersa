@@ -378,7 +378,7 @@ export const VideoTransform = ({
           value={data.instructions ?? ''}
           onChange={handleInstructionsChange}
           placeholder="Digite as instruções (obrigatório)"
-          className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
+          className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px]"
         />
         
         {/* Modelo */}
@@ -389,7 +389,7 @@ export const VideoTransform = ({
               value={modelId}
               options={filteredModels}
               id={id}
-              className="w-full"
+              className="w-full h-10"
               onChange={(value) => {
                 // Ao mudar o modelo, aplicar valores padrão do novo modelo
                 const defaults = getModelDefaults(value);
@@ -434,7 +434,7 @@ export const VideoTransform = ({
                       value={numOutputs.toString()}
                       onValueChange={(value) => updateNodeData(id, { numOutputs: parseInt(value) })}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full h-10">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -501,7 +501,7 @@ export const VideoTransform = ({
                           }
                         }}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full h-10">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -533,7 +533,7 @@ export const VideoTransform = ({
                           }
                         }}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full h-10">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>

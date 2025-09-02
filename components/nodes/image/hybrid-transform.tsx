@@ -393,8 +393,7 @@ export const HybridImageTransform = ({
             value={data.instructions ?? ''}
             onChange={handleInstructionsChange}
             placeholder="Digite as instruções (obrigatório)"
-            className="shrink-0 resize-none border-none bg-transparent shadow-none focus-visible:ring-0 text-sm"
-            rows={2}
+            className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px]"
           />
         </div>
         

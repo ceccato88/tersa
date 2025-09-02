@@ -469,7 +469,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
           value={data.instructions ?? ''}
           onChange={handleInstructionsChange}
           placeholder="Digite as instruções (obrigatório)"
-          className="shrink-0 resize-none rounded-none border-none bg-transparent! shadow-none focus-visible:ring-0"
+          className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px]"
         />
         
         {/* Apenas controle de quantidade */}
@@ -479,7 +479,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
             value={variationCount.toString()}
             onValueChange={(value) => handleVariationCountChange(parseInt(value))}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-10">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
