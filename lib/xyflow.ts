@@ -4,42 +4,24 @@ import type { TextNodeProps } from '@/components/nodes/text';
 import type { Node } from '@xyflow/react';
 
 export const getTextFromTextNodes = (nodes: Node[]) => {
-  const messages: string[] = [];
+  const texts: string[] = [];
 
-  // Coletar textos originais (mensagens do usuário)
-  const sourceTexts = nodes
-    .filter((node) => node.type === 'text')
-    .map((node) => (node.data as TextNodeProps['data']).text)
-    .filter(Boolean);
-
-  // Adicionar textos originais com tag User:
-  sourceTexts.forEach(text => {
-    messages.push(`User: ${text}`);
+  nodes.forEach(node => {
+    if (node.type === 'text') {
+      const nodeData = node.data as TextNodeProps['data'];
+      
+      // Se é um nó primitivo (tem text), usar o text
+      if (nodeData.text) {
+        texts.push(nodeData.text);
+      }
+      // Se é um nó transform (tem generated), usar o texto gerado
+      else if (nodeData.generated?.text) {
+        texts.push(nodeData.generated.text);
+      }
+    }
   });
 
-  // Coletar instruções do usuário (data.instructions)
-  const userInstructions = nodes
-    .filter((node) => node.type === 'text')
-    .map((node) => (node.data as TextNodeProps['data']).instructions)
-    .filter(Boolean);
-
-  // Adicionar instruções com tag User:
-  userInstructions.forEach(instruction => {
-    messages.push(`User: ${instruction}`);
-  });
-
-  // Coletar textos gerados (mensagens do assistente)
-  const generatedTexts = nodes
-    .filter((node) => node.type === 'text' && node.data.generated)
-    .map((node) => (node.data as TextNodeProps['data']).generated?.text)
-    .filter(Boolean);
-
-  // Adicionar textos gerados com tag Assistant:
-  generatedTexts.forEach(text => {
-    messages.push(`Assistant: ${text}`);
-  });
-
-  return messages;
+  return texts;
 };
 
 

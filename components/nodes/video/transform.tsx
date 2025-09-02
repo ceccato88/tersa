@@ -30,6 +30,7 @@ import {
   type ChangeEventHandler,
   type ComponentProps,
   useCallback,
+  useEffect,
   useMemo,
   useState,
   useRef,
@@ -147,7 +148,7 @@ export const VideoTransform = ({
       // Preparar input para o modelo
       const modelDefaults = getModelDefaults(modelId);
       const input = {
-        prompt: [data.instructions, ...textNodes].join('\n'),
+        prompt: data.instructions || '',
         image: imageNodes[0], // Primeira imagem conectada
         seed: seed || null,
         resolution: resolution,
@@ -169,7 +170,7 @@ export const VideoTransform = ({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            prompt: textNodes.join('\n'),
+            prompt: data.instructions || '',
             params: {
               model: modelId,
               imageUrl: imageNodes[0],
@@ -192,7 +193,7 @@ export const VideoTransform = ({
         console.log('🔄 Chamando generateVideoReplicateAction...');
         result = await generateVideoReplicateAction({
           modelId,
-          prompt: textNodes.join('\n'),
+          prompt: data.instructions || '',
           instructions: data.instructions || '',
           nodeId: id,
           projectId: project.id,
@@ -263,6 +264,20 @@ export const VideoTransform = ({
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
     event
   ) => updateNodeData(id, { instructions: event.target.value });
+
+  // Transferência automática de prompt de nós conectados
+  useEffect(() => {
+    const nodes = getNodes();
+    const edges = getEdges();
+    const incomers = getIncomers({ id }, nodes, edges);
+    const textPrompts = getTextFromTextNodes(incomers);
+    
+    if (textPrompts.length > 0 && !data.instructions) {
+      // Se há prompts dos nós anteriores e o campo instructions está vazio,
+      // transferir automaticamente o primeiro prompt
+      updateNodeData(id, { instructions: textPrompts[0] });
+    }
+  }, [id, getNodes, getEdges, data.instructions, updateNodeData]);
 
   const toolbar = useMemo<ComponentProps<typeof NodeLayout>['toolbar']>(() => {
     const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];

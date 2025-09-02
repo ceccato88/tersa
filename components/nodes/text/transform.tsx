@@ -133,26 +133,17 @@ Se as instruções forem uma pergunta, então seu objetivo é responder à pergu
 Você deve sintetizar o conteúdo com base nas instruções do usuário e no contexto fornecido.
 A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
 
-    // Preparar prompt principal com mensagem atual e mensagens anteriores
-    const content: string[] = [];
+    // Usar apenas o conteúdo atual do prompt (já contém texto dos nós anteriores via transferência automática)
+    const content = data.instructions || '';
 
-    // Adicionar mensagem atual (instruções do usuário)
-    if (data.instructions) {
-      content.push('--- Mensagem Atual ---', `User: ${data.instructions}`);
-    }
-
-    // Adicionar mensagens anteriores
-    if (textPrompts.length) {
-      content.push('--- Mensagens Anteriores ---', ...textPrompts);
-    }
-
-    if (imageDescriptions.length) {
-      content.push('--- Descrições de Imagens ---', ...imageDescriptions);
-    }
+    // Adicionar descrições de imagens se houver
+    const finalContent = imageDescriptions.length 
+      ? [content, '--- Descrições de Imagens ---', ...imageDescriptions].join('\n')
+      : content;
 
     analytics.track('canvas', 'node', 'generate', {
       type,
-      promptLength: content.join('\n').length,
+      promptLength: finalContent.length,
       model: modelId,
       instructionsLength: data.instructions?.length ?? 0,
       imageCount: images.length,
@@ -163,7 +154,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
     const replicateInput: any = {
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: content.join('\n') }
+        { role: 'user', content: finalContent }
       ],
       verbosity: 'medium',
       reasoning_effort: 'minimal',
@@ -190,7 +181,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
         const requestBody = isFalModel ? {
           model: modelId.replace('fal-ai/', ''), // Remover prefixo fal-ai/
           input: {
-            prompt: content.join('\n'),
+            prompt: finalContent,
             system_prompt: systemPrompt,
             reasoning: true,
             priority: 'latency',
@@ -343,6 +334,20 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
     event
   ) => updateNodeData(id, { instructions: event.target.value });
+
+  // Transferência automática de prompt de nós conectados
+  useEffect(() => {
+    const nodes = getNodes();
+    const edges = getEdges();
+    const incomers = getIncomers({ id }, nodes, edges);
+    const textPrompts = getTextFromTextNodes(incomers);
+    
+    if (textPrompts.length > 0 && !data.instructions) {
+      // Se há prompts dos nós anteriores e o campo instructions está vazio,
+      // transferir automaticamente o primeiro prompt
+      updateNodeData(id, { instructions: textPrompts[0] });
+    }
+  }, [id, getNodes, getEdges, data.instructions, updateNodeData]);
 
   const handleCopy = useCallback((text: string) => {
     navigator.clipboard.writeText(text);

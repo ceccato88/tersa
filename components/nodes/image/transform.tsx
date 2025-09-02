@@ -29,6 +29,7 @@ import {
   type ChangeEventHandler,
   type ComponentProps,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -181,20 +182,7 @@ export const ImageTransform = ({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            prompt: (() => {
-              const messages = [];
-              if (data.instructions) {
-                messages.push('Mensagem atual');
-                messages.push(`User: ${data.instructions}`);
-              }
-              if (textNodes.length > 0) {
-                messages.push('Mensagens anteriores');
-                textNodes.forEach(text => {
-                  messages.push(text);
-                });
-              }
-              return messages.join('\n');
-            })(),
+            prompt: data.instructions || '',
             params: {
               model: modelId,
               aspectRatio: aspectRatio,
@@ -309,6 +297,20 @@ export const ImageTransform = ({
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = (
     event
   ) => updateNodeData(id, { instructions: event.target.value });
+
+  // Transferência automática de prompt de nós conectados
+  useEffect(() => {
+    const nodes = getNodes();
+    const edges = getEdges();
+    const incomers = getIncomers({ id }, nodes, edges);
+    const textPrompts = getTextFromTextNodes(incomers);
+    
+    if (textPrompts.length > 0 && !data.instructions) {
+      // Se há prompts dos nós anteriores e o campo instructions está vazio,
+      // transferir automaticamente o primeiro prompt
+      updateNodeData(id, { instructions: textPrompts[0] });
+    }
+  }, [id, getNodes, getEdges, data.instructions, updateNodeData]);
 
   const toolbar = useMemo<ComponentProps<typeof NodeLayout>['toolbar']>(() => {
     const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];

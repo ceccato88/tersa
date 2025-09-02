@@ -47,6 +47,47 @@ export function TextTransformFal({ node }: TextTransformFalProps) {
     }
   }, [node.data.instructions]);
 
+  // Transferência automática de prompt de nós conectados
+  useEffect(() => {
+    const { getIncomers, getNodes, getEdges } = useNodes();
+    const nodes = getNodes();
+    const edges = getEdges();
+    const incomers = getIncomers({ id: node.id }, nodes, edges);
+    
+    // Função para extrair texto de nós conectados
+    const getTextFromConnectedNodes = (connectedNodes: Node[]) => {
+      return connectedNodes
+        .filter((n) => n.type === 'text')
+        .map((n) => {
+          // Se é um nó primitivo (tem text), usar o text
+          if (n.data.text) {
+            return n.data.text;
+          }
+          // Se é um nó transform (tem generated), usar o texto gerado
+          else if (n.data.generated?.text) {
+            return n.data.generated.text;
+          }
+          return null;
+        })
+        .filter(Boolean);
+    };
+    
+    const textPrompts = getTextFromConnectedNodes(incomers);
+    
+    if (textPrompts.length > 0 && !instructions) {
+      // Se há prompts dos nós anteriores e o campo instructions está vazio,
+      // transferir automaticamente o primeiro prompt
+      const firstPrompt = textPrompts[0];
+      setInstructions(firstPrompt);
+      updateNode(node.id, {
+        data: {
+          ...node.data,
+          instructions: firstPrompt,
+        },
+      });
+    }
+  }, [node.id, node.data, instructions, updateNode, useNodes]);
+
   const handleInstructionsChange = useCallback((value: string) => {
     setInstructions(value);
     updateNode(node.id, {
