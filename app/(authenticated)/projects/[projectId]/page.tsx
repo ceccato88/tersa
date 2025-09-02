@@ -16,7 +16,7 @@ import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'WOW',
-  description: 'Create and share AI workflows',
+  description: 'Crie e compartilhe fluxos de trabalho com IA',
 };
 
 export const maxDuration = 800; // 13 minutes

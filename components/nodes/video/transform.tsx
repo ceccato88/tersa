@@ -81,7 +81,7 @@ export const VideoTransform = ({
   type,
   title,
 }: VideoTransformProps) => {
-  const { updateNodeData, getNodes, getEdges, addNodes } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges, addNodes, addEdges } = useReactFlow();
   const [loading, setLoading] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const project = useProject();
@@ -145,22 +145,43 @@ export const VideoTransform = ({
         framesPerSecond: framesPerSecond,
       });
 
-      // Preparar input para o modelo
-      const modelDefaults = getModelDefaults(modelId);
-      const input = {
-        prompt: data.instructions || '',
-        image: imageNodes[0], // Primeira imagem conectada
-        seed: seed || null,
-        resolution: resolution,
-        frames_per_second: framesPerSecond,
-        ...modelDefaults, // Adiciona campos ocultos
-      };
-
+      // Gerar múltiplas variações
+      const variations: any[] = [];
+      
+      // Preparar seedString fora do loop para usar depois
+      const seedString = String(seed || '').trim();
+      
       // Determinar qual action usar baseado no provider do modelo
       const selectedModel = AVAILABLE_MODELS[modelId];
       const isFalModel = selectedModel?.chef?.id === 'fal';
       
-      let result;
+      for (let i = 0; i < numOutputs; i++) {
+        // Lógica de seed para variações:
+        // - Se não há seed definido (vazio) = sempre null para todos
+        // - Se há seed definido E é a primeira variação (i = 0) = usar o seed definido
+        // - Se há seed definido E são variações adicionais (i > 0) = gerar seed aleatório
+        let currentSeed;
+        
+        if (!seedString || seedString === '' || seedString === 'null' || seedString === 'undefined') {
+          currentSeed = null; // Sem seed = sempre null para todos
+        } else if (i === 0) {
+          currentSeed = seedString; // Primeira variação = seed definido
+        } else {
+          currentSeed = Math.floor(Math.random() * 1000000).toString(); // Variações = seed aleatório
+        }
+
+        // Preparar input para o modelo
+        const modelDefaults = getModelDefaults(modelId);
+        const input = {
+          prompt: data.instructions || '',
+          image: imageNodes[0], // Primeira imagem conectada
+          seed: currentSeed,
+          resolution: resolution,
+          frames_per_second: framesPerSecond,
+          ...modelDefaults, // Adiciona campos ocultos
+        };
+      
+        let result;
       
       if (isFalModel) {
         console.log('🔄 Chamando FAL Video API...');
@@ -174,7 +195,7 @@ export const VideoTransform = ({
             params: {
               model: modelId,
               imageUrl: imageNodes[0],
-              seed: seed,
+              ...(currentSeed !== null && { seed: currentSeed }),
               fps: framesPerSecond,
               duration: 3, // Duração padrão
               motionStrength: 0.8, // Força do movimento padrão
@@ -198,23 +219,90 @@ export const VideoTransform = ({
           nodeId: id,
           projectId: project.id,
           imageUrl: imageNodes[0], // URL da imagem de entrada
-          seed: seed,
+          seed: currentSeed,
           numOutputs,
           resolution: resolution,
           frames_per_second: framesPerSecond,
         });
       }
 
-      if (result.error) {
-        throw new Error(result.error);
-      }
+        if (result.error) {
+          throw new Error(result.error);
+        }
 
-      // Atualizar o nó com os dados retornados da action
-      console.log('💾 Atualizando nó com dados da action:', result.nodeData);
-      updateNodeData(id, result.nodeData);
+        variations.push(result.nodeData);
+      }
       
-      console.log('✅ Vídeo salvo e nó atualizado com sucesso');
-      toast.success('Vídeo gerado com sucesso');
+      // A primeira variação fica no nó atual
+      const mainVariation = variations[0];
+      updateNodeData(id, {
+        ...mainVariation,
+        // Preservar o seed original do usuário (não sobrescrever com o da API)
+        seed: seed, // Manter o seed original (vazio ou definido pelo usuário)
+        numOutputs,
+        updatedAt: new Date().toISOString(),
+      });
+      
+      // Criar nós adicionais para as outras variações
+      if (variations.length > 1) {
+        const currentNode = getNodes().find(node => node.id === id);
+        if (currentNode) {
+          const newNodes = [];
+          const newEdges = [];
+          const baseY = currentNode.position.y;
+          
+          for (let i = 1; i < variations.length; i++) {
+            const newNodeId = `${id}-variation-${i}`;
+            const newNode = {
+              id: newNodeId,
+              type: 'video',
+              position: {
+                x: currentNode.position.x + (i * 420), // 384px + 36px spacing
+                y: baseY, // Usar Y fixo do nó original
+              },
+              origin: currentNode.origin || [0, 0.5], // Usar mesmo origin do nó original
+              data: {
+                ...variations[i],
+                model: modelId,
+                seed: i === 0 ? seedString : (seedString !== '' && seedString !== 'null' && seedString !== 'undefined' ? Math.floor(Math.random() * 1000000).toString() : ''),
+                instructions: data.instructions,
+                numOutputs: 1,
+                resolution: resolution,
+                frames_per_second: framesPerSecond,
+                updatedAt: new Date().toISOString(),
+              },
+            };
+            newNodes.push(newNode);
+            
+            // Criar conexões para os mesmos nós que estão conectados ao nó original
+            const edges = getEdges();
+            const incomingEdges = edges.filter(edge => edge.target === id);
+            
+            incomingEdges.forEach(edge => {
+              newEdges.push({
+                id: `${edge.id}-variation-${i}`,
+                source: edge.source,
+                target: newNodeId,
+                type: edge.type || 'animated',
+                sourceHandle: edge.sourceHandle,
+                targetHandle: edge.targetHandle,
+              });
+            });
+          }
+          
+          if (newNodes.length > 0) {
+            addNodes(newNodes);
+          }
+          
+          if (newEdges.length > 0) {
+            addEdges(newEdges);
+          }
+          
+          toast.success(`${variations.length} vídeos gerados com sucesso`);
+        }
+      } else {
+        toast.success('Vídeo gerado com sucesso');
+      }
 
       setTimeout(() => mutate('credits'), 5000);
     } catch (error: any) {

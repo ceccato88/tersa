@@ -258,6 +258,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
         const currentNode = getNodes().find(node => node.id === id);
         if (currentNode) {
            const newNodes = [];
+           const newEdges = [];
            const baseY = currentNode.position.y; // Garantir mesmo Y para todos
           
           for (let i = 1; i < variations.length; i++) {
@@ -281,9 +282,30 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
              };
              
              newNodes.push(newNode);
+             
+             // Criar conexões para os mesmos nós que estão conectados ao nó original
+             const edges = getEdges();
+             const incomingEdges = edges.filter(edge => edge.target === id);
+             
+             incomingEdges.forEach(edge => {
+               newEdges.push({
+                 id: `${edge.id}-variation-${i}`,
+                 source: edge.source,
+                 target: newNodeId,
+                 type: edge.type || 'animated',
+                 sourceHandle: edge.sourceHandle,
+                 targetHandle: edge.targetHandle,
+               });
+             });
            }
           
-          addNodes(newNodes);
+          if (newNodes.length > 0) {
+            addNodes(newNodes);
+          }
+          
+          if (newEdges.length > 0) {
+            addEdges(newEdges);
+          }
           
           toast.success(`${variations.length} variações geradas com sucesso`);
         }

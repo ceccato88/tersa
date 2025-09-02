@@ -8,9 +8,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { WelcomeDemo } from './components/welcome-demo';
 
-const title = 'Welcome to WOW!';
+const title = 'Bem-vindo ao WOW!';
 const description =
-  "WOW is a platform for creating and sharing AI-powered projects. Let's get started by creating a flow, together.";
+  'WOW é uma plataforma para criar e compartilhar projetos alimentados por IA. Vamos começar criando um fluxo juntos.';
 
 export const metadata: Metadata = {
   title,
@@ -29,10 +29,10 @@ const Welcome = async () => {
   });
 
   if (!welcomeProject) {
-    const response = await createProjectAction('Welcome', true);
+    const response = await createProjectAction('Bem-vindo', true);
 
     if ('error' in response) {
-      return <div>Error: {response.error}</div>;
+      return <div>Erro: {response.error}</div>;
     }
 
     const project = await database.query.projects.findFirst({
@@ -43,7 +43,7 @@ const Welcome = async () => {
   }
 
   if (!welcomeProject) {
-    throw new Error('Failed to create welcome project');
+    throw new Error('Falha ao criar projeto de boas-vindas');
   }
 
   return (

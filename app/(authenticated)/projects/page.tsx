@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'WOW',
-  description: 'Create and share AI workflows',
+  description: 'Crie e compartilhe fluxos de trabalho com IA',
 };
 
 export const maxDuration = 800; // 13 minutes
@@ -31,7 +31,7 @@ const Projects = async () => {
   });
 
   if (!project) {
-    const newProject = await createProjectAction('Untitled Project');
+    const newProject = await createProjectAction('Projeto Sem Título');
 
     if ('error' in newProject) {
       throw new Error(newProject.error);
@@ -42,7 +42,7 @@ const Projects = async () => {
     });
 
     if (!newFetchedProject) {
-      throw new Error('Failed to create project');
+      throw new Error('Falha ao criar projeto');
     }
 
     project = newFetchedProject;

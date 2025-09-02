@@ -16,13 +16,14 @@ import { getDescriptionsFromImageNodes, getImagesFromImageNodes, getTextFromText
 import { useProject } from '@/providers/project';
 import { getIncomers, useReactFlow, useNodes } from '@xyflow/react';
 import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
   ClockIcon,
+  CopyIcon,
   DownloadIcon,
   Loader2Icon,
   PlayIcon,
   RotateCcwIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -172,7 +173,24 @@ export const ImageTransform = ({
       // Gerar múltiplas variações
       const variations: any[] = [];
       
+      // Preparar seedString fora do loop para usar depois
+      const seedString = String(seed || '').trim();
+      
       for (let i = 0; i < numOutputs; i++) {
+        // Lógica de seed para variações:
+        // - Se não há seed definido (vazio) = sempre null para todos
+        // - Se há seed definido E é a primeira variação (i = 0) = usar o seed definido
+        // - Se há seed definido E são variações adicionais (i > 0) = gerar seed aleatório
+        let currentSeed;
+        
+        if (!seedString || seedString === '' || seedString === 'null' || seedString === 'undefined') {
+          currentSeed = null; // Sem seed = sempre null para todos
+        } else if (i === 0) {
+          currentSeed = seedString; // Primeira variação = seed definido
+        } else {
+          currentSeed = Math.floor(Math.random() * 1000000).toString(); // Variações = seed aleatório
+        }
+        
         let response;
         
         // Usar FAL API via route (apenas FAL disponível)
@@ -186,7 +204,7 @@ export const ImageTransform = ({
             params: {
               model: modelId,
               aspectRatio: aspectRatio,
-              seed: seed,
+              ...(currentSeed !== null && { seed: currentSeed }),
               guidanceScale: data.guidance || 3.5,
               steps: data.numInferenceSteps || 28,
               strength: data.promptStrength || 0.8,
@@ -230,6 +248,8 @@ export const ImageTransform = ({
       const mainVariation = variations[0];
       updateNodeData(id, {
         ...mainVariation,
+        // Preservar o seed original do usuário (não sobrescrever com o da API)
+        seed: seed, // Manter o seed original (vazio ou definido pelo usuário)
         numOutputs,
         updatedAt: new Date().toISOString(),
       });
@@ -257,6 +277,7 @@ export const ImageTransform = ({
                 model: modelId,
                 instructions: data.instructions,
                 aspectRatio: aspectRatio,
+                seed: i === 0 ? (seedString !== '' && seedString !== 'null' && seedString !== 'undefined' ? seedString : '') : (seedString !== '' && seedString !== 'null' && seedString !== 'undefined' ? Math.floor(Math.random() * 1000000).toString() : ''),
                 updatedAt: new Date().toISOString(),
               },
             };
@@ -320,6 +341,13 @@ export const ImageTransform = ({
     event
   ) => updateNodeData(id, { instructions: event.target.value });
 
+  const handleCopy = useCallback(() => {
+    if (data.generated?.url) {
+      navigator.clipboard.writeText(data.generated.url);
+      toast.success('URL da imagem copiada para a área de transferência');
+    }
+  }, [data.generated?.url]);
+
   // Transferência automática de prompt de nós conectados
   useEffect(() => {
     const nodes = getNodes();
@@ -352,6 +380,20 @@ export const ImageTransform = ({
             }}
           >
             <DownloadIcon size={12} />
+          </Button>
+        ),
+      });
+
+      items.push({
+        tooltip: 'Copiar URL',
+        children: (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={handleCopy}
+          >
+            <CopyIcon size={12} />
           </Button>
         ),
       });

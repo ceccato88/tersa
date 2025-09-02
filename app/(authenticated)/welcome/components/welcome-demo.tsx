@@ -20,7 +20,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 const TextNode = nodeButtons.find((button) => button.id === 'text');
 
 if (!TextNode) {
-  throw new Error('Text node not found');
+  throw new Error('Nó de texto não encontrado');
 }
 
 type WelcomeDemoProps = {
@@ -64,18 +64,18 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
 
       router.push(`/projects/${project.id}`);
     } catch (error) {
-      handleError('Error finishing onboarding', error);
+      handleError('Erro ao finalizar integração', error);
     }
   };
 
   const steps = [
     {
-      instructions: `${description} Sound good?`,
+      instructions: `${description} Parece bom?`,
       action: (
         <div className="not-prose flex items-center gap-4">
-          <Button onClick={() => setStarted(true)}>Sounds good!</Button>
+          <Button onClick={() => setStarted(true)}>Parece bom!</Button>
           <Button variant="outline" onClick={handleFinishWelcome}>
-            Skip intro
+            Pular introdução
           </Button>
         </div>
       ),
@@ -85,9 +85,9 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
     {
       instructions: (
         <>
-          First, click the{' '}
+          Primeiro, clique no ícone{' '}
           <TextNode.icon className="-translate-y-0.5 inline-block size-4 text-primary" />{' '}
-          icon on the bottom toolbar. This will add a Text node to the canvas.
+          na barra de ferramentas inferior. Isso adicionará um nó de Texto ao canvas.
         </>
       ),
       complete: hasTextNode,
@@ -95,9 +95,9 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
     {
       instructions: (
         <>
-          Fantastic! That's the first node. Because there's no incoming nodes,
-          you control the content. Try writing a few words or sentences in the
-          node. Our favourite is "a wild field of delphiniums".
+          Fantástico! Esse é o primeiro nó. Como não há nós de entrada,
+          você controla o conteúdo. Tente escrever algumas palavras ou frases no
+          nó. Nossa favorita é "um campo selvagem de delphiniums".
         </>
       ),
       complete: hasTextNode && hasFilledTextNode,
@@ -105,9 +105,9 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
     {
       instructions: (
         <>
-          Excellent work! Now, let's attach it to an Image node. Drag the handle
-          on the right of the Text node into blank space and drop it. You'll be
-          prompted to select a node type. Select the Image node.
+          Excelente trabalho! Agora, vamos conectá-lo a um nó de Imagem. Arraste a alça
+          do lado direito do nó de Texto para um espaço vazio e solte. Você será
+          solicitado a selecionar um tipo de nó. Selecione o nó de Imagem.
         </>
       ),
       complete:
@@ -119,14 +119,14 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
     {
       instructions: (
         <>
-          You're getting the hang of it! Because this node has incoming nodes
-          connected to it, it will generate content with AI based on the
-          incoming nodes.
+          Você está pegando o jeito! Como este nó tem nós de entrada
+          conectados a ele, ele gerará conteúdo com IA baseado nos
+          nós de entrada.
           <br />
           <br />
-          You can also add instructions to the Image node. This will be used to
-          influence the outcome. Try adding some instructions to the Image node,
-          maybe something like "make it anime style".
+          Você também pode adicionar instruções ao nó de Imagem. Isso será usado para
+          influenciar o resultado. Tente adicionar algumas instruções ao nó de Imagem,
+          talvez algo como "faça no estilo anime".
         </>
       ),
       complete:
@@ -139,10 +139,10 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
     {
       instructions: (
         <>
-          That's all the information we need to generate an awesome image! Click
-          the Image node to select it, then press the{' '}
+          Essa é toda a informação que precisamos para gerar uma imagem incrível! Clique
+          no nó de Imagem para selecioná-lo, então pressione o botão{' '}
           <PlayIcon className="-translate-y-0.5 inline-block size-4 text-primary" />{' '}
-          button to generate content.
+          para gerar conteúdo.
         </>
       ),
       complete:
@@ -156,15 +156,15 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
     {
       instructions: (
         <>
-          That's it! You've created your first AI-powered workflow. You can
-          continue to add more nodes to a canvas to create more complex flows
-          and discover the power of WOW.
+          É isso! Você criou seu primeiro fluxo de trabalho alimentado por IA. Você pode
+          continuar adicionando mais nós ao canvas para criar fluxos mais complexos
+          e descobrir o poder do WOW.
         </>
       ),
       action: (
         <div className="not-prose">
           <Button asChild onClick={handleFinishWelcome}>
-            <Link href="/">Continue</Link>
+            <Link href="/">Continuar</Link>
           </Button>
         </div>
       ),

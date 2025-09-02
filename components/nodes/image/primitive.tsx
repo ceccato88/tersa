@@ -1,4 +1,3 @@
-import { describeAction } from '@/app/actions/image/describe';
 import { NodeLayout } from '@/components/nodes/layout';
 import { DropzoneEmptyState } from '@/components/ui/kibo-ui/dropzone';
 import { DropzoneContent } from '@/components/ui/kibo-ui/dropzone';
@@ -49,21 +48,6 @@ export const ImagePrimitive = ({
           type,
         },
       });
-
-      const description = await describeAction(url, project?.id);
-
-      if ('error' in description) {
-        // Armazenar a mensagem de erro no campo description do nó
-        // para que o nó de texto possa acessá-la
-        updateNodeData(id, {
-          description: `Erro na descrição da imagem: ${description.error}`,
-        });
-        handleError('Erro ao descrever imagem', new Error(description.error));
-      } else {
-        updateNodeData(id, {
-          description: description.description,
-        });
-      }
     } catch (error) {
       handleError('Erro ao enviar imagem', error);
     } finally {
