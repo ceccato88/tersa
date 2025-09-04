@@ -20,12 +20,6 @@ importers:
       '@ai-sdk/gateway':
         specifier: ^1.0.8
         version: 1.0.8(zod@3.25.64)
-      '@ai-sdk/hume':
-        specifier: ^1.0.4
-        version: 1.0.4(zod@3.25.64)
-      '@ai-sdk/lmnt':
-        specifier: ^1.0.4
-        version: 1.0.4(zod@3.25.64)
       '@ai-sdk/luma':
         specifier: ^1.0.4
         version: 1.0.4(zod@3.25.64)
@@ -341,9 +335,6 @@ importers:
       react-resizable-panels:
         specifier: ^3.0.3
         version: 3.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react-tweet:
-        specifier: ^3.2.2
-        version: 3.2.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       recharts:
         specifier: ^2.15.3
         version: 2.15.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -464,18 +455,6 @@ packages:
 
   '@ai-sdk/gateway@1.0.8':
     resolution: {integrity: sha512-yiHYz0bAHEvhL+fSUBI2dNmyj0LOI8zw5qrYpa4gp1ojPgZq/7T1WXoIWRmVdjQwvT4PzSmRKLtbMPfz+umgfw==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
-
-  '@ai-sdk/hume@1.0.4':
-    resolution: {integrity: sha512-PAz/jyCvkWPCki3cJ9BY7WvA7/QGSOF1MOktnOh3utp9i1IiqLUGFRkwCkNgl+k1vam1NMGA7LhwY3IUq/XUtA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4
-
-  '@ai-sdk/lmnt@1.0.4':
-    resolution: {integrity: sha512-OettL9eA/O8iBgS1JoFcgLtQkiJVQRseK+2EbGfpd+XcIkXcyh4jyeCwWP4dJyN9MXzj0mP3lr0A0HRjF3/vXw==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -4618,12 +4597,6 @@ packages:
       react: '>=16.6.0'
       react-dom: '>=16.6.0'
 
-  react-tweet@3.2.2:
-    resolution: {integrity: sha512-hIkxAVPpN2RqWoDEbo3TTnN/pDcp9/Jb6pTgiA4EbXa9S+m2vHIvvZKHR+eS0PDIsYqe+zTmANRa5k6+/iwGog==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
-
   react@19.1.0:
     resolution: {integrity: sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==}
     engines: {node: '>=0.10.0'}
@@ -5344,18 +5317,6 @@ snapshots:
       zod: 3.25.64
 
   '@ai-sdk/gateway@1.0.8(zod@3.25.64)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.4(zod@3.25.64)
-      zod: 3.25.64
-
-  '@ai-sdk/hume@1.0.4(zod@3.25.64)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.4(zod@3.25.64)
-      zod: 3.25.64
-
-  '@ai-sdk/lmnt@1.0.4(zod@3.25.64)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.4(zod@3.25.64)
@@ -9700,14 +9661,6 @@ snapshots:
       prop-types: 15.8.1
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
-
-  react-tweet@3.2.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
-    dependencies:
-      '@swc/helpers': 0.5.15
-      clsx: 2.1.1
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-      swr: 2.3.3(react@19.1.0)
 
   react@19.1.0: {}
 
