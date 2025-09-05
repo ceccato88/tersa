@@ -213,7 +213,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   },
   // Modelos FAL
   'fal-ai/flux-dev': {
-    label: 'FLUX Dev (FAL)',
+    label: 'FLUX Dev',
     aspectRatios: [
       { label: 'Square 1:1', value: 'square' },
       { label: 'Square 1:1 HD', value: 'square_hd' },
@@ -298,7 +298,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
     ]
   },
   'fal-ai/flux-schnell': {
-    label: 'FLUX Schnell (FAL)',
+    label: 'FLUX Schnell',
     aspectRatios: [
       { label: '1:1 (1024x1024)', value: '1:1' },
       { label: '4:3 (1024x768)', value: '4:3' },

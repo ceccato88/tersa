@@ -41,7 +41,6 @@ M	app/(unauthenticated)/pricing/page.tsx
 M	app/(unauthenticated)/privacy/page.tsx
 M	app/(unauthenticated)/terms/page.tsx
 M	app/actions/credits/get.ts
-M	app/actions/credits/get.ts.backup
 M	app/actions/image/create.ts
 M	app/actions/image/describe.ts
 M	app/actions/image/edit.ts
@@ -66,7 +65,6 @@ M	app/auth/forgot-password/page.tsx
 M	app/auth/layout.tsx
 M	app/auth/login/components/login-form.tsx
 M	app/auth/login/page.tsx
-M	app/auth/login/page.tsx.backup
 M	app/auth/oauth/route.ts
 M	app/auth/sign-up-success/page.tsx
 M	app/auth/sign-up/components/sign-up-form.tsx
@@ -76,7 +74,6 @@ M	app/auth/update-password/page.tsx
 M	app/globals.css
 M	app/layout.tsx
 M	app/page.tsx
-M	app/page.tsx.backup
 M	biome.json
 M	components.json
 M	components/canvas.tsx
@@ -106,13 +103,10 @@ M	components/nodes/image/primitive.tsx
 M	components/nodes/image/transform.tsx
 M	components/nodes/index.tsx
 M	components/nodes/layout.tsx
-M	components/nodes/layout.tsx.backup
 M	components/nodes/model-selector.tsx
-M	components/nodes/model-selector.tsx.backup
 M	components/nodes/text/index.tsx
 M	components/nodes/text/primitive.tsx
 M	components/nodes/text/transform.tsx
-M	components/nodes/text/transform.tsx.backup
 M	components/nodes/toolbar.tsx
 M	components/nodes/tweet/index.tsx
 M	components/nodes/tweet/primitive.tsx
@@ -123,7 +117,6 @@ M	components/or-divider.tsx
 M	components/profile.tsx
 M	components/project-selector.tsx
 M	components/project-settings.tsx
-M	components/project-settings.tsx.backup
 M	components/reasoning.tsx
 M	components/save-indicator.tsx
 M	components/social-auth.tsx
@@ -131,7 +124,6 @@ M	components/theme-switcher.tsx
 M	components/toolbar.tsx
 M	components/top-left.tsx
 M	components/top-right.tsx
-M	components/top-right.tsx.backup
 M	components/ui/accordion.tsx
 M	components/ui/alert-dialog.tsx
 M	components/ui/alert.tsx
@@ -207,7 +199,6 @@ M	hooks/use-reasoning.ts
 M	hooks/use-save-project.ts
 M	hooks/use-user.ts
 M	lib/auth.ts
-M	lib/auth.ts.backup
 M	lib/database.ts
 M	lib/demo.ts
 M	lib/download.ts
@@ -228,7 +219,6 @@ M	lib/models/video/replicate.ts
 M	lib/models/video/runway.ts
 M	lib/models/vision.ts
 M	lib/node-buttons.ts
-M	lib/node-buttons.ts.backup
 M	lib/posthog.ts
 M	lib/providers.ts
 M	lib/rate-limit.ts
@@ -246,7 +236,6 @@ M	middleware.ts
 M	next.config.ts
 M	openapi/bfl.d.ts
 M	package.json
-M	package.json.backup
 M	pnpm-lock.yaml
 M	postcss.config.mjs
 M	providers/gateway/client.tsx

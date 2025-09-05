@@ -46,7 +46,7 @@ type ImageTransformProps = ImageNodeProps & {
 const AVAILABLE_MODELS = {
   // Modelos FAL
   'fal-ai/flux-dev': {
-    label: 'FLUX.1 [dev] (FAL)',
+    label: 'FLUX.1 [dev]',
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
@@ -60,7 +60,7 @@ const AVAILABLE_MODELS = {
     default: true,
   },
   'fal-ai/flux-schnell': {
-    label: 'FLUX Schnell (FAL)',
+    label: 'FLUX Schnell',
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [

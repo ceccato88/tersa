@@ -17,13 +17,13 @@ export interface FilteredModel {
 const IMAGE_MODELS = {
   'fal-ai/flux-dev': {
     id: 'fal-ai/flux-dev',
-    label: 'FLUX.1 [dev] (FAL)',
+    label: 'FLUX.1 [dev]',
     provider: 'fal',
     supportedInputs: ['none', 'text-primitive', 'text-transform']
   },
   'fal-ai/flux-schnell': {
     id: 'fal-ai/flux-schnell',
-    label: 'FLUX Schnell (FAL)',
+    label: 'FLUX Schnell',
     provider: 'fal',
     supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
   }
