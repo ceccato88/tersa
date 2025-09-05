@@ -254,6 +254,20 @@ const AVAILABLE_MODELS = {
     ],
     default: false,
   },
+  'fal-ai/qwen-image': {
+    label: 'Qwen Image',
+    chef: providers.fal,
+    providers: [providers.fal],
+    aspectRatios: [
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9', value: 'landscape_16_9' },
+    ],
+    default: false,
+  },
 };
 
 const getDefaultModel = () => {

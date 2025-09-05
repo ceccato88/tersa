@@ -45,6 +45,7 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/luma-photon': 'fal-ai/luma-photon',
   'fal-ai/recraft-v3': 'fal-ai/recraft/v3/text-to-image',
   'fal-ai/flux-krea': 'fal-ai/flux/krea',
+  'fal-ai/qwen-image': 'fal-ai/qwen-image',
 };
 
 export async function generateImageFalAction(
@@ -76,8 +77,17 @@ export async function generateImageFalAction(
     // Adicionar parâmetros globais apenas se não for Luma Photon ou Recraft V3
     if (data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft-v3') {
       input.seed = data.seed ? parseInt(data.seed.toString()) : null;
-      input.guidance_scale = data.guidance_scale || data.guidance || (data.model === 'fal-ai/flux-krea' ? 4.5 : 3.5);
-      input.output_format = data.output_format || data.outputFormat || 'jpeg';
+      
+      // Guidance scale específico por modelo
+      let defaultGuidanceScale = 3.5;
+      if (data.model === 'fal-ai/flux-krea') defaultGuidanceScale = 4.5;
+      if (data.model === 'fal-ai/qwen-image') defaultGuidanceScale = 2.5;
+      input.guidance_scale = data.guidance_scale || data.guidance || defaultGuidanceScale;
+      
+      // Output format específico por modelo  
+      let defaultOutputFormat = 'jpeg';
+      if (data.model === 'fal-ai/qwen-image') defaultOutputFormat = 'png';
+      input.output_format = data.output_format || data.outputFormat || defaultOutputFormat;
     }
 
     // Configurações específicas por modelo

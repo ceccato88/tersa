@@ -1019,6 +1019,72 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       }
     ]
+  },
+  'fal-ai/qwen-image': {
+    label: 'Qwen Image',
+    aspectRatios: [
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9', value: 'landscape_16_9' },
+    ],
+    fields: [
+      {
+        name: 'image_size',
+        type: 'select',
+        label: 'Tamanho',
+        options: [
+          { value: 'square_hd', label: 'Square HD' },
+          { value: 'square', label: 'Square' },
+          { value: 'portrait_4_3', label: 'Portrait 4:3' },
+          { value: 'portrait_16_9', label: 'Portrait 16:9' },
+          { value: 'landscape_4_3', label: 'Landscape 4:3' },
+          { value: 'landscape_16_9', label: 'Landscape 16:9' },
+        ],
+        defaultValue: 'landscape_4_3',
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'num_inference_steps',
+        type: 'number',
+        label: 'Inference Steps',
+        defaultValue: 30,
+        min: 2,
+        max: 250,
+        gridColumn: 2
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale',
+        defaultValue: 2.5,
+        min: 0,
+        max: 20,
+        step: 0.1,
+        gridColumn: 1
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Output Format',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' },
+        ],
+        defaultValue: 'png',
+        gridColumn: 2
+      }
+    ]
   }
 };
 
@@ -1130,6 +1196,11 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   
   // Adicionar valores padrão para o modelo fal-ai/flux-krea
   if (modelId === 'fal-ai/flux-krea') {
+    defaults.image_size = 'landscape_4_3';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/qwen-image
+  if (modelId === 'fal-ai/qwen-image') {
     defaults.image_size = 'landscape_4_3';
   }
   

@@ -104,6 +104,12 @@ const IMAGE_MODELS = {
     label: 'FLUX.1 Krea',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/qwen-image': {
+    id: 'fal-ai/qwen-image',
+    label: 'Qwen Image',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   }
 };
 
