@@ -59,20 +59,7 @@ const AVAILABLE_MODELS = {
     ],
     default: true,
   },
-  'fal-ai/flux-schnell': {
-    label: 'FLUX Schnell',
-    chef: providers.fal,
-    providers: [providers.fal],
-    aspectRatios: [
-      { label: 'Square 1:1', value: 'square' },
-      { label: 'Square 1:1 HD', value: 'square_hd' },
-      { label: '4:3', value: 'landscape_4_3' },
-      { label: '3:4', value: 'portrait_4_3' },
-      { label: '16:9', value: 'landscape_16_9' },
-      { label: '9:16', value: 'portrait_16_9' },
-    ],
-    default: false,
-  },
+
 };
 
 const OUTPUT_FORMATS = [

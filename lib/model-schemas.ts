@@ -379,6 +379,81 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
+  'fal-ai/flux-pro-kontext-text': {
+    label: 'FLUX.1 Kontext [pro]',
+    aspectRatios: [
+      { label: '21:9', value: '21:9' },
+      { label: '16:9', value: '16:9' },
+      { label: '4:3', value: '4:3' },
+      { label: '3:2', value: '3:2' },
+      { label: '1:1', value: '1:1', default: true },
+      { label: '2:3', value: '2:3' },
+      { label: '3:4', value: '3:4' },
+      { label: '9:16', value: '9:16' },
+      { label: '9:21', value: '9:21' },
+    ],
+    fields: [
+      // Campo de tamanho (obrigatório)
+      {
+        name: 'aspect_ratio',
+        type: 'select',
+        label: 'Tamanho',
+        options: [
+          { value: '21:9', label: '21:9' },
+          { value: '16:9', label: '16:9' },
+          { value: '4:3', label: '4:3' },
+          { value: '3:2', label: '3:2' },
+          { value: '1:1', label: '1:1' },
+          { value: '2:3', label: '2:3' },
+          { value: '3:4', label: '3:4' },
+          { value: '9:16', label: '9:16' },
+          { value: '9:21', label: '9:21' },
+        ],
+        defaultValue: '1:1',
+        gridColumn: 2
+      },
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale (1-20)',
+        placeholder: '3.5',
+        defaultValue: 3.5,
+        min: 1,
+        max: 20,
+        step: 0.1,
+        gridColumn: 2
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 1
+      }
+    ]
+  },
   'fal-ai/flux-pro-v1.1': {
     label: 'FLUX1.1 [pro]',
     aspectRatios: [
@@ -502,41 +577,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/flux-schnell': {
-    label: 'FLUX Schnell',
-    aspectRatios: [
-      { label: '1:1 (1024x1024)', value: '1:1' },
-      { label: '4:3 (1024x768)', value: '4:3' },
-      { label: '3:4 (768x1024)', value: '3:4' },
-      { label: '16:9 (1216x832)', value: '16:9' },
-      { label: '9:16 (832x1216)', value: '9:16' },
-    ],
-    fields: [
-      {
-        name: 'seed',
-        type: 'input',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: '',
-        gridColumn: 1
-      },
-      {
-        name: 'numOutputs',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        gridColumn: 2
-      },
-      {
-        name: 'numInferenceSteps',
-        type: 'input',
-        label: 'Inference Steps',
-        placeholder: '4',
-        defaultValue: 4,
-        gridColumn: 1
-      }
-    ]
-  },
+
   'fal-ai/stable-video-diffusion': {
     label: 'Stable Video Diffusion (FAL)',
     aspectRatios: [
@@ -590,81 +631,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/wan-2.2-text-to-image': {
-    label: 'Wan 2.2',
-    aspectRatios: [
-      { label: 'Square HD', value: 'square_hd' },
-      { label: 'Square', value: 'square' },
-      { label: 'Portrait 4:3', value: 'portrait_4_3' },
-      { label: 'Portrait 16:9', value: 'portrait_16_9' },
-      { label: 'Landscape 4:3', value: 'landscape_4_3' },
-      { label: 'Landscape 16:9', value: 'landscape_16_9' },
-    ],
-    fields: [
-      {
-        name: 'image_size',
-        type: 'select',
-        label: 'Tamanho',
-        options: [
-          { value: 'square_hd', label: 'Square HD' },
-          { value: 'square', label: 'Square' },
-          { value: 'portrait_4_3', label: 'Portrait 4:3' },
-          { value: 'portrait_16_9', label: 'Portrait 16:9' },
-          { value: 'landscape_4_3', label: 'Landscape 4:3' },
-          { value: 'landscape_16_9', label: 'Landscape 16:9' },
-        ],
-        defaultValue: 'square_hd',
-        gridColumn: 2
-      },
-      {
-        name: 'seed',
-        type: 'number',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: null,
-        gridColumn: 1
-      },
-      {
-        name: 'num_inference_steps',
-        type: 'number',
-        label: 'Inference Steps',
-        defaultValue: 27,
-        min: 2,
-        max: 40,
-        gridColumn: 1
-      },
-      {
-        name: 'guidance_scale',
-        type: 'number',
-        label: 'Guidance Scale',
-        defaultValue: 3.5,
-        min: 1,
-        max: 10,
-        step: 0.1,
-        gridColumn: 2
-      },
-      {
-        name: 'guidance_scale_2',
-        type: 'number',
-        label: 'Guidance Scale 2',
-        defaultValue: 4,
-        min: 1,
-        max: 10,
-        step: 0.1,
-        gridColumn: 1
-      },
-      {
-        name: 'shift',
-        type: 'number',
-        label: 'Shift',
-        defaultValue: 2,
-        min: 1,
-        max: 10,
-        step: 0.1,
-        gridColumn: 2
-      }
-    ]
-  },
+
   'fal-ai/imagen4': {
     label: 'Imagen 4',
     aspectRatios: [
@@ -1171,10 +1138,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.fixed_size = 'fixed'; // Valor especial para tamanho fixo
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/wan-2.2-text-to-image
-  if (modelId === 'fal-ai/wan-2.2-text-to-image') {
-    defaults.image_size = 'square_hd';
-  }
+
   
   // Adicionar valores padrão para o modelo fal-ai/imagen4
   if (modelId === 'fal-ai/imagen4') {
@@ -1214,6 +1178,11 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   // Adicionar valores padrão para o modelo fal-ai/qwen-image
   if (modelId === 'fal-ai/qwen-image') {
     defaults.image_size = 'landscape_4_3';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext-text
+  if (modelId === 'fal-ai/flux-pro-kontext-text') {
+    defaults.aspect_ratio = '1:1';
   }
   
   // Adicionar valores padrão para o modelo fal-ai/nano-banana-edit

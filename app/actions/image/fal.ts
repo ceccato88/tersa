@@ -31,13 +31,14 @@ const ASPECT_RATIO_MAP: Record<string, string> = {
 // Mapeamento de modelos FAL
 const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/flux-dev': 'fal-ai/flux/dev',
-  'fal-ai/flux-schnell': 'fal-ai/flux/schnell',
+
   'fal-ai/flux-pro-kontext': 'fal-ai/flux-pro/kontext',
+  'fal-ai/flux-pro-kontext-text': 'fal-ai/flux-pro/kontext/max/text-to-image',
   'fal-ai/flux-pro-kontext-max': 'fal-ai/flux-pro/kontext/max/text-to-image',
   'fal-ai/flux-pro-v1.1': 'fal-ai/flux-pro/v1.1',
   'fal-ai/flux-pro-v1.1-ultra': 'fal-ai/flux-pro/v1.1-ultra',
   'fal-ai/nano-banana': 'fal-ai/nano-banana',
-  'fal-ai/wan-2.2-text-to-image': 'fal-ai/wan/v2.2-a14b/text-to-image',
+
   'fal-ai/imagen4': 'fal-ai/imagen4/preview',
   'fal-ai/imagen4-ultra': 'fal-ai/imagen4/preview/ultra',
   'fal-ai/ideogram-v3': 'fal-ai/ideogram/v3',
@@ -92,8 +93,8 @@ export async function generateImageFalAction(
     }
 
     // Configurações específicas por modelo
-    if (data.model === 'fal-ai/flux-pro-kontext-max' || data.model === 'fal-ai/flux-pro-v1.1-ultra') {
-      // FLUX.1 Kontext [max] e FLUX1.1 [pro] ultra usam aspect_ratio
+    if (data.model === 'fal-ai/flux-pro-kontext-max' || data.model === 'fal-ai/flux-pro-kontext-text' || data.model === 'fal-ai/flux-pro-v1.1-ultra') {
+      // FLUX.1 Kontext [max], FLUX.1 Kontext [pro] text e FLUX1.1 [pro] ultra usam aspect_ratio
       input.aspect_ratio = data.aspect_ratio || (data.model === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1');
       
       // FLUX1.1 [pro] ultra tem parâmetro raw
@@ -116,13 +117,7 @@ export async function generateImageFalAction(
     } else if (data.model === 'fal-ai/nano-banana-edit') {
       // Nano Banana Edit usa apenas prompt, image_urls e output_format
       input.output_format = data.output_format || data.outputFormat || 'jpeg';
-    } else if (data.model === 'fal-ai/wan-2.2-text-to-image') {
-      // Wan 2.2 usa image_size e parâmetros específicos
-      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
-      input.image_size = imageSize;
-      input.num_inference_steps = data.num_inference_steps || 27;
-      input.guidance_scale_2 = data.guidance_scale_2 || 4;
-      input.shift = data.shift || 2;
+
     } else if (data.model === 'fal-ai/ideogram-v3') {
       // Ideogram 3 usa image_size e parâmetros específicos
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';

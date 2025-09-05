@@ -22,12 +22,7 @@ const IMAGE_MODELS = {
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
-  'fal-ai/flux-schnell': {
-    id: 'fal-ai/flux-schnell',
-    label: 'FLUX Schnell',
-    provider: 'fal',
-    supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
-  },
+
   'fal-ai/flux-pro-kontext': {
     id: 'fal-ai/flux-pro-kontext',
     label: 'FLUX.1 Kontext [pro]',
@@ -38,6 +33,12 @@ const IMAGE_MODELS = {
   'fal-ai/flux-pro-kontext-max': {
     id: 'fal-ai/flux-pro-kontext-max',
     label: 'FLUX.1 Kontext [max]',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/flux-pro-kontext-text': {
+    id: 'fal-ai/flux-pro-kontext-text',
+    label: 'FLUX.1 Kontext [pro]',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
@@ -59,12 +60,7 @@ const IMAGE_MODELS = {
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
-  'fal-ai/wan-2.2-text-to-image': {
-    id: 'fal-ai/wan-2.2-text-to-image',
-    label: 'Wan 2.2',
-    provider: 'fal',
-    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
-  },
+
   'fal-ai/imagen4': {
     id: 'fal-ai/imagen4',
     label: 'Imagen 4',
