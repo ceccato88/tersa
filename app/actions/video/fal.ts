@@ -128,8 +128,6 @@ export async function generateVideoFalAction(
       prompt: prompt.substring(0, 100),
     });
 
-    handleError('❌ Erro na geração de vídeo via FAL', error);
-
     throw error;
   }
 }

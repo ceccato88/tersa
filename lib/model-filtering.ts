@@ -19,13 +19,91 @@ const IMAGE_MODELS = {
     id: 'fal-ai/flux-dev',
     label: 'FLUX.1 [dev]',
     provider: 'fal',
-    supportedInputs: ['none', 'text-primitive', 'text-transform']
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
   'fal-ai/flux-schnell': {
     id: 'fal-ai/flux-schnell',
     label: 'FLUX Schnell',
     provider: 'fal',
     supportedInputs: ['none', 'text-primitive', 'text-transform', 'image-primitive', 'image-transform']
+  },
+  'fal-ai/flux-pro-kontext': {
+    id: 'fal-ai/flux-pro-kontext',
+    label: 'FLUX.1 Kontext [pro]',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/flux-pro-kontext-max': {
+    id: 'fal-ai/flux-pro-kontext-max',
+    label: 'FLUX.1 Kontext [max]',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/flux-pro-v1.1': {
+    id: 'fal-ai/flux-pro-v1.1',
+    label: 'FLUX1.1 [pro]',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/flux-pro-v1.1-ultra': {
+    id: 'fal-ai/flux-pro-v1.1-ultra',
+    label: 'FLUX1.1 [pro] ultra',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/nano-banana': {
+    id: 'fal-ai/nano-banana',
+    label: 'Nano Banana',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/wan-2.2-text-to-image': {
+    id: 'fal-ai/wan-2.2-text-to-image',
+    label: 'Wan 2.2',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/imagen4': {
+    id: 'fal-ai/imagen4',
+    label: 'Imagen 4',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/imagen4-ultra': {
+    id: 'fal-ai/imagen4-ultra',
+    label: 'Imagen 4 Ultra',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/ideogram-v3': {
+    id: 'fal-ai/ideogram-v3',
+    label: 'Ideogram 3',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/seedream-3.0': {
+    id: 'fal-ai/seedream-3.0',
+    label: 'Seedream 3.0',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/luma-photon': {
+    id: 'fal-ai/luma-photon',
+    label: 'Luma Photon',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/recraft-v3': {
+    id: 'fal-ai/recraft-v3',
+    label: 'Recraft V3',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/flux-krea': {
+    id: 'fal-ai/flux-krea',
+    label: 'FLUX.1 Krea',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   }
 };
 

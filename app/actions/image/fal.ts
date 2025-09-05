@@ -32,6 +32,19 @@ const ASPECT_RATIO_MAP: Record<string, string> = {
 const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/flux-dev': 'fal-ai/flux/dev',
   'fal-ai/flux-schnell': 'fal-ai/flux/schnell',
+  'fal-ai/flux-pro-kontext': 'fal-ai/flux-pro/kontext/text-to-image',
+  'fal-ai/flux-pro-kontext-max': 'fal-ai/flux-pro/kontext/max/text-to-image',
+  'fal-ai/flux-pro-v1.1': 'fal-ai/flux-pro/v1.1',
+  'fal-ai/flux-pro-v1.1-ultra': 'fal-ai/flux-pro/v1.1-ultra',
+  'fal-ai/nano-banana': 'fal-ai/nano-banana',
+  'fal-ai/wan-2.2-text-to-image': 'fal-ai/wan/v2.2-a14b/text-to-image',
+  'fal-ai/imagen4': 'fal-ai/imagen4/preview',
+  'fal-ai/imagen4-ultra': 'fal-ai/imagen4/preview/ultra',
+  'fal-ai/ideogram-v3': 'fal-ai/ideogram/v3',
+  'fal-ai/seedream-3.0': 'fal-ai/bytedance/seedream/v3/text-to-image',
+  'fal-ai/luma-photon': 'fal-ai/luma-photon',
+  'fal-ai/recraft-v3': 'fal-ai/recraft/v3/text-to-image',
+  'fal-ai/flux-krea': 'fal-ai/flux/krea',
 };
 
 export async function generateImageFalAction(
@@ -55,21 +68,69 @@ export async function generateImageFalAction(
     // Mapear o modelo
     const falModel = FAL_MODEL_MAP[data.model || 'fal-ai/flux-dev'] || 'fal-ai/flux/dev';
     
-    // Mapear aspect ratio
-    const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || '1:1'] || 'square_hd';
-
-    // Preparar input para FAL com todos os parâmetros do schema FLUX.1 [dev]
+    // Preparar input para FAL baseado no modelo
     const input: any = {
       prompt,
-      image_size: imageSize,
-      num_inference_steps: data.num_inference_steps || data.numInferenceSteps || 28,
-      seed: data.seed ? parseInt(data.seed.toString()) : null,
-      guidance_scale: data.guidance_scale || data.guidance || 3.5,
-      sync_mode: data.sync_mode !== undefined ? data.sync_mode : false,
-      num_images: data.num_images || data.numOutputs || 1,
-      enable_safety_checker: data.enable_safety_checker !== undefined ? data.enable_safety_checker : true,
-      output_format: data.output_format || data.outputFormat || 'jpeg',
-      acceleration: data.acceleration || 'none',
+    }
+    
+    // Adicionar parâmetros globais apenas se não for Luma Photon ou Recraft V3
+    if (data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft-v3') {
+      input.seed = data.seed ? parseInt(data.seed.toString()) : null;
+      input.guidance_scale = data.guidance_scale || data.guidance || (data.model === 'fal-ai/flux-krea' ? 4.5 : 3.5);
+      input.output_format = data.output_format || data.outputFormat || 'jpeg';
+    }
+
+    // Configurações específicas por modelo
+    if (data.model === 'fal-ai/flux-pro-kontext' || data.model === 'fal-ai/flux-pro-kontext-max' || data.model === 'fal-ai/flux-pro-v1.1-ultra') {
+      // FLUX.1 Kontext [pro], [max] e FLUX1.1 [pro] ultra usam aspect_ratio
+      input.aspect_ratio = data.aspect_ratio || (data.model === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1');
+      
+      // FLUX1.1 [pro] ultra tem parâmetro raw
+      if (data.model === 'fal-ai/flux-pro-v1.1-ultra') {
+        input.raw = data.raw || false;
+      }
+    } else if (data.model === 'fal-ai/imagen4' || data.model === 'fal-ai/imagen4-ultra') {
+      // Imagen 4 e Imagen 4 Ultra usam aspect_ratio e resolution
+      input.aspect_ratio = data.aspect_ratio || '1:1';
+      input.resolution = data.resolution || '1K';
+    } else if (data.model === 'fal-ai/luma-photon') {
+      // Luma Photon usa apenas aspect_ratio
+      input.aspect_ratio = data.aspect_ratio || '1:1';
+    } else if (data.model === 'fal-ai/nano-banana') {
+      // Nano Banana não precisa de aspect_ratio nem image_size - usa tamanho fixo
+      // Não adiciona nenhum parâmetro de tamanho
+    } else if (data.model === 'fal-ai/wan-2.2-text-to-image') {
+      // Wan 2.2 usa image_size e parâmetros específicos
+      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
+      input.image_size = imageSize;
+      input.num_inference_steps = data.num_inference_steps || 27;
+      input.guidance_scale_2 = data.guidance_scale_2 || 4;
+      input.shift = data.shift || 2;
+    } else if (data.model === 'fal-ai/ideogram-v3') {
+      // Ideogram 3 usa image_size e parâmetros específicos
+      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
+      input.image_size = imageSize;
+      input.rendering_speed = data.rendering_speed || 'BALANCED';
+      input.style = data.style || 'AUTO';
+    } else if (data.model === 'fal-ai/seedream-3.0') {
+      // Seedream 3.0 usa image_size e guidance_scale específico
+      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
+      input.image_size = imageSize;
+      input.guidance_scale = data.guidance_scale || 2.5;
+    } else if (data.model === 'fal-ai/recraft-v3') {
+      // Recraft V3 usa image_size e style
+      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
+      input.image_size = imageSize;
+      input.style = data.style || 'realistic_image';
+    } else {
+      // Outros modelos FLUX usam image_size
+      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || '1:1'] || 'square_hd';
+      input.image_size = imageSize;
+      input.num_inference_steps = data.num_inference_steps || data.numInferenceSteps || 28;
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      input.num_images = data.num_images || data.numOutputs || 1;
+      input.enable_safety_checker = data.enable_safety_checker !== undefined ? data.enable_safety_checker : true;
+      input.acceleration = data.acceleration || 'none';
     }
 
     // Se há imagens de entrada (image-to-image)
@@ -109,12 +170,21 @@ export async function generateImageFalAction(
 
     logger.info('✅ Imagem gerada com sucesso via FAL', {
       requestId: result.requestId,
-      imageCount: result.data.images?.length || 0,
+      imageCount: result.data.images?.length || (result.data.image ? 1 : 0),
       seed: result.data.seed,
     });
 
-    // Obter a URL da primeira imagem
-    const primaryImageUrl = result.data.images?.[0]?.url;
+    // Obter a URL da primeira imagem (diferentes estruturas de resposta)
+    let primaryImageUrl: string | undefined;
+    
+    if (result.data.images && result.data.images.length > 0) {
+      // Estrutura padrão: result.data.images[0].url (FLUX, etc.)
+      primaryImageUrl = result.data.images[0].url;
+    } else if (result.data.image?.url) {
+      // Estrutura alternativa: result.data.image.url (Wan, Imagen, etc.)
+      primaryImageUrl = result.data.image.url;
+    }
+    
     if (!primaryImageUrl) {
       throw new Error('Nenhuma URL de imagem encontrada na resposta da FAL');
     }
@@ -178,8 +248,6 @@ export async function generateImageFalAction(
       model: data.model,
       prompt: prompt.substring(0, 100),
     });
-
-    handleError('❌ Erro na geração de imagem via FAL', error);
 
     throw error;
   }

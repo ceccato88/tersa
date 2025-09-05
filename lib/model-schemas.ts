@@ -213,17 +213,17 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   },
   // Modelos FAL
   'fal-ai/flux-dev': {
-    label: 'FLUX Dev',
+    label: 'FLUX.1 [dev]',
     aspectRatios: [
-      { label: 'Square 1:1', value: 'square' },
-      { label: 'Square 1:1 HD', value: 'square_hd' },
-      { label: '4:3', value: 'landscape_4_3' },
-      { label: '3:4', value: 'portrait_4_3' },
-      { label: '9:16', value: 'portrait_16_9' },
-      { label: '16:9', value: 'landscape_16_9' },
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9', value: 'landscape_16_9' },
     ],
     fields: [
-      // Campos que aparecem no nó principal: prompt, image_size, num_images (quantidade)
+      // Campo que aparece no nó principal (controla quantos nós criar)
       {
         name: 'num_images',
         type: 'number',
@@ -232,7 +232,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       },
       
-      // Campos que aparecem no popup
+      // Campos que aparecem apenas na aba avançada
       {
         name: 'num_inference_steps',
         type: 'number',
@@ -245,20 +245,220 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       },
       {
         name: 'seed',
-        type: 'input',
+        type: 'number',
         label: 'Seed',
         placeholder: 'Deixe vazio para aleatório',
-        defaultValue: '',
+        defaultValue: null,
         gridColumn: 2
       },
       {
         name: 'guidance_scale',
         type: 'number',
-        label: 'Guidance (1-20)',
+        label: 'Guidance Scale (1-20)',
         placeholder: '3.5',
         defaultValue: 3.5,
         min: 1,
         max: 20,
+        step: 0.1,
+        gridColumn: 1
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/flux-pro-kontext': {
+    label: 'FLUX.1 Kontext [pro]',
+    aspectRatios: [
+      { label: '21:9', value: '21:9' },
+      { label: '16:9', value: '16:9' },
+      { label: '4:3', value: '4:3' },
+      { label: '3:2', value: '3:2' },
+      { label: '1:1', value: '1:1' },
+      { label: '2:3', value: '2:3' },
+      { label: '3:4', value: '3:4' },
+      { label: '9:16', value: '9:16' },
+      { label: '9:21', value: '9:21' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale (1-20)',
+        placeholder: '3.5',
+        defaultValue: 3.5,
+        min: 1,
+        max: 20,
+        step: 0.1,
+        gridColumn: 2
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 1
+      }
+    ]
+  },
+  'fal-ai/flux-pro-kontext-max': {
+    label: 'FLUX.1 Kontext [max]',
+    aspectRatios: [
+      { label: '21:9', value: '21:9' },
+      { label: '16:9', value: '16:9' },
+      { label: '4:3', value: '4:3' },
+      { label: '3:2', value: '3:2' },
+      { label: '1:1', value: '1:1' },
+      { label: '2:3', value: '2:3' },
+      { label: '3:4', value: '3:4' },
+      { label: '9:16', value: '9:16' },
+      { label: '9:21', value: '9:21' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale (1-20)',
+        placeholder: '3.5',
+        defaultValue: 3.5,
+        min: 1,
+        max: 20,
+        step: 0.1,
+        gridColumn: 2
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 1
+      }
+    ]
+  },
+  'fal-ai/flux-pro-v1.1': {
+    label: 'FLUX1.1 [pro]',
+    aspectRatios: [
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9', value: 'landscape_16_9' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/flux-pro-v1.1-ultra': {
+    label: 'FLUX1.1 [pro] ultra',
+    aspectRatios: [
+      { label: '21:9', value: '21:9' },
+      { label: '16:9', value: '16:9' },
+      { label: '4:3', value: '4:3' },
+      { label: '3:2', value: '3:2' },
+      { label: '1:1', value: '1:1' },
+      { label: '2:3', value: '2:3' },
+      { label: '3:4', value: '3:4' },
+      { label: '9:16', value: '9:16' },
+      { label: '9:21', value: '9:21' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
         gridColumn: 1
       },
       {
@@ -272,27 +472,40 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         defaultValue: 'jpeg',
         gridColumn: 2
       },
-      
-      // Campos que só aparecem no código (não renderizados na UI)
       {
-        name: 'sync_mode',
-        type: 'hidden',
-        label: 'Modo Síncrono',
+        name: 'raw',
+        type: 'checkbox',
+        label: '',
         defaultValue: false,
         gridColumn: 1
-      },
+      }
+    ]
+  },
+  'fal-ai/nano-banana': {
+    label: 'Nano Banana',
+    aspectRatios: [
+      { label: 'Tamanho único', value: 'fixed' }, // Valor especial que não é enviado para API
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
       {
-        name: 'enable_safety_checker',
-        type: 'hidden',
-        label: 'Safety Checker',
-        defaultValue: true,
-        gridColumn: 1
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
       },
+      
+      // Campos que aparecem apenas na aba avançada
       {
-        name: 'acceleration',
-        type: 'hidden',
-        label: 'Aceleração',
-        defaultValue: 'none',
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
         gridColumn: 1
       }
     ]
@@ -384,6 +597,428 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       }
     ]
+  },
+  'fal-ai/wan-2.2-text-to-image': {
+    label: 'Wan 2.2',
+    aspectRatios: [
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9', value: 'landscape_16_9' },
+    ],
+    fields: [
+      {
+        name: 'image_size',
+        type: 'select',
+        label: 'Tamanho',
+        options: [
+          { value: 'square_hd', label: 'Square HD' },
+          { value: 'square', label: 'Square' },
+          { value: 'portrait_4_3', label: 'Portrait 4:3' },
+          { value: 'portrait_16_9', label: 'Portrait 16:9' },
+          { value: 'landscape_4_3', label: 'Landscape 4:3' },
+          { value: 'landscape_16_9', label: 'Landscape 16:9' },
+        ],
+        defaultValue: 'square_hd',
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'num_inference_steps',
+        type: 'number',
+        label: 'Inference Steps',
+        defaultValue: 27,
+        min: 2,
+        max: 40,
+        gridColumn: 1
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale',
+        defaultValue: 3.5,
+        min: 1,
+        max: 10,
+        step: 0.1,
+        gridColumn: 2
+      },
+      {
+        name: 'guidance_scale_2',
+        type: 'number',
+        label: 'Guidance Scale 2',
+        defaultValue: 4,
+        min: 1,
+        max: 10,
+        step: 0.1,
+        gridColumn: 1
+      },
+      {
+        name: 'shift',
+        type: 'number',
+        label: 'Shift',
+        defaultValue: 2,
+        min: 1,
+        max: 10,
+        step: 0.1,
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/imagen4': {
+    label: 'Imagen 4',
+    aspectRatios: [
+      { label: '1:1', value: '1:1' },
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '3:4', value: '3:4' },
+      { label: '4:3', value: '4:3' },
+    ],
+    fields: [
+      {
+        name: 'aspect_ratio',
+        type: 'select',
+        label: 'Aspecto',
+        options: [
+          { value: '1:1', label: '1:1' },
+          { value: '16:9', label: '16:9' },
+          { value: '9:16', label: '9:16' },
+          { value: '3:4', label: '3:4' },
+          { value: '4:3', label: '4:3' },
+        ],
+        defaultValue: '1:1',
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'resolution',
+        type: 'select',
+        label: 'Resolução',
+        options: [
+          { value: '1K', label: '1K' },
+          { value: '2K', label: '2K' },
+        ],
+        defaultValue: '1K',
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/imagen4-ultra': {
+    label: 'Imagen 4 Ultra',
+    aspectRatios: [
+      { label: '1:1', value: '1:1' },
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '3:4', value: '3:4' },
+      { label: '4:3', value: '4:3' },
+    ],
+    fields: [
+      {
+        name: 'aspect_ratio',
+        type: 'select',
+        label: 'Aspecto',
+        options: [
+          { value: '1:1', label: '1:1' },
+          { value: '16:9', label: '16:9' },
+          { value: '9:16', label: '9:16' },
+          { value: '3:4', label: '3:4' },
+          { value: '4:3', label: '4:3' },
+        ],
+        defaultValue: '1:1',
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'resolution',
+        type: 'select',
+        label: 'Resolução',
+        options: [
+          { value: '1K', label: '1K' },
+          { value: '2K', label: '2K' },
+        ],
+        defaultValue: '1K',
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/ideogram-v3': {
+    label: 'Ideogram 3',
+    aspectRatios: [
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9', value: 'landscape_16_9' },
+    ],
+    fields: [
+      {
+        name: 'image_size',
+        type: 'select',
+        label: 'Tamanho',
+        options: [
+          { value: 'square_hd', label: 'Square HD' },
+          { value: 'square', label: 'Square' },
+          { value: 'portrait_4_3', label: 'Portrait 4:3' },
+          { value: 'portrait_16_9', label: 'Portrait 16:9' },
+          { value: 'landscape_4_3', label: 'Landscape 4:3' },
+          { value: 'landscape_16_9', label: 'Landscape 16:9' },
+        ],
+        defaultValue: 'square_hd',
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'rendering_speed',
+        type: 'select',
+        label: 'Rendering Speed',
+        options: [
+          { value: 'TURBO', label: 'Turbo' },
+          { value: 'BALANCED', label: 'Balanced' },
+          { value: 'QUALITY', label: 'Quality' },
+        ],
+        defaultValue: 'BALANCED',
+        gridColumn: 2
+      },
+      {
+        name: 'style',
+        type: 'select',
+        label: 'Style',
+        options: [
+          { value: 'AUTO', label: 'Auto' },
+          { value: 'GENERAL', label: 'General' },
+          { value: 'REALISTIC', label: 'Realistic' },
+          { value: 'DESIGN', label: 'Design' },
+        ],
+        defaultValue: 'AUTO',
+        gridColumn: 1
+      }
+    ]
+  },
+  'fal-ai/seedream-3.0': {
+    label: 'Seedream 3.0',
+    aspectRatios: [
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9', value: 'landscape_16_9' },
+    ],
+    fields: [
+      {
+        name: 'image_size',
+        type: 'select',
+        label: 'Tamanho',
+        options: [
+          { value: 'square_hd', label: 'Square HD' },
+          { value: 'square', label: 'Square' },
+          { value: 'portrait_4_3', label: 'Portrait 4:3' },
+          { value: 'portrait_16_9', label: 'Portrait 16:9' },
+          { value: 'landscape_4_3', label: 'Landscape 4:3' },
+          { value: 'landscape_16_9', label: 'Landscape 16:9' },
+        ],
+        defaultValue: 'square_hd',
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale',
+        defaultValue: 2.5,
+        min: 1,
+        max: 10,
+        step: 0.1,
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/luma-photon': {
+    label: 'Luma Photon',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+      { label: '4:3', value: '4:3' },
+      { label: '3:4', value: '3:4' },
+      { label: '21:9', value: '21:9' },
+      { label: '9:21', value: '9:21' },
+    ],
+    fields: [
+      {
+        name: 'aspect_ratio',
+        type: 'select',
+        label: 'Aspecto',
+        options: [
+          { value: '16:9', label: '16:9' },
+          { value: '9:16', label: '9:16' },
+          { value: '1:1', label: '1:1' },
+          { value: '4:3', label: '4:3' },
+          { value: '3:4', label: '3:4' },
+          { value: '21:9', label: '21:9' },
+          { value: '9:21', label: '9:21' },
+        ],
+        defaultValue: '1:1',
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/recraft-v3': {
+    label: 'Recraft V3',
+    aspectRatios: [
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9', value: 'landscape_16_9' },
+    ],
+    fields: [
+      {
+        name: 'image_size',
+        type: 'select',
+        label: 'Tamanho',
+        options: [
+          { value: 'square_hd', label: 'Square HD' },
+          { value: 'square', label: 'Square' },
+          { value: 'portrait_4_3', label: 'Portrait 4:3' },
+          { value: 'portrait_16_9', label: 'Portrait 16:9' },
+          { value: 'landscape_4_3', label: 'Landscape 4:3' },
+          { value: 'landscape_16_9', label: 'Landscape 16:9' },
+        ],
+        defaultValue: 'square_hd',
+        gridColumn: 2
+      },
+      {
+        name: 'style',
+        type: 'select',
+        label: 'Style',
+        options: [
+          { value: 'any', label: 'Any' },
+          { value: 'realistic_image', label: 'Realistic Image' },
+          { value: 'digital_illustration', label: 'Digital Illustration' },
+          { value: 'vector_illustration', label: 'Vector Illustration' },
+          { value: 'realistic_image/b_and_w', label: 'B&W' },
+          { value: 'realistic_image/hard_flash', label: 'Hard Flash' },
+          { value: 'realistic_image/hdr', label: 'HDR' },
+          { value: 'realistic_image/natural_light', label: 'Natural Light' },
+          { value: 'realistic_image/studio_portrait', label: 'Studio Portrait' },
+          { value: 'digital_illustration/pixel_art', label: 'Pixel Art' },
+          { value: 'digital_illustration/hand_drawn', label: 'Hand Drawn' },
+          { value: 'digital_illustration/grain', label: 'Grain' },
+          { value: 'digital_illustration/2d_art_poster', label: '2D Art Poster' },
+          { value: 'digital_illustration/pop_art', label: 'Pop Art' },
+          { value: 'vector_illustration/bold_stroke', label: 'Bold Stroke' },
+          { value: 'vector_illustration/line_art', label: 'Line Art' },
+          { value: 'vector_illustration/flat', label: 'Flat Vector' },
+        ],
+        defaultValue: 'realistic_image',
+        gridColumn: 1
+      }
+    ]
+  },
+  'fal-ai/flux-krea': {
+    label: 'FLUX.1 Krea',
+    aspectRatios: [
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9', value: 'landscape_16_9' },
+    ],
+    fields: [
+      {
+        name: 'image_size',
+        type: 'select',
+        label: 'Tamanho',
+        options: [
+          { value: 'square_hd', label: 'Square HD' },
+          { value: 'square', label: 'Square' },
+          { value: 'portrait_4_3', label: 'Portrait 4:3' },
+          { value: 'portrait_16_9', label: 'Portrait 16:9' },
+          { value: 'landscape_4_3', label: 'Landscape 4:3' },
+          { value: 'landscape_16_9', label: 'Landscape 16:9' },
+        ],
+        defaultValue: 'landscape_4_3',
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'num_inference_steps',
+        type: 'number',
+        label: 'Inference Steps',
+        defaultValue: 28,
+        min: 1,
+        max: 50,
+        gridColumn: 2
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale',
+        defaultValue: 4.5,
+        min: 1,
+        max: 20,
+        step: 0.1,
+        gridColumn: 1
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Output Format',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' },
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 2
+      }
+    ]
   }
 };
 
@@ -430,6 +1065,71 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   
   // Adicionar valores padrão para o modelo fal-ai/flux-dev
   if (modelId === 'fal-ai/flux-dev') {
+    defaults.image_size = 'landscape_4_3';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext
+  if (modelId === 'fal-ai/flux-pro-kontext') {
+    defaults.aspect_ratio = '1:1';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext-max
+  if (modelId === 'fal-ai/flux-pro-kontext-max') {
+    defaults.aspect_ratio = '1:1';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux-pro-v1.1
+  if (modelId === 'fal-ai/flux-pro-v1.1') {
+    defaults.image_size = 'landscape_4_3';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux-pro-v1.1-ultra
+  if (modelId === 'fal-ai/flux-pro-v1.1-ultra') {
+    defaults.aspect_ratio = '16:9';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/nano-banana
+  if (modelId === 'fal-ai/nano-banana') {
+    defaults.fixed_size = 'fixed'; // Valor especial para tamanho fixo
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/wan-2.2-text-to-image
+  if (modelId === 'fal-ai/wan-2.2-text-to-image') {
+    defaults.image_size = 'square_hd';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/imagen4
+  if (modelId === 'fal-ai/imagen4') {
+    defaults.aspect_ratio = '1:1';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/imagen4-ultra
+  if (modelId === 'fal-ai/imagen4-ultra') {
+    defaults.aspect_ratio = '1:1';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/ideogram-v3
+  if (modelId === 'fal-ai/ideogram-v3') {
+    defaults.image_size = 'square_hd';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/seedream-3.0
+  if (modelId === 'fal-ai/seedream-3.0') {
+    defaults.image_size = 'square_hd';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/luma-photon
+  if (modelId === 'fal-ai/luma-photon') {
+    defaults.aspect_ratio = '1:1';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/recraft-v3
+  if (modelId === 'fal-ai/recraft-v3') {
+    defaults.image_size = 'square_hd';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux-krea
+  if (modelId === 'fal-ai/flux-krea') {
     defaults.image_size = 'landscape_4_3';
   }
   
