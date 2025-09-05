@@ -5,6 +5,7 @@ import { useAnalytics } from '@/hooks/use-analytics';
 import { useSaveProject } from '@/hooks/use-save-project';
 import { handleError } from '@/lib/error/handle';
 import { isValidSourceTarget } from '@/lib/xyflow';
+import { getModelMaxImages } from '@/lib/model-filtering';
 import { NodeDropzoneProvider } from '@/providers/node-dropzone';
 import { NodeOperationsProvider } from '@/providers/node-operations';
 import { useProject } from '@/providers/project';
@@ -129,11 +130,54 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
         type: 'animated',
         ...connection,
       };
-      setEdges((eds: Edge[]) => eds.concat(newEdge));
+      
+      setEdges((eds: Edge[]) => {
+        const newEdges = eds.concat(newEdge);
+        
+        // Re-validar conexões se esta nova conexão pode afetar o filtering
+        const nodes = getNodes();
+        const target = nodes.find(n => n.id === connection.target);
+        const source = nodes.find(n => n.id === connection.source);
+        
+        // Se conectando texto a nó de imagem, re-validar limites de imagem
+        if (target?.type === 'image' && source?.type === 'text') {
+          const targetModel = target.data?.model;
+          
+          if (targetModel) {
+            const maxImages = getModelMaxImages(targetModel, 'image');
+            
+            if (maxImages !== undefined) {
+              // Contar conexões de imagem existentes (incluindo a nova se for imagem)
+              const imageConnections = newEdges.filter(edge => 
+                edge.target === target.id && 
+                nodes.find(n => n.id === edge.source)?.type === 'image'
+              );
+              
+              // Se excede o limite, remover as excedentes
+              if (imageConnections.length > maxImages) {
+                console.log('🔄 Re-validando após conectar texto:', {
+                  targetModel,
+                  maxImages,
+                  imageConnections: imageConnections.length,
+                  removing: imageConnections.length - maxImages
+                });
+                
+                const connectionsToRemove = imageConnections.slice(maxImages);
+                return newEdges.filter(edge => 
+                  !connectionsToRemove.some(conn => conn.id === edge.id)
+                );
+              }
+            }
+          }
+        }
+        
+        return newEdges;
+      });
+      
       save();
       onConnect?.(connection);
     },
-    [save, onConnect]
+    [save, onConnect, getNodes, getModelMaxImages]
   );
 
   const addNode = useCallback(
@@ -246,6 +290,65 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
 
         if (!valid) {
           return false;
+        }
+
+        // Validar limite de imagens para modelos image-to-image
+        if (target.type === 'image' && source.type === 'image') {
+          const targetModel = target.data?.model;
+          
+          // Se não tem modelo definido ainda, permitir a conexão por enquanto
+          if (targetModel) {
+            const maxImages = getModelMaxImages(targetModel, 'image');
+            
+            // Se modelo tem limite definido, verificar
+            if (maxImages !== undefined) {
+              // Contar quantas imagens já estão conectadas ao target
+              const existingImageConnections = edges.filter(edge => 
+                edge.target === target.id && 
+                nodes.find(n => n.id === edge.source)?.type === 'image'
+              ).length;
+              
+              console.log('🔍 Validação de imagens:', {
+                targetId: target.id,
+                targetModel,
+                maxImages,
+                existingImageConnections,
+                wouldBlock: existingImageConnections >= maxImages,
+                targetData: target.data
+              });
+              
+              if (existingImageConnections >= maxImages) {
+                return false;
+              }
+            }
+          }
+        }
+
+        // Validar limite de conexões de texto
+        if (source.type === 'text') {
+          // 1. Nó de texto só aceita uma conexão de texto
+          if (target.type === 'text') {
+            const existingTextConnections = edges.filter(edge => 
+              edge.target === target.id && 
+              nodes.find(n => n.id === edge.source)?.type === 'text'
+            ).length;
+            
+            if (existingTextConnections >= 1) {
+              return false;
+            }
+          }
+
+          // 2. Nó de imagem só aceita uma conexão de texto
+          if (target.type === 'image') {
+            const existingTextConnections = edges.filter(edge => 
+              edge.target === target.id && 
+              nodes.find(n => n.id === edge.source)?.type === 'text'
+            ).length;
+            
+            if (existingTextConnections >= 1) {
+              return false;
+            }
+          }
         }
       }
 

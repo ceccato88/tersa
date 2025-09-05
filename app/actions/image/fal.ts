@@ -32,7 +32,7 @@ const ASPECT_RATIO_MAP: Record<string, string> = {
 const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/flux-dev': 'fal-ai/flux/dev',
   'fal-ai/flux-schnell': 'fal-ai/flux/schnell',
-  'fal-ai/flux-pro-kontext': 'fal-ai/flux-pro/kontext/text-to-image',
+  'fal-ai/flux-pro-kontext': 'fal-ai/flux-pro/kontext',
   'fal-ai/flux-pro-kontext-max': 'fal-ai/flux-pro/kontext/max/text-to-image',
   'fal-ai/flux-pro-v1.1': 'fal-ai/flux-pro/v1.1',
   'fal-ai/flux-pro-v1.1-ultra': 'fal-ai/flux-pro/v1.1-ultra',
@@ -46,6 +46,7 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/recraft-v3': 'fal-ai/recraft/v3/text-to-image',
   'fal-ai/flux-krea': 'fal-ai/flux/krea',
   'fal-ai/qwen-image': 'fal-ai/qwen-image',
+  'fal-ai/nano-banana-edit': 'fal-ai/nano-banana/edit',
 };
 
 export async function generateImageFalAction(
@@ -74,8 +75,8 @@ export async function generateImageFalAction(
       prompt,
     }
     
-    // Adicionar parâmetros globais apenas se não for Luma Photon ou Recraft V3
-    if (data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft-v3') {
+    // Adicionar parâmetros globais apenas se não for Luma Photon, Recraft V3 ou Nano Banana Edit
+    if (data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana-edit') {
       input.seed = data.seed ? parseInt(data.seed.toString()) : null;
       
       // Guidance scale específico por modelo
@@ -91,14 +92,17 @@ export async function generateImageFalAction(
     }
 
     // Configurações específicas por modelo
-    if (data.model === 'fal-ai/flux-pro-kontext' || data.model === 'fal-ai/flux-pro-kontext-max' || data.model === 'fal-ai/flux-pro-v1.1-ultra') {
-      // FLUX.1 Kontext [pro], [max] e FLUX1.1 [pro] ultra usam aspect_ratio
+    if (data.model === 'fal-ai/flux-pro-kontext-max' || data.model === 'fal-ai/flux-pro-v1.1-ultra') {
+      // FLUX.1 Kontext [max] e FLUX1.1 [pro] ultra usam aspect_ratio
       input.aspect_ratio = data.aspect_ratio || (data.model === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1');
       
       // FLUX1.1 [pro] ultra tem parâmetro raw
       if (data.model === 'fal-ai/flux-pro-v1.1-ultra') {
         input.raw = data.raw || false;
       }
+    } else if (data.model === 'fal-ai/flux-pro-kontext') {
+      // FLUX.1 Kontext [pro] é image-to-image - não precisa de parâmetros de tamanho
+      // Apenas prompt + image_url + parâmetros opcionais
     } else if (data.model === 'fal-ai/imagen4' || data.model === 'fal-ai/imagen4-ultra') {
       // Imagen 4 e Imagen 4 Ultra usam aspect_ratio e resolution
       input.aspect_ratio = data.aspect_ratio || '1:1';
@@ -109,6 +113,9 @@ export async function generateImageFalAction(
     } else if (data.model === 'fal-ai/nano-banana') {
       // Nano Banana não precisa de aspect_ratio nem image_size - usa tamanho fixo
       // Não adiciona nenhum parâmetro de tamanho
+    } else if (data.model === 'fal-ai/nano-banana-edit') {
+      // Nano Banana Edit usa apenas prompt, image_urls e output_format
+      input.output_format = data.output_format || data.outputFormat || 'jpeg';
     } else if (data.model === 'fal-ai/wan-2.2-text-to-image') {
       // Wan 2.2 usa image_size e parâmetros específicos
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
@@ -147,12 +154,26 @@ export async function generateImageFalAction(
     if (imageNodes && imageNodes.length > 0) {
       // Para image-to-image, usar o modelo apropriado
       // Nota: Verificar se o modelo suporta image-to-image
-      input.image_url = imageNodes[0];
-      input.strength = data.strength || 0.8; // Força da transformação
+      if (data.model === 'fal-ai/nano-banana-edit') {
+        // Nano Banana Edit usa image_urls (plural) - extrair apenas as URLs
+        input.image_urls = imageNodes.map((node: any) => 
+          typeof node === 'string' ? node : node.url
+        );
+      } else {
+        // Outros modelos usam image_url (singular)
+        const imageUrl = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
+        input.image_url = imageUrl;
+        
+        // Força da transformação apenas para modelos que suportam
+        if (data.model !== 'fal-ai/flux-pro-kontext') {
+          input.strength = data.strength || 0.8;
+        }
+      }
       
       logger.info('🖼️ Usando imagem de referência', {
-        imageUrl: imageNodes[0].substring(0, 100) + '...',
+        imageUrl: typeof imageNodes[0] === 'string' ? imageNodes[0].substring(0, 100) + '...' : 'URL object',
         imageCount: imageNodes.length,
+        model: data.model,
       });
     }
 

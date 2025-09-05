@@ -100,6 +100,16 @@ export const VideoTransform = ({
   // Usar modelo filtrado ou padrão
   const defaultModelId = getFirstAvailableModel(filteredModels) || getDefaultModel();
   const modelId = data.model ?? defaultModelId;
+
+  // Definir modelo inicial automaticamente se não estiver definido
+  useEffect(() => {
+    if (!data.model && defaultModelId) {
+      console.log('🎯 Definindo modelo inicial (vídeo):', defaultModelId);
+      const defaults = getModelDefaults(defaultModelId);
+      updateNodeData(id, { model: defaultModelId, ...defaults });
+    }
+  }, [data.model, defaultModelId, id, updateNodeData]);
+
   const seed = data.seed || '';
   const numOutputs = data.numOutputs || 1;
   const resolution = data.resolution || '480p';

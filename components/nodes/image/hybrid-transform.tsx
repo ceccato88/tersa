@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { download } from '@/lib/download';
 import { getModelSchema, getModelDefaults } from '@/lib/model-schemas';
-import { useFilteredModels, getFirstAvailableModel } from '@/lib/model-filtering';
+import { useFilteredModels, getFirstAvailableModel, getModelMaxImages } from '@/lib/model-filtering';
 import { providers } from '@/lib/providers';
 import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
 import { useProject } from '@/providers/project';
@@ -60,15 +60,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: '21:9', value: '21:9' },
-      { label: '16:9', value: '16:9' },
-      { label: '4:3', value: '4:3' },
-      { label: '3:2', value: '3:2' },
-      { label: '1:1', value: '1:1' },
-      { label: '2:3', value: '2:3' },
-      { label: '3:4', value: '3:4' },
-      { label: '9:16', value: '9:16' },
-      { label: '9:21', value: '9:21' },
+      { label: 'Tamanho original', value: 'fixed' },
     ],
     default: false,
   },
@@ -140,6 +132,15 @@ const AVAILABLE_MODELS = {
     providers: [providers.fal],
     aspectRatios: [
       { label: 'Tamanho único', value: 'fixed' },
+    ],
+    default: false,
+  },
+  'fal-ai/nano-banana-edit': {
+    label: 'Nano Banana Edit',
+    chef: providers.fal,
+    providers: [providers.fal],
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
     ],
     default: false,
   },
@@ -283,7 +284,7 @@ export const HybridImageTransform = ({
   type,
   title,
 }: HybridImageTransformProps) => {
-  const { updateNodeData, getNodes, getEdges, addNodes, addEdges } = useReactFlow();
+  const { updateNodeData, getNodes, getEdges, addNodes, addEdges, setEdges } = useReactFlow();
   const [loading, setLoading] = useState(false);
   const [showAdvancedParams, setShowAdvancedParams] = useState(false);
   const project = useProject();
@@ -298,15 +299,24 @@ export const HybridImageTransform = ({
   // Usar modelo filtrado ou padrão
   const defaultModelId = getFirstAvailableModel(filteredModels) || getDefaultModel();
   const modelId = data.model ?? defaultModelId;
+
+  // Definir modelo inicial automaticamente se não estiver definido
+  useEffect(() => {
+    if (!data.model && defaultModelId) {
+      console.log('🎯 Definindo modelo inicial:', defaultModelId);
+      const defaults = getModelDefaults(defaultModelId);
+      updateNodeData(id, { model: defaultModelId, ...defaults });
+    }
+  }, [data.model, defaultModelId, id, updateNodeData]);
   // Apenas modelos FAL são suportados
   const seed = data.seed || '';
   
   // Calcular aspectRatio baseado no modelo
   const imageAspectRatio = useMemo(() => {
-    if (modelId === 'fal-ai/nano-banana') {
-      // Nano Banana tem tamanho fixo (1:1)
+    if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext') {
+      // Nano Banana, Nano Banana Edit e FLUX.1 Kontext [pro] têm tamanho original (1:1)
       return '1';
-    } else if (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') {
+    } else if (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') {
       // FLUX.1 Kontext [pro], [max], FLUX1.1 [pro] ultra, Imagen 4, Imagen 4 Ultra e Luma Photon usam aspect_ratio diretamente
       const aspectRatio = data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1');
       return aspectRatio.replace(':', '/');
@@ -385,7 +395,7 @@ export const HybridImageTransform = ({
         imagePromptsLength: imageNodes.length,
         model: modelId,
         instructionsLength: data.instructions?.length ?? 0,
-        aspectRatio: (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : (data.image_size || 'landscape_4_3'),
+        aspectRatio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext') ? (data.fixed_size || 'fixed') : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : (data.image_size || 'landscape_4_3'),
         seed: seed ?? null,
         quantity: quantity,
       });
@@ -424,9 +434,9 @@ export const HybridImageTransform = ({
               prompt: data.instructions || '',
               params: {
                 model: modelId,
-                aspectRatio: (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
-                aspect_ratio: (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : undefined,
-                image_size: (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
+                aspectRatio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
+                aspect_ratio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : undefined,
+                image_size: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
                 ...(currentSeed !== null && { seed: currentSeed }),
                 guidance: data.guidance_scale || data.guidance || 3.5,
                 numInferenceSteps: data.num_inference_steps || data.numInferenceSteps || 28,
@@ -528,9 +538,9 @@ export const HybridImageTransform = ({
               data: {
                 ...variations[i],
                 model: modelId,
-                aspectRatio: (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
-                aspect_ratio: (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : undefined,
-                image_size: (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
+                aspectRatio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
+                aspect_ratio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : undefined,
+                image_size: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
                 seed: i === 0 ? (seedString !== '' && seedString !== 'null' && seedString !== 'undefined' ? seedString : '') : (seedString !== '' && seedString !== 'null' && seedString !== 'undefined' ? Math.floor(Math.random() * 1000000).toString() : ''),
                 raw: (modelId === 'fal-ai/flux-pro-v1.1-ultra') ? (data.raw || false) : undefined,
                 instructions: data.instructions,
@@ -709,6 +719,28 @@ export const HybridImageTransform = ({
               onChange={(value) => {
                 const defaults = getModelDefaults(value);
                 updateNodeData(id, { model: value, ...defaults });
+                
+                // Verificar se o novo modelo tem limite de imagens
+                const maxImages = getModelMaxImages(value, 'image');
+                if (maxImages !== undefined) {
+                  const allNodes = getNodes();
+                  const allEdges = getEdges();
+                  
+                  // Encontrar conexões de imagem para este nó
+                  const imageConnections = allEdges.filter(edge => 
+                    edge.target === id && 
+                    allNodes.find(n => n.id === edge.source)?.type === 'image'
+                  );
+                  
+                  // Se há mais conexões que o permitido, remover as excedentes
+                  if (imageConnections.length > maxImages) {
+                    const connectionsToRemove = imageConnections.slice(maxImages);
+                    const updatedEdges = allEdges.filter(edge => 
+                      !connectionsToRemove.some(conn => conn.id === edge.id)
+                    );
+                    setEdges(updatedEdges);
+                  }
+                }
               }}
             />
           </div>
@@ -717,16 +749,16 @@ export const HybridImageTransform = ({
             <Label className="text-xs text-muted-foreground">Tamanho</Label>
             <Select
               value={
-                modelId === 'fal-ai/nano-banana'
+                (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext')
                   ? (data.fixed_size || 'fixed')
-                  : (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon')
+                  : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon')
                     ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1'))
                     : (data.image_size || 'landscape_4_3')
               }
               onValueChange={(value) => {
-                if (modelId === 'fal-ai/nano-banana') {
+                if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext') {
                   updateNodeData(id, { fixed_size: value });
-                } else if (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') {
+                } else if (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') {
                   updateNodeData(id, { aspect_ratio: value });
                 } else {
                   updateNodeData(id, { image_size: value });

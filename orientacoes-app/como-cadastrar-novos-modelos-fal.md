@@ -174,6 +174,120 @@ Os modelos FLUX padrão não precisam de lógica especial, apenas do mapeamento.
 (modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/novo-modelo')
 ```
 
+## Modelos Image-to-Image - Considerações Especiais
+
+### Características dos Modelos Image-to-Image
+
+Modelos que aceitam imagens como entrada (ex: Nano Banana Edit) têm requisitos especiais:
+
+1. **Model Filtering:**
+   ```typescript
+   supportedInputs: ['image-primitive', 'image-transform'] // APENAS imagem
+   ```
+
+2. **Tratamento de URLs:**
+   - Sistema passa objetos `{url: string, type: string}`
+   - API espera array de strings
+   - **Solução:** Extrair propriedade `url`:
+   ```typescript
+   input.image_urls = imageNodes.map((node: any) => 
+     typeof node === 'string' ? node : node.url
+   );
+   ```
+
+3. **Parâmetros da API:**
+   - Muitos modelos image-to-image são minimalistas
+   - **Excluir parâmetros globais** quando necessário:
+   ```typescript
+   if (data.model !== 'fal-ai/nano-banana-edit') {
+     input.seed = data.seed;
+     input.guidance_scale = data.guidance_scale;
+     // etc...
+   }
+   ```
+
+4. **Logs Seguros:**
+   ```typescript
+   logger.info('🖼️ Usando imagem de referência', {
+     imageUrl: typeof imageNodes[0] === 'string' 
+       ? imageNodes[0].substring(0, 100) + '...' 
+       : 'URL object',
+     imageCount: imageNodes.length,
+     model: data.model,
+   });
+   ```
+
+### Fluxo de Trabalho Image-to-Image
+
+1. Usuário conecta **nó de imagem** → **nó de transformação**
+2. Sistema detecta conexão `image-primitive` ou `image-transform`  
+3. Model filtering mostra apenas modelos compatíveis
+4. API recebe `imageNodes` como objetos `{url, type}`
+5. Sistema extrai URLs e envia para FAL como `image_urls: string[]`
+
+### Sistema de Validação de Conexões (Limite de Imagens)
+
+O sistema possui validação automática que impede conexões inválidas e gerencia limites de imagem:
+
+#### **Configuração do Limite de Imagens**
+
+No arquivo `lib/model-filtering.ts`, cada modelo image-to-image deve especificar `maxImages`:
+
+```typescript
+'fal-ai/flux-pro-kontext': {
+  id: 'fal-ai/flux-pro-kontext',
+  label: 'FLUX.1 Kontext [pro]',
+  provider: 'fal',
+  supportedInputs: ['image-primitive', 'image-transform'],
+  maxImages: 1 // Aceita apenas uma imagem
+},
+'fal-ai/nano-banana-edit': {
+  id: 'fal-ai/nano-banana-edit',
+  label: 'Nano Banana Edit', 
+  provider: 'fal',
+  supportedInputs: ['image-primitive', 'image-transform'],
+  maxImages: Infinity // Aceita múltiplas imagens
+}
+```
+
+#### **Validação Automática de Conexões**
+
+1. **Prevenção de Conexão:** Sistema bloqueia automaticamente tentativas de conectar mais imagens que o permitido
+2. **Feedback Visual:** Cursor mostra "não permitido" quando limite é atingido
+3. **Desconexão Automática:** Quando usuário muda modelo, conexões excedentes são removidas automaticamente
+
+#### **Fluxo de Validação**
+
+```typescript
+// Canvas.tsx - Validação em tempo real
+const isValidConnection = () => {
+  const maxImages = getModelMaxImages(targetModel, 'image');
+  const existingConnections = edges.filter(/* contar conexões */);
+  
+  if (existingConnections >= maxImages) {
+    return false; // Bloqueia conexão
+  }
+}
+
+// HybridTransform.tsx - Desconexão ao mudar modelo
+onChange={(value) => {
+  const maxImages = getModelMaxImages(value, 'image');
+  if (imageConnections.length > maxImages) {
+    // Remove conexões excedentes automaticamente
+    const connectionsToRemove = imageConnections.slice(maxImages);
+    setEdges(updatedEdges);
+  }
+}}
+```
+
+#### **Comportamentos por Tipo de Modelo**
+
+| Modelo | maxImages | Comportamento |
+|--------|-----------|---------------|
+| FLUX.1 Kontext [pro] | `1` | Aceita apenas 1 imagem, bloqueia demais |
+| Nano Banana Edit | `Infinity` | Aceita quantas imagens o usuário conectar |
+| Modelos Text-only | `undefined` | Não validado (não aceita imagens) |
+
 ## Tipos de Modelos e Configurações
 
 ### Tipo 1: Modelos FLUX Padrão
@@ -201,6 +315,13 @@ Os modelos FLUX padrão não precisam de lógica especial, apenas do mapeamento.
 - **Parâmetros:** Apenas `prompt` (sem parâmetros de tamanho)
 - **Configuração:** `fixed_size` no UI, mas não enviado para API
 
+### Tipo 6: Modelos Image-to-Image
+- **Exemplos:** Nano Banana Edit, FLUX.1 Kontext [pro]
+- **Entrada:** Aceita apenas imagens (`supportedInputs: ['image-primitive', 'image-transform']`)
+- **Parâmetros:** `prompt`, `image_urls` (plural) ou `image_url` (singular), parâmetros específicos
+- **Configuração:** Requer tratamento especial para URLs de entrada e validação de limite de imagens
+- **Limite de Imagens:** `maxImages` define quantas imagens o modelo aceita (1, Infinity, etc.)
+
 ## Checklist de Verificação
 
 ### ✅ Antes de Finalizar, Verifique:
@@ -213,8 +334,9 @@ Os modelos FLUX padrão não precisam de lógica especial, apenas do mapeamento.
 
 2. **Model Filtering:**
    - [ ] Modelo adicionado em `IMAGE_MODELS`
-   - [ ] `supportedInputs` correto (geralmente só texto)
+   - [ ] `supportedInputs` correto (text-only ou image-only)
    - [ ] `provider: 'fal'` definido
+   - [ ] `maxImages` definido para modelos image-to-image (1, Infinity, etc.)
 
 3. **API Integration:**
    - [ ] Mapeamento no `FAL_MODEL_MAP`
@@ -229,10 +351,12 @@ Os modelos FLUX padrão não precisam de lógica especial, apenas do mapeamento.
    - [ ] Testes de UI funcionando
 
 5. **Funcionamento:**
-   - [ ] Modelo aparece apenas com entrada de texto
+   - [ ] Modelo aparece apenas com entrada correta (texto ou imagem)
    - [ ] Valores padrão são aplicados
    - [ ] Parâmetros corretos enviados para API
    - [ ] Geração de imagem funcionando
+   - [ ] Validação de conexões funcionando (se image-to-image)
+   - [ ] Desconexão automática ao mudar modelo (se aplicável)
 
 ## Exemplos Práticos
 
@@ -259,6 +383,99 @@ supportedInputs: ['text-primitive', 'text-transform']
 // + lógica específica na API se tiver parâmetros únicos
 ```
 
+### Modelo Image-to-Image Multi-Imagem (Nano Banana Edit):
+```typescript
+// MODEL_SCHEMAS
+'fal-ai/nano-banana-edit': {
+  label: 'Nano Banana Edit',
+  aspectRatios: [{ label: 'Tamanho original', value: 'fixed' }],
+  fields: [
+    {
+      name: 'fixed_size',
+      type: 'select',
+      label: 'Tamanho',
+      options: [{ value: 'fixed', label: 'Tamanho original' }],
+      defaultValue: 'fixed',
+      gridColumn: 2
+    },
+    {
+      name: 'output_format',
+      type: 'select', 
+      label: 'Output Format',
+      options: [
+        { value: 'jpeg', label: 'JPEG' },
+        { value: 'png', label: 'PNG' }
+      ],
+      defaultValue: 'jpeg',
+      gridColumn: 1
+    }
+  ]
+}
+
+// Model Filtering - IMPORTANTE: entrada de imagem + limite
+supportedInputs: ['image-primitive', 'image-transform']
+maxImages: Infinity // Aceita múltiplas imagens
+
+// API - parâmetros globais excluídos + tratamento de image_urls
+if (data.model !== 'fal-ai/nano-banana-edit') {
+  // parâmetros globais
+}
+
+// Lógica específica
+} else if (data.model === 'fal-ai/nano-banana-edit') {
+  input.output_format = data.output_format || 'jpeg';
+}
+
+// Tratamento de image_urls (plural)
+if (data.model === 'fal-ai/nano-banana-edit') {
+  input.image_urls = imageNodes.map((node: any) => 
+    typeof node === 'string' ? node : node.url
+  );
+}
+
+// Component - mesmo tratamento que Nano Banana para UI
+```
+
+### Modelo Image-to-Image Single-Imagem (FLUX.1 Kontext [pro]):
+```typescript
+// MODEL_SCHEMAS - convertido de text-only para image-to-image
+'fal-ai/flux-pro-kontext': {
+  label: 'FLUX.1 Kontext [pro]',
+  aspectRatios: [{ label: 'Tamanho original', value: 'fixed' }],
+  fields: [
+    {
+      name: 'fixed_size',
+      type: 'select',
+      label: 'Tamanho',
+      options: [{ value: 'fixed', label: 'Tamanho original' }],
+      defaultValue: 'fixed',
+      gridColumn: 2
+    },
+    // Campos opcionais: seed, guidance_scale, output_format
+  ]
+}
+
+// Model Filtering - IMPORTANTE: entrada de imagem + limite de 1
+supportedInputs: ['image-primitive', 'image-transform']
+maxImages: 1 // Aceita apenas uma imagem
+
+// API - endpoint atualizado + lógica específica
+'fal-ai/flux-pro-kontext': 'fal-ai/flux-pro/kontext' // removido /text-to-image
+
+// Lógica específica
+} else if (data.model === 'fal-ai/flux-pro-kontext') {
+  // Não precisa de parâmetros de tamanho
+}
+
+// Tratamento de image_url (singular) sem strength
+if (data.model !== 'fal-ai/flux-pro-kontext') {
+  input.strength = data.strength || 0.8;
+}
+
+// Component - todas condições atualizadas para incluir flux-pro-kontext
+// com fixed_size em vez de aspect_ratio
+```
+
 ## Debugging
 
 ### Problemas Comuns:
@@ -266,6 +483,13 @@ supportedInputs: ['text-primitive', 'text-transform']
 2. **Parâmetros incorretos:** Verifique API mapping e lógica específica
 3. **Aspect ratio não funciona:** Verifique todas as condições no componente
 4. **Erro de validação:** Verifique se parâmetros extras estão sendo enviados
+5. **Modelo image-to-image não aparece:** Verifique se `supportedInputs` tem apenas `image-primitive` e `image-transform`
+6. **Erro "substring is not a function":** URLs de imagem estão como objetos, verificar extração da propriedade `url`
+7. **API rejeita image_urls:** Verificar se está sendo enviado array de strings e não objetos
+8. **Não consegue conectar segunda imagem:** Verificar se modelo tem `maxImages: Infinity` ou valor maior que 1
+9. **Conexões não são removidas ao mudar modelo:** Verificar se `setEdges` está sendo importado corretamente no component
+10. **Validação não funciona:** Verificar se `getModelMaxImages` está importado no Canvas.tsx
+11. **Modelo aceita mais imagens que deveria:** Verificar se `maxImages` está definido no model-filtering.ts
 
 ### Logs Úteis:
 - Console do navegador para erros de UI

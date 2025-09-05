@@ -30,7 +30,33 @@ export const detectPreviousNodeType = (
     return 'none';
   }
   
-  // Pegar o último nó conectado (mais recente)
+  // Separar tipos de conexões
+  const imageNodes = incomers.filter(node => node.type === 'image');
+  const textNodes = incomers.filter(node => node.type === 'text');
+  const videoNodes = incomers.filter(node => node.type === 'video');
+  
+  // PRIORIDADE: Se há imagens conectadas, modelos image-to-image têm prioridade
+  if (imageNodes.length > 0) {
+    const imageNode = imageNodes[0]; // Pegar primeira imagem
+    const hasImageGenerated = Boolean(imageNode.data?.generated?.url);
+    return hasImageGenerated ? 'image-transform' : 'image-primitive';
+  }
+  
+  // Se não há imagens, verificar texto
+  if (textNodes.length > 0) {
+    const textNode = textNodes[0]; // Pegar primeiro texto  
+    const hasTextGenerated = Boolean(textNode.data?.generated?.text);
+    return hasTextGenerated ? 'text-transform' : 'text-primitive';
+  }
+  
+  // Se não há texto nem imagem, verificar vídeo
+  if (videoNodes.length > 0) {
+    const videoNode = videoNodes[0];
+    const hasVideoGenerated = Boolean(videoNode.data?.generated?.url);
+    return hasVideoGenerated ? 'video-transform' : 'video-primitive';
+  }
+  
+  // Fallback: pegar o último nó conectado (comportamento original)
   const previousNode = incomers[incomers.length - 1];
   
   // Detectar tipo baseado no tipo do nó e se tem conteúdo gerado

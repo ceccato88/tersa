@@ -278,15 +278,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/flux-pro-kontext': {
     label: 'FLUX.1 Kontext [pro]',
     aspectRatios: [
-      { label: '21:9', value: '21:9' },
-      { label: '16:9', value: '16:9' },
-      { label: '4:3', value: '4:3' },
-      { label: '3:2', value: '3:2' },
-      { label: '1:1', value: '1:1' },
-      { label: '2:3', value: '2:3' },
-      { label: '3:4', value: '3:4' },
-      { label: '9:16', value: '9:16' },
-      { label: '9:21', value: '9:21' },
+      { label: 'Tamanho original', value: 'fixed' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -1085,6 +1077,26 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       }
     ]
+  },
+  'fal-ai/nano-banana-edit': {
+    label: 'Nano Banana Edit',
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
+    ],
+    fields: [
+      // Campo tamanho aparece apenas no nó principal, não na aba avançada
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Output Format',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' },
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 1
+      }
+    ]
   }
 };
 
@@ -1136,7 +1148,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext
   if (modelId === 'fal-ai/flux-pro-kontext') {
-    defaults.aspect_ratio = '1:1';
+    defaults.fixed_size = 'fixed';
   }
   
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext-max
@@ -1202,6 +1214,11 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   // Adicionar valores padrão para o modelo fal-ai/qwen-image
   if (modelId === 'fal-ai/qwen-image') {
     defaults.image_size = 'landscape_4_3';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/nano-banana-edit
+  if (modelId === 'fal-ai/nano-banana-edit') {
+    defaults.fixed_size = 'fixed';
   }
   
   // Adicionar valores padrão para campos ocultos no modelo wan-video

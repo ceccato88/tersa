@@ -11,6 +11,7 @@ export interface FilteredModel {
   aspectRatios?: Array<{ label: string; value: string }>;
   icon?: any;
   default?: boolean;
+  maxImages?: number;
 }
 
 // Modelos de imagem disponíveis (apenas FAL)
@@ -31,7 +32,8 @@ const IMAGE_MODELS = {
     id: 'fal-ai/flux-pro-kontext',
     label: 'FLUX.1 Kontext [pro]',
     provider: 'fal',
-    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
   },
   'fal-ai/flux-pro-kontext-max': {
     id: 'fal-ai/flux-pro-kontext-max',
@@ -110,6 +112,13 @@ const IMAGE_MODELS = {
     label: 'Qwen Image',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
+  'fal-ai/nano-banana-edit': {
+    id: 'fal-ai/nano-banana-edit',
+    label: 'Nano Banana Edit',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: Infinity // Aceita múltiplas imagens
   }
 };
 
@@ -269,5 +278,25 @@ export const hasAvailableModels = (
       );
     default:
       return false;
+  }
+};
+
+/**
+ * Obtém o número máximo de imagens que um modelo aceita
+ * @param modelId - ID do modelo
+ * @param nodeType - Tipo do nó ('image' ou 'video')
+ * @returns Número máximo de imagens ou undefined se não especificado
+ */
+export const getModelMaxImages = (
+  modelId: string,
+  nodeType: 'image' | 'video' = 'image'
+): number | undefined => {
+  switch (nodeType) {
+    case 'image':
+      return IMAGE_MODELS[modelId as keyof typeof IMAGE_MODELS]?.maxImages;
+    case 'video':
+      return VIDEO_MODELS[modelId as keyof typeof VIDEO_MODELS]?.maxImages;
+    default:
+      return undefined;
   }
 };
