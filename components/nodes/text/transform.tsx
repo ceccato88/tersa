@@ -318,7 +318,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
         isGenerating: false,
       }));
 
-      setTimeout(() => mutate('credits'), 5000);
+      // Credits removed: no SWR revalidation needed
 
     } catch (error: any) {
       if (error.name === 'AbortError') {

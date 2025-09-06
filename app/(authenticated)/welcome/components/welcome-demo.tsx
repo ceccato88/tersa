@@ -54,9 +54,7 @@ export const WelcomeDemo = ({ title, description }: WelcomeDemoProps) => {
     }
 
     try {
-      const response = await updateProfileAction(user.id, {
-        onboardedAt: new Date(),
-      });
+      const response = await updateProfileAction(user.id);
 
       if ('error' in response) {
         throw new Error(response.error);

@@ -33,7 +33,7 @@ A visual AI playground. WOW is an open source canvas for building AI workflows. 
 - PNPM package manager
 - Supabase account and project
 - [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) installed
-- [Stripe CLI](https://docs.stripe.com/stripe-cli) installed
+  
 
 ### Installation
 

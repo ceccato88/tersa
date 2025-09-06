@@ -17,7 +17,7 @@ const Projects = async () => {
   const user = await currentUser();
 
   if (!user) {
-    return redirect('/sign-in');
+    return redirect('/auth/login');
   }
 
   const profile = await currentUserProfile();

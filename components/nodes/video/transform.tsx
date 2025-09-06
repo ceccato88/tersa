@@ -314,7 +314,7 @@ export const VideoTransform = ({
         toast.success('Vídeo gerado com sucesso');
       }
 
-      setTimeout(() => mutate('credits'), 5000);
+      // Credits removed: no SWR revalidation needed
     } catch (error: any) {
       if (error.name === 'AbortError') {
         toast.info('Geração de vídeo cancelada');

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:full": "concurrently -n \"Next.js,Supabase,Email,Stripe\" \"next dev --turbopack\" \"npx supabase start\" \"email dev --port 3001\" \"stripe listen --forward-to localhost:3000/api/webhooks/stripe\"",
+    "dev:full": "concurrently -n \"Next.js,Supabase,Email\" \"next dev --turbopack\" \"npx supabase start\" \"email dev --port 3001\"",
     "bump-deps": "npx npm-check-updates -u && pnpm install",
     "bump-ui": "npx shadcn@latest add --all --overwrite",
     "build": "next build --turbopack",
@@ -133,7 +133,6 @@
     "shiki": "^3.6.0",
     "sonner": "^2.0.5",
     "standardwebhooks": "^1.0.0",
-    "stripe": "^18.2.1",
     "swr": "^2.3.3",
     "tailwind-merge": "^3.3.1",
     "tippy.js": "^6.3.7",

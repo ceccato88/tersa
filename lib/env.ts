@@ -11,14 +11,6 @@ export const env = createEnv({
     RESEND_TOKEN: z.string().min(1).startsWith('re_'),
     RESEND_EMAIL: z.string().email().min(1),
 
-    STRIPE_SECRET_KEY: z.string().min(1).startsWith('sk_'),
-    STRIPE_HOBBY_PRODUCT_ID: z.string().min(1).startsWith('prod_'),
-    STRIPE_PRO_PRODUCT_ID: z.string().min(1).startsWith('prod_'),
-    STRIPE_USAGE_PRODUCT_ID: z.string().min(1).startsWith('prod_'),
-    STRIPE_CREDITS_METER_ID: z.string().min(1).startsWith('mtr_').optional(),
-    STRIPE_CREDITS_METER_NAME: z.string().min(1).optional(),
-    STRIPE_WEBHOOK_SECRET: z.string().min(1).startsWith('whsec_').optional(),
-
     SUPABASE_AUTH_HOOK_SECRET: z.string().min(1).startsWith('v1,whsec_'),
 
     // Supabase Integration
@@ -78,13 +70,6 @@ export const env = createEnv({
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     RESEND_TOKEN: process.env.RESEND_TOKEN,
     RESEND_EMAIL: process.env.RESEND_EMAIL,
-    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-    STRIPE_HOBBY_PRODUCT_ID: process.env.STRIPE_HOBBY_PRODUCT_ID,
-    STRIPE_PRO_PRODUCT_ID: process.env.STRIPE_PRO_PRODUCT_ID,
-    STRIPE_USAGE_PRODUCT_ID: process.env.STRIPE_USAGE_PRODUCT_ID,
-    STRIPE_CREDITS_METER_ID: process.env.STRIPE_CREDITS_METER_ID,
-    STRIPE_CREDITS_METER_NAME: process.env.STRIPE_CREDITS_METER_NAME,
-    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     SUPABASE_AUTH_HOOK_SECRET: process.env.SUPABASE_AUTH_HOOK_SECRET,
     RUNWAYML_API_SECRET: process.env.RUNWAYML_API_SECRET,

@@ -1,10 +1,4 @@
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+// Node-level context menu removed to avoid nested popper update loops.
 import {
   Dialog,
   DialogContent,
@@ -108,9 +102,7 @@ export const NodeLayout = ({
       {shouldShowInputHandle() && (
         <Handle type="target" position={Position.Left} />
       )}
-      <ContextMenu onOpenChange={handleSelect}>
-        <ContextMenuTrigger>
-          <div className="relative size-full h-auto w-sm">
+      <div className="relative size-full h-auto w-sm" onContextMenu={(e) => e.stopPropagation()}>
             {type !== 'drop' && (
               <div className="-translate-y-full -top-2 absolute right-0 left-0 flex shrink-0 items-center justify-between">
                 <p className="font-mono text-muted-foreground text-xs tracking-tighter">
@@ -128,33 +120,7 @@ export const NodeLayout = ({
                 {children}
               </div>
             </div>
-          </div>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem onClick={() => duplicateNode(id)}>
-            <CopyIcon size={12} />
-            <span>Duplicar</span>
-          </ContextMenuItem>
-          <ContextMenuItem onClick={handleFocus}>
-            <EyeIcon size={12} />
-            <span>Focar</span>
-          </ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem onClick={handleDelete} variant="destructive">
-            <TrashIcon size={12} />
-            <span>Excluir</span>
-          </ContextMenuItem>
-          {process.env.NODE_ENV === 'development' && (
-            <>
-              <ContextMenuSeparator />
-              <ContextMenuItem onClick={handleShowData}>
-                <CodeIcon size={12} />
-                <span>Mostrar dados</span>
-              </ContextMenuItem>
-            </>
-          )}
-        </ContextMenuContent>
-      </ContextMenu>
+      </div>
       {type !== 'tweet' && <Handle type="source" position={Position.Right} />}
       <Dialog open={showData} onOpenChange={setShowData}>
         <DialogContent>

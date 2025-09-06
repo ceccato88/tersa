@@ -327,3 +327,19 @@ export const getModelMaxImages = (
       return undefined;
   }
 };
+
+/**
+ * Verifica se um modelo é de upscale (não precisa de prompt)
+ * @param modelId - ID do modelo
+ * @returns true se for modelo de upscale, false caso contrário
+ */
+export const isUpscaleModel = (modelId: string): boolean => {
+  const upscaleModels = [
+    'fal-ai/topaz/upscale/image',
+    'fal-ai/recraft/upscale/creative',
+    'fal-ai/recraft/upscale/crisp',
+    'fal-ai/ideogram/upscale'
+  ];
+  
+  return upscaleModels.includes(modelId);
+};

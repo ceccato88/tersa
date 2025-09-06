@@ -130,8 +130,8 @@ async function main() {
   const args = process.argv.slice(2)
   
   if (args.length < 2) {
-    console.log('❌ Uso: node create-unlimited-user.js <email> <password> [nome_completo]')
-    console.log('📝 Exemplo: node create-unlimited-user.js user@example.com senha123 "João Silva"')
+    console.log('❌ Uso: node create-user.js <email> <password> [nome_completo]')
+    console.log('📝 Exemplo: node create-user.js user@example.com senha123 "João Silva"')
     process.exit(1)
   }
 

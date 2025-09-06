@@ -6,7 +6,28 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { prompt, params, imageNodes } = body;
     
-    if (!prompt) {
+    // Debug log para entender o que está sendo enviado
+    console.log('🔍 FAL Image API Debug:', {
+      model: params?.model,
+      hasPrompt: !!prompt,
+      promptLength: prompt?.length,
+      hasParams: !!params,
+      hasImageNodes: !!imageNodes,
+      imageNodesLength: imageNodes?.length
+    });
+    
+    // Verificar se é modelo de upscale (não precisa obrigatoriamente de prompt)
+    const upscaleModels = [
+      'fal-ai/topaz/upscale/image',
+      'fal-ai/recraft/upscale/creative', 
+      'fal-ai/recraft/upscale/crisp',
+      'fal-ai/ideogram/upscale'
+    ];
+    
+    const isUpscaleModel = upscaleModels.includes(params?.model);
+    
+    if (!prompt && !isUpscaleModel) {
+      console.log('❌ Prompt obrigatório para modelo não-upscale:', params?.model);
       return NextResponse.json(
         { error: 'Prompt is required' },
         { status: 400 }

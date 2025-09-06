@@ -4,7 +4,6 @@ import { getSubscribedUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
 import { imageModels } from '@/lib/models/image';
-import { trackCreditUsage } from '@/lib/stripe';
 import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
 import type { Edge, Node, Viewport } from '@xyflow/react';
@@ -130,13 +129,6 @@ export const editImageAction = async ({
         size,
       });
 
-      await trackCreditUsage({
-        action: 'generate_image',
-        cost: provider.getCost({
-          ...generatedImageResponse.usage,
-          size,
-        }),
-      });
 
       image = generatedImageResponse.image;
     } else {
@@ -155,12 +147,6 @@ export const editImageAction = async ({
         },
       });
 
-      await trackCreditUsage({
-        action: 'generate_image',
-        cost: provider.getCost({
-          size,
-        }),
-      });
 
       image = generatedImageResponse.image;
     }

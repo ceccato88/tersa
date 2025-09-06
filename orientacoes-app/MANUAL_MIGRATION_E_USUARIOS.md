@@ -17,7 +17,7 @@ Este manual documenta os procedimentos para:
 
 ### Arquivos Necessários
 - `package.json` com scripts de migration
-- `create-unlimited-user.js` (script personalizado)
+- `create-user.js` (script personalizado)
 - `setup-supabase-storage.js` (script de configuração de storage)
 - Configuração de banco em `lib/database.ts`
 - Arquivo `supabase/seed.sql` com configurações de storage
@@ -251,7 +251,7 @@ wsl node scripts/setup-supabase-storage.js --force-recreate
 
 ### 3.1 Script de Criação
 
-O script `create-unlimited-user.js` permite:
+O script `create-user.js` permite:
 - Criar usuários com créditos ilimitados
 - Listar usuários existentes
 - Verificar usuários criados
@@ -260,27 +260,27 @@ O script `create-unlimited-user.js` permite:
 
 #### Criar Novo Usuário
 ```bash
-wsl node create-unlimited-user.js create <email> <senha>
+wsl node create-user.js create <email> <senha>
 ```
 
 **Exemplo:**
 ```bash
-wsl node create-unlimited-user.js create admin@tersa.com senha123456
+wsl node create-user.js create admin@tersa.com senha123456
 ```
 
 #### Listar Usuários com Créditos Ilimitados
 ```bash
-wsl node create-unlimited-user.js list
+wsl node create-user.js list
 ```
 
 #### Verificar Usuário Específico
 ```bash
-wsl node create-unlimited-user.js verify <email>
+wsl node create-user.js verify <email>
 ```
 
 **Exemplo:**
 ```bash
-wsl node create-unlimited-user.js verify admin@tersa.com
+wsl node create-user.js verify admin@tersa.com
 ```
 
 #### Excluir Usuário
@@ -487,10 +487,10 @@ Após criar usuários, sempre execute:
 
 ```bash
 # Listar todos os usuários com créditos ilimitados
-wsl node create-unlimited-user.js list
+wsl node create-user.js list
 
 # Verificar usuário específico
-wsl node create-unlimited-user.js verify <email>
+wsl node create-user.js verify <email>
 ```
 
 ## 🛠️ Parte 4: Scripts Auxiliares
@@ -747,10 +747,10 @@ wsl pnpm migrate
 wsl node check-database-structure.js
 
 # 6. Criar primeiro usuário admin
-wsl node create-unlimited-user.js create admin@tersa.com senha123456
+wsl node create-user.js create admin@tersa.com senha123456
 
 # 7. Verificar criação
-wsl node create-unlimited-user.js list
+wsl node create-user.js list
 ```
 
 ### 5.2 Criação de Usuários Subsequentes
@@ -760,10 +760,10 @@ wsl node create-unlimited-user.js list
 wsl cd /mnt/c/ai/tersa
 
 # 2. Criar usuário
-wsl node create-unlimited-user.js create <email> <senha>
+wsl node create-user.js create <email> <senha>
 
 # 3. Verificar
-wsl node create-unlimited-user.js verify <email>
+wsl node create-user.js verify <email>
 ```
 
 ### 5.3 Exclusão de Usuários
@@ -797,7 +797,7 @@ wsl cd /mnt/c/ai/tersa
 wsl node delete-user.js list
 
 # 3. Criar usuário de teste
-wsl node create-unlimited-user.js create teste@tersa.com senha123
+wsl node create-user.js create teste@tersa.com senha123
 
 # 4. Confirmar criação do usuário
 wsl node delete-user.js list
@@ -866,7 +866,7 @@ Em caso de problemas:
 - [ ] Schema validado (`check-database-structure.js`)
 
 ### Gerenciamento de Usuários
-- [ ] Usuário criado com sucesso (`create-unlimited-user.js`)
+- [ ] Usuário criado com sucesso (`create-user.js`)
 - [ ] Usuário listado corretamente
 - [ ] Verificação de usuário realizada
 - [ ] **Scripts de exclusão testados** (`delete-user.js`)

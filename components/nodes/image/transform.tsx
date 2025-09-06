@@ -301,7 +301,7 @@ export const ImageTransform = ({
         toast.success('Imagem gerada com sucesso');
       }
 
-      setTimeout(() => mutate('credits'), 5000);
+      // Credits removed: no SWR revalidation needed
     } catch (error) {
       handleError('Erro ao gerar imagem', error);
     } finally {

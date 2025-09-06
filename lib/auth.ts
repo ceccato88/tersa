@@ -1,4 +1,3 @@
-import { getCredits } from '@/app/actions/credits/get';
 import { profile } from '@/schema';
 import { eq } from 'drizzle-orm';
 import { database } from './database';
@@ -54,6 +53,7 @@ export const currentUserProfile = async () => {
   return userProfile;
 };
 
+// All logged-in users can use all features; no Stripe/credits gating
 export const getSubscribedUser = async () => {
   const user = await currentUser();
 
@@ -61,30 +61,7 @@ export const getSubscribedUser = async () => {
     throw new Error('Create an account to use AI features.');
   }
 
-  const profile = await currentUserProfile();
-
-  if (!profile) {
-    throw new Error('User profile not found');
-  }
-
-  if (!profile.subscriptionId) {
-    throw new Error('Claim your free AI credits to use this feature.');
-  }
-
-  const credits = await getCredits();
-
-  if ('error' in credits) {
-    throw new Error(credits.error);
-  }
-
-  if (
-    profile.productId === env.STRIPE_HOBBY_PRODUCT_ID &&
-    credits.credits <= 0
-  ) {
-    throw new Error(
-      'Sorry, you have no credits remaining! Please upgrade for more credits.'
-    );
-  }
-
+  // Ensure profile exists (created on-demand by currentUserProfile)
+  await currentUserProfile();
   return user;
 };

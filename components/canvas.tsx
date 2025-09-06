@@ -83,8 +83,36 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
     try {
       setSaveState((prev) => ({ ...prev, isSaving: true }));
 
+      // Sanitize React Flow content to avoid non-serializable values in Server Actions
+      const rf = toObject();
+      const nodes = getNodes().map((n) => ({
+        id: n.id,
+        type: n.type,
+        data: n.data,
+        position: n.position,
+        origin: (n as any).origin ?? [0, 0.5],
+        width: n.width,
+        height: n.height,
+        selected: n.selected,
+      }));
+      const edges = getEdges().map((e) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        type: e.type,
+        sourceHandle: e.sourceHandle,
+        targetHandle: e.targetHandle,
+        selected: e.selected,
+      }));
+
+      const safeContent = {
+        nodes,
+        edges,
+        viewport: rf.viewport,
+      } as { nodes: Node[]; edges: Edge[]; viewport?: any };
+
       const response = await updateProjectAction(project.id, {
-        content: toObject(),
+        content: safeContent,
       });
 
       if ('error' in response) {

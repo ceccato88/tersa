@@ -21,7 +21,7 @@ const Welcome = async () => {
   const user = await currentUser();
 
   if (!user) {
-    return redirect('/sign-in');
+    return redirect('/auth/login');
   }
 
   let welcomeProject = await database.query.projects.findFirst({

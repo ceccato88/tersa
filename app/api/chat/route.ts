@@ -2,7 +2,6 @@ import { getSubscribedUser } from '@/lib/auth';
 import { parseError } from '@/lib/error/parse';
 import { gateway } from '@/lib/gateway';
 import { createRateLimiter, slidingWindow } from '@/lib/rate-limit';
-import { trackCreditUsage } from '@/lib/stripe';
 import {
   convertToModelMessages,
   extractReasoningMiddleware,
@@ -77,21 +76,7 @@ export const POST = async (req: Request) => {
       'The output should be a concise summary of the content, no more than 1000 words.',
     ].join('\n'),
     messages: convertToModelMessages(messages),
-    onFinish: async ({ usage }) => {
-      const inputCost = model.pricing?.input
-        ? Number.parseFloat(model.pricing.input)
-        : 0;
-      const outputCost = model.pricing?.output
-        ? Number.parseFloat(model.pricing.output)
-        : 0;
-      const inputTokens = usage.inputTokens ?? 0;
-      const outputTokens = usage.outputTokens ?? 0;
-
-      await trackCreditUsage({
-        action: 'chat',
-        cost: inputCost * inputTokens + outputCost * outputTokens,
-      });
-    },
+    // No credit tracking
   });
 
   return result.toUIMessageStreamResponse({

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { download } from '@/lib/download';
 import { getModelSchema, getModelDefaults } from '@/lib/model-schemas';
-import { useFilteredModels, getFirstAvailableModel, getModelMaxImages } from '@/lib/model-filtering';
+import { useFilteredModels, getFirstAvailableModel, getModelMaxImages, isUpscaleModel } from '@/lib/model-filtering';
 import { providers } from '@/lib/providers';
 import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
 import { useProject } from '@/providers/project';
@@ -405,15 +405,24 @@ export const HybridImageTransform = ({
     const imageNodes = getImagesFromImageNodes(incomers);
 
     try {
-      if (!data.instructions?.trim()) {
+      // Não exigir prompt para modelos de upscale
+      if (!data.instructions?.trim() && !isUpscaleModel(data.model || '')) {
         toast.error('Campo obrigatório', {
           description: 'Por favor, digite suas instruções antes de gerar a imagem.'
         });
         return;
       }
       
-      if (!textNodes.length && !imageNodes.length && !data.instructions) {
-        throw new Error('Nenhum prompt fornecido');
+      // Para modelos de upscale, só precisamos de imagens
+      if (isUpscaleModel(data.model || '')) {
+        if (!imageNodes.length) {
+          throw new Error('Modelos de upscale precisam de pelo menos uma imagem conectada');
+        }
+      } else {
+        // Para outros modelos, verificar prompt
+        if (!textNodes.length && !imageNodes.length && !data.instructions) {
+          throw new Error('Nenhum prompt fornecido');
+        }
       }
 
       setLoading(true);

@@ -4,7 +4,6 @@ import { getSubscribedUser } from '@/lib/auth';
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
 import { videoModels } from '@/lib/models/video';
-import { trackCreditUsage } from '@/lib/stripe';
 import { createClient } from '@/lib/supabase/server';
 import { projects } from '@/schema';
 import type { Edge, Node, Viewport } from '@xyflow/react';
@@ -68,10 +67,6 @@ export const generateVideoAction = async ({
     const response = await fetch(url);
     const arrayBuffer = await response.arrayBuffer();
 
-    await trackCreditUsage({
-      action: 'generate_video',
-      cost: provider.getCost({ duration: 5 }),
-    });
 
     const blob = await client.storage
       .from('files')

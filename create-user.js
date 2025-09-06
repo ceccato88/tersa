@@ -12,9 +12,9 @@ const client = new Client({
   statement_timeout: 30000
 });
 
-// SQL para criar a função de usuário ilimitado
+// SQL para criar a função de usuário
 const createUserFunction = `
-CREATE OR REPLACE FUNCTION create_unlimited_user(
+CREATE OR REPLACE FUNCTION create_user_function(
   user_email TEXT,
   user_password TEXT
 )
@@ -102,17 +102,11 @@ BEGIN
   )
   RETURNING id INTO new_user_id;
 
-  -- Criar perfil do usuário com créditos ilimitados
+  -- Criar perfil do usuário
   INSERT INTO public.profile (
-    id,
-    customer_id,
-    subscription_id,
-    product_id
+    id
   ) VALUES (
-    new_user_id::text,
-    'unlimited_' || new_user_id::TEXT,
-    'unlimited_sub_' || new_user_id::TEXT,
-    'unlimited_product'
+    new_user_id::text
   );
 
   -- Retornar informações do usuário criado
@@ -120,7 +114,7 @@ BEGIN
     'success', true,
     'user_id', new_user_id,
     'email', user_email,
-    'message', 'Usuário criado com créditos ilimitados'
+    'message', 'Usuário criado com sucesso'
   );
 
   RETURN result;
@@ -137,9 +131,9 @@ $$;
 `;
 
 // Função para criar usuário ilimitado
-async function createUnlimitedUser(email, password) {
-  console.log('🔍 CRIAÇÃO DE USUÁRIO COM CRÉDITOS ILIMITADOS');
-  console.log('==============================================');
+async function createUser(email, password) {
+  console.log('🔍 CRIAÇÃO DE USUÁRIO');
+  console.log('====================');
   
   try {
     // Conectar ao banco
@@ -148,14 +142,14 @@ async function createUnlimitedUser(email, password) {
     console.log('✅ Conectado com sucesso!');
     
     // Criar a função se não existir
-    console.log('🔄 Criando/atualizando função create_unlimited_user...');
+    console.log('🔄 Criando/atualizando função create_user_function...');
     await client.query(createUserFunction);
     console.log('✅ Função criada/atualizada com sucesso!');
     
     // Executar a função para criar o usuário
     console.log(`🔄 Criando usuário: ${email}`);
     const result = await client.query(
-      'SELECT create_unlimited_user($1, $2) as result',
+      'SELECT create_user_function($1, $2) as result',
       [email, password]
     );
     
@@ -171,7 +165,7 @@ async function createUnlimitedUser(email, password) {
       // Verificar se o usuário foi criado corretamente
       console.log('\n🔄 Verificando usuário criado...');
       const verifyResult = await client.query(`
-        SELECT u.id, u.email, u.created_at, p.customer_id, p.product_id
+        SELECT u.id, u.email, u.created_at, p.onboarded_at
         FROM auth.users u
         LEFT JOIN public.profile p ON u.id::TEXT = p.id::TEXT
         WHERE u.email = $1
@@ -185,8 +179,7 @@ async function createUnlimitedUser(email, password) {
         console.log(`   Auth ID: ${user.id}`);
         console.log(`   Email: ${user.email}`);
         console.log(`   Criado em: ${user.created_at}`);
-        console.log(`   Customer ID: ${user.customer_id}`);
-        console.log(`   Product ID: ${user.product_id}`);
+        console.log(`   Onboarded: ${user.onboarded_at || 'Ainda não'}`);
       }
       
     } else {
@@ -204,32 +197,31 @@ async function createUnlimitedUser(email, password) {
   }
 }
 
-// Função para listar usuários ilimitados
-async function listUnlimitedUsers() {
-  console.log('\n📋 LISTANDO USUÁRIOS COM CRÉDITOS ILIMITADOS');
-  console.log('=============================================');
+// Função para listar usuários
+async function listUsers() {
+  console.log('\n📋 LISTANDO USUÁRIOS');
+  console.log('====================');
   
   try {
     await client.connect();
     
     const result = await client.query(`
-      SELECT u.id, u.email, u.created_at, p.customer_id, p.product_id
+      SELECT u.id, u.email, u.created_at, p.onboarded_at
       FROM auth.users u
       LEFT JOIN public.profile p ON u.id::TEXT = p.id::TEXT
-      WHERE p.product_id = 'unlimited_product'
       ORDER BY u.created_at DESC
     `);
     
     if (result.rows.length > 0) {
-      console.log(`✅ Encontrados ${result.rows.length} usuário(s) com créditos ilimitados:`);
+      console.log(`✅ Encontrados ${result.rows.length} usuário(s):`);
       result.rows.forEach((user, index) => {
         console.log(`\n${index + 1}. ${user.email}`);
         console.log(`   ID: ${user.id}`);
         console.log(`   Criado: ${user.created_at}`);
-        console.log(`   Customer ID: ${user.customer_id}`);
+        console.log(`   Onboarded: ${user.onboarded_at || 'Ainda não'}`);
       });
     } else {
-      console.log('ℹ️  Nenhum usuário com créditos ilimitados encontrado.');
+      console.log('ℹ️  Nenhum usuário encontrado.');
     }
     
   } catch (error) {
@@ -247,13 +239,13 @@ async function main() {
     console.log('📖 USO DO SCRIPT:');
     console.log('================');
     console.log('Criar usuário:');
-    console.log('  node create-unlimited-user.js create email@exemplo.com senha123');
+    console.log('  node create-user.js create email@exemplo.com senha123');
     console.log('');
     console.log('Listar usuários:');
-    console.log('  node create-unlimited-user.js list');
+    console.log('  node create-user.js list');
     console.log('');
     console.log('Exemplo:');
-    console.log('  node create-unlimited-user.js create admin@tersa.com minhasenha123');
+    console.log('  node create-user.js create admin@tersa.com minhasenha123');
     return;
   }
   
@@ -262,7 +254,7 @@ async function main() {
   if (command === 'create') {
     if (args.length < 3) {
       console.error('❌ Erro: Email e senha são obrigatórios!');
-      console.log('Uso: node create-unlimited-user.js create email@exemplo.com senha123');
+      console.log('Uso: node create-user.js create email@exemplo.com senha123');
       return;
     }
     
@@ -279,10 +271,10 @@ async function main() {
       return;
     }
     
-    await createUnlimitedUser(email, password);
+    await createUser(email, password);
     
   } else if (command === 'list') {
-    await listUnlimitedUsers();
+    await listUsers();
     
   } else {
     console.error('❌ Comando inválido! Use "create" ou "list"');
@@ -294,4 +286,4 @@ if (require.main === module) {
   main().catch(console.error);
 }
 
-module.exports = { createUnlimitedUser, listUnlimitedUsers };
+module.exports = { createUser, listUsers };

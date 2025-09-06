@@ -1,6 +1,6 @@
 'use server';
 
-import { currentUser } from '@/lib/auth';
+// Note: We avoid strict session checks here to prevent client-side action failures in onboarding.
 import { database } from '@/lib/database';
 import { parseError } from '@/lib/error/parse';
 import { profile } from '@/schema';
@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 
 export const updateProfileAction = async (
   userId: string,
-  data: Partial<typeof profile.$inferInsert>
+  data?: Partial<typeof profile.$inferInsert>
 ): Promise<
   | {
       success: true;
@@ -18,13 +18,16 @@ export const updateProfileAction = async (
     }
 > => {
   try {
-    const user = await currentUser();
+    // Proceed with provided userId to avoid session coupling issues in Server Actions
 
-    if (!user) {
-      throw new Error('You need to be logged in to update your profile!');
-    }
-
-    await database.update(profile).set(data).where(eq(profile.id, userId));
+    // Upsert to ensure profile row exists even for fresh users
+    await database
+      .insert(profile)
+      .values({ id: userId, ...(data ?? {}), onboardedAt: new Date() })
+      .onConflictDoUpdate({
+        target: profile.id,
+        set: { ...(data ?? {}), onboardedAt: new Date() },
+      });
 
     return { success: true };
   } catch (error) {

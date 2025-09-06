@@ -85,9 +85,11 @@ export async function generateImageFalAction(
     const falModel = FAL_MODEL_MAP[data.model || 'fal-ai/flux-dev'] || 'fal-ai/flux/dev';
     
     // Preparar input para FAL baseado no modelo
-    const input: any = {
+    const isUpscaleModelType = ['fal-ai/topaz/upscale/image', 'fal-ai/recraft/upscale/creative', 'fal-ai/recraft/upscale/crisp'].includes(data.model || '');
+    
+    const input: any = isUpscaleModelType ? {} : {
       prompt,
-    }
+    };
     
     // Função helper para converter valores para números
     const parseNumber = (value: any): number | null => {
@@ -424,7 +426,8 @@ export async function generateImageFalAction(
       });
     } else if (data.model === 'fal-ai/ideogram/upscale') {
       // Ideogram Upscale usa parâmetros específicos
-      input.prompt = data.prompt || '';
+      // Para modelos de upscale, prompt é opcional (pode ser vazio)
+      input.prompt = prompt || data.instructions || '';
       input.resemblance = parseNumber(data.resemblance) || 50;
       input.detail = parseNumber(data.detail) || 50;
       input.expand_prompt = data.expand_prompt !== undefined ? data.expand_prompt : false;
@@ -642,7 +645,7 @@ export async function generateImageFalAction(
         input.image_url = imageUrl;
         
         // Força da transformação apenas para modelos que suportam (exceto modelos que já definem strength)
-        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp') {
+        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
           input.strength = data.strength || 0.8;
         }
       }
@@ -666,7 +669,7 @@ export async function generateImageFalAction(
       model: falModel,
       input: {
         ...input,
-        prompt: input.prompt.substring(0, 100),
+        prompt: input.prompt ? input.prompt.substring(0, 100) : '[sem prompt]',
       },
     });
 

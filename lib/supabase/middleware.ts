@@ -3,9 +3,15 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { env } from '../env';
 
 export const updateSession = async (request: NextRequest) => {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  // Bypass auth/session refresh for Next.js Server Actions to avoid unexpected
+  // redirects/responses during action POSTs.
+  const nextActionHeader = request.headers.get('next-action') ?? request.headers.get('Next-Action');
+  if (nextActionHeader) {
+    return NextResponse.next();
+  }
+  // Start with a fresh response; we'll set cookies on the response only.
+  // Avoid mutating request cookies to prevent cookie header growth.
+  let supabaseResponse = NextResponse.next();
 
   const supabase = createServerClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
@@ -16,12 +22,8 @@ export const updateSession = async (request: NextRequest) => {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          for (const { name, value } of cookiesToSet) {
-            request.cookies.set(name, value);
-          }
-          supabaseResponse = NextResponse.next({
-            request,
-          });
+          // Only set cookies on the response; do not mutate request cookies
+          // to avoid compounding Set-Cookie headers and 431 errors.
           for (const { name, value, options } of cookiesToSet) {
             supabaseResponse.cookies.set(name, value, options);
           }
@@ -42,7 +44,6 @@ export const updateSession = async (request: NextRequest) => {
 
   const publicPaths = [
     '/',
-    '/pricing',
     '/home',
     '/privacy',
     '/terms',

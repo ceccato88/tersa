@@ -1,5 +1,4 @@
 import { currentUser, currentUserProfile } from '@/lib/auth';
-import { env } from '@/lib/env';
 import { GatewayProvider } from '@/providers/gateway';
 import { PostHogIdentifyProvider } from '@/providers/posthog-provider';
 import {
@@ -27,21 +26,11 @@ const AuthenticatedLayout = async ({ children }: AuthenticatedLayoutProps) => {
     return null;
   }
 
-  let plan: SubscriptionContextType['plan'];
-
-  if (profile.productId === env.STRIPE_HOBBY_PRODUCT_ID) {
-    plan = 'hobby';
-  } else if (profile.productId === env.STRIPE_PRO_PRODUCT_ID) {
-    plan = 'pro';
-  } else if (profile.productId === 'unlimited_product') {
-    plan = 'enterprise';
-  }
+  // No Stripe/credits: treat all logged-in users as subscribed
+  const plan: SubscriptionContextType['plan'] = 'enterprise';
 
   return (
-    <SubscriptionProvider
-      isSubscribed={Boolean(profile.subscriptionId)}
-      plan={plan}
-    >
+    <SubscriptionProvider isSubscribed={true} plan={plan}>
       <GatewayProvider>
         <PostHogIdentifyProvider>
           <ReactFlowProvider>{children}</ReactFlowProvider>
