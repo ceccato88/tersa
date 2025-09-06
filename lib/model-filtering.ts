@@ -42,6 +42,13 @@ const IMAGE_MODELS = {
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
+  'fal-ai/flux-pro/kontext/max': {
+    id: 'fal-ai/flux-pro/kontext/max',
+    label: 'FLUX.1 Kontext [max]',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
+  },
   'fal-ai/flux-pro-v1.1': {
     id: 'fal-ai/flux-pro-v1.1',
     label: 'FLUX1.1 [pro]',
@@ -115,6 +122,34 @@ const IMAGE_MODELS = {
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: Infinity // Aceita múltiplas imagens
+  },
+  'fal-ai/ideogram/character': {
+    id: 'fal-ai/ideogram/character',
+    label: 'Ideogram Character',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem de referência
+  },
+  'fal-ai/flux/krea/image-to-image': {
+    id: 'fal-ai/flux/krea/image-to-image',
+    label: 'FLUX.1 Krea [dev]',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
+  },
+  'fal-ai/flux-1/dev/image-to-image': {
+    id: 'fal-ai/flux-1/dev/image-to-image',
+    label: 'FLUX.1 [dev]',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
+  },
+  'fal-ai/recraft/v3/image-to-image': {
+    id: 'fal-ai/recraft/v3/image-to-image',
+    label: 'Recraft V3',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
   }
 };
 

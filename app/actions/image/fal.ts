@@ -33,8 +33,9 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/flux-dev': 'fal-ai/flux/dev',
 
   'fal-ai/flux-pro-kontext': 'fal-ai/flux-pro/kontext',
-  'fal-ai/flux-pro-kontext-text': 'fal-ai/flux-pro/kontext/max/text-to-image',
+  'fal-ai/flux-pro-kontext-text': 'fal-ai/flux-pro/kontext/text-to-image',
   'fal-ai/flux-pro-kontext-max': 'fal-ai/flux-pro/kontext/max/text-to-image',
+  'fal-ai/flux-pro/kontext/max': 'fal-ai/flux-pro/kontext/max',
   'fal-ai/flux-pro-v1.1': 'fal-ai/flux-pro/v1.1',
   'fal-ai/flux-pro-v1.1-ultra': 'fal-ai/flux-pro/v1.1-ultra',
   'fal-ai/nano-banana': 'fal-ai/nano-banana',
@@ -48,6 +49,10 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/flux-krea': 'fal-ai/flux/krea',
   'fal-ai/qwen-image': 'fal-ai/qwen-image',
   'fal-ai/nano-banana-edit': 'fal-ai/nano-banana/edit',
+  'fal-ai/ideogram/character': 'fal-ai/ideogram/character',
+  'fal-ai/flux/krea/image-to-image': 'fal-ai/flux/krea/image-to-image',
+  'fal-ai/flux-1/dev/image-to-image': 'fal-ai/flux-1/dev/image-to-image',
+  'fal-ai/recraft/v3/image-to-image': 'fal-ai/recraft/v3/image-to-image',
 };
 
 export async function generateImageFalAction(
@@ -56,6 +61,15 @@ export async function generateImageFalAction(
   imageNodes?: string[]
 ) {
   try {
+    // DEBUG: Log completo dos dados recebidos
+    console.log('🎨 FAL Action Debug - Dados recebidos:', {
+      model: data.model,
+      prompt: prompt.substring(0, 100),
+      allData: data,
+      dataKeys: Object.keys(data),
+      hasAdvancedParams: !!(data.seed || data.guidance_scale || data.strength || data.style || data.num_inference_steps)
+    });
+
     logger.info('🎨 Iniciando geração de imagem via FAL', {
       model: data.model,
       prompt: prompt.substring(0, 100),
@@ -76,15 +90,22 @@ export async function generateImageFalAction(
       prompt,
     }
     
-    // Adicionar parâmetros globais apenas se não for Luma Photon, Recraft V3 ou Nano Banana Edit
-    if (data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana-edit') {
-      input.seed = data.seed ? parseInt(data.seed.toString()) : null;
+    // Função helper para converter valores para números
+    const parseNumber = (value: any): number | null => {
+      if (value === null || value === undefined || value === '') return null;
+      const num = Number(value);
+      return isNaN(num) ? null : num;
+    };
+
+    // Adicionar parâmetros globais apenas se não for Luma Photon, Recraft V3, Nano Banana, Nano Banana Edit, Imagen 4, Imagen 4 Ultra, Ideogram V3, Ideogram Character, FLUX1.1 [pro], FLUX1.1 [pro] ultra, FLUX.1 Kontext [max], FLUX.1 Kontext [pro] text ou modelos image-to-image específicos
+    if (data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana-edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-pro-kontext-max' && data.model !== 'fal-ai/flux-pro-kontext-text' && data.model !== 'fal-ai/flux/krea/image-to-image' && data.model !== 'fal-ai/flux-1/dev/image-to-image' && data.model !== 'fal-ai/recraft/v3/image-to-image') {
+      input.seed = parseNumber(data.seed);
       
       // Guidance scale específico por modelo
       let defaultGuidanceScale = 3.5;
       if (data.model === 'fal-ai/flux-krea') defaultGuidanceScale = 4.5;
       if (data.model === 'fal-ai/qwen-image') defaultGuidanceScale = 2.5;
-      input.guidance_scale = data.guidance_scale || data.guidance || defaultGuidanceScale;
+      input.guidance_scale = parseNumber(data.guidance_scale) || parseNumber(data.guidance) || defaultGuidanceScale;
       
       // Output format específico por modelo  
       let defaultOutputFormat = 'jpeg';
@@ -93,37 +114,248 @@ export async function generateImageFalAction(
     }
 
     // Configurações específicas por modelo
-    if (data.model === 'fal-ai/flux-pro-kontext-max' || data.model === 'fal-ai/flux-pro-kontext-text' || data.model === 'fal-ai/flux-pro-v1.1-ultra') {
-      // FLUX.1 Kontext [max], FLUX.1 Kontext [pro] text e FLUX1.1 [pro] ultra usam aspect_ratio
-      input.aspect_ratio = data.aspect_ratio || (data.model === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1');
-      
-      // FLUX1.1 [pro] ultra tem parâmetro raw
-      if (data.model === 'fal-ai/flux-pro-v1.1-ultra') {
-        input.raw = data.raw || false;
-      }
-    } else if (data.model === 'fal-ai/flux-pro-kontext') {
-      // FLUX.1 Kontext [pro] é image-to-image - não precisa de parâmetros de tamanho
-      // Apenas prompt + image_url + parâmetros opcionais
-    } else if (data.model === 'fal-ai/imagen4' || data.model === 'fal-ai/imagen4-ultra') {
-      // Imagen 4 e Imagen 4 Ultra usam aspect_ratio e resolution
+    if (data.model === 'fal-ai/flux-pro-kontext-max') {
+      // FLUX.1 Kontext [max] text-to-image usa todos os parâmetros específicos
       input.aspect_ratio = data.aspect_ratio || '1:1';
+      input.seed = parseNumber(data.seed);
+      input.guidance_scale = parseNumber(data.guidance_scale) || 3.5;
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      input.num_images = parseNumber(data.num_images) || 1;
+      input.output_format = data.output_format || 'jpeg';
+      input.safety_tolerance = data.safety_tolerance || '2';
+      input.enhance_prompt = data.enhance_prompt !== undefined ? data.enhance_prompt : false;
+      
+      // DEBUG: Log específico para FLUX.1 Kontext [max]
+      console.log('🚀 FLUX.1 Kontext [max] Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          aspect_ratio: input.aspect_ratio,
+          seed: input.seed,
+          guidance_scale: input.guidance_scale,
+          sync_mode: input.sync_mode,
+          num_images: input.num_images,
+          output_format: input.output_format,
+          safety_tolerance: input.safety_tolerance,
+          enhance_prompt: input.enhance_prompt
+        }
+      });
+    } else if (data.model === 'fal-ai/flux-pro-kontext-text') {
+      // FLUX.1 Kontext [pro] text-to-image usa todos os parâmetros específicos
+      input.aspect_ratio = data.aspect_ratio || '1:1';
+      input.seed = parseNumber(data.seed);
+      input.guidance_scale = parseNumber(data.guidance_scale) || 3.5;
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      input.num_images = parseNumber(data.num_images) || 1;
+      input.output_format = data.output_format || 'jpeg';
+      input.safety_tolerance = data.safety_tolerance || '2';
+      input.enhance_prompt = data.enhance_prompt !== undefined ? data.enhance_prompt : false;
+      
+      // DEBUG: Log específico para FLUX.1 Kontext [pro]
+      console.log('🚀 FLUX.1 Kontext [pro] Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          aspect_ratio: input.aspect_ratio,
+          seed: input.seed,
+          guidance_scale: input.guidance_scale,
+          sync_mode: input.sync_mode,
+          num_images: input.num_images,
+          output_format: input.output_format,
+          safety_tolerance: input.safety_tolerance,
+          enhance_prompt: input.enhance_prompt
+        }
+      });
+    } else if (data.model === 'fal-ai/flux-pro-v1.1-ultra') {
+      // FLUX1.1 [pro] ultra usa todos os parâmetros específicos
+      input.aspect_ratio = data.aspect_ratio || '16:9';
+      input.seed = parseNumber(data.seed);
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      input.num_images = parseNumber(data.num_images) || 1;
+      input.enable_safety_checker = data.enable_safety_checker !== undefined ? data.enable_safety_checker : true;
+      input.output_format = data.output_format || 'jpeg';
+      input.safety_tolerance = data.safety_tolerance || '2';
+      input.enhance_prompt = data.enhance_prompt !== undefined ? data.enhance_prompt : false;
+      input.raw = data.raw !== undefined ? data.raw : false;
+      
+      // DEBUG: Log específico para FLUX1.1 [pro] ultra
+      console.log('🚀 FLUX1.1 [pro] ultra Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          aspect_ratio: input.aspect_ratio,
+          seed: input.seed,
+          sync_mode: input.sync_mode,
+          num_images: input.num_images,
+          enable_safety_checker: input.enable_safety_checker,
+          output_format: input.output_format,
+          safety_tolerance: input.safety_tolerance,
+          enhance_prompt: input.enhance_prompt,
+          raw: input.raw
+        }
+      });
+    } else if (data.model === 'fal-ai/flux-pro-kontext' || data.model === 'fal-ai/flux-pro/kontext/max') {
+      // FLUX.1 Kontext [pro] e FLUX.1 Kontext [max] são image-to-image - não precisam de parâmetros de tamanho
+      // Apenas prompt + image_url + parâmetros opcionais
+    } else if (data.model === 'fal-ai/imagen4') {
+      // Imagen 4 usa todos os parâmetros específicos
+      input.aspect_ratio = data.aspect_ratio || '1:1';
+      input.num_images = parseNumber(data.num_images) || 1;
+      input.seed = parseNumber(data.seed);
       input.resolution = data.resolution || '1K';
+      input.negative_prompt = data.negative_prompt || '';
+      
+      // DEBUG: Log específico para Imagen 4
+      console.log('🚀 Imagen 4 Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          aspect_ratio: input.aspect_ratio,
+          num_images: input.num_images,
+          seed: input.seed,
+          resolution: input.resolution,
+          negative_prompt: input.negative_prompt?.substring(0, 30)
+        }
+      });
+    } else if (data.model === 'fal-ai/imagen4-ultra') {
+      // Imagen 4 Ultra usa todos os parâmetros específicos (sempre 1 imagem)
+      input.aspect_ratio = data.aspect_ratio || '1:1';
+      input.num_images = 1; // Sempre 1 para Ultra
+      input.seed = parseNumber(data.seed);
+      input.resolution = data.resolution || '1K';
+      input.negative_prompt = data.negative_prompt || '';
+      
+      // DEBUG: Log específico para Imagen 4 Ultra
+      console.log('🚀 Imagen 4 Ultra Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          aspect_ratio: input.aspect_ratio,
+          num_images: input.num_images,
+          seed: input.seed,
+          resolution: input.resolution,
+          negative_prompt: input.negative_prompt?.substring(0, 30)
+        }
+      });
     } else if (data.model === 'fal-ai/luma-photon') {
       // Luma Photon usa apenas aspect_ratio
       input.aspect_ratio = data.aspect_ratio || '1:1';
     } else if (data.model === 'fal-ai/nano-banana') {
-      // Nano Banana não precisa de aspect_ratio nem image_size - usa tamanho fixo
-      // Não adiciona nenhum parâmetro de tamanho
+      // Nano Banana usa parâmetros específicos (sem tamanho - usa tamanho fixo)
+      input.num_images = parseNumber(data.num_images) || 1;
+      input.output_format = data.output_format || 'jpeg';
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      
+      // DEBUG: Log específico para Nano Banana
+      console.log('🚀 Nano Banana Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          num_images: input.num_images,
+          output_format: input.output_format,
+          sync_mode: input.sync_mode
+        }
+      });
     } else if (data.model === 'fal-ai/nano-banana-edit') {
       // Nano Banana Edit usa apenas prompt, image_urls e output_format
       input.output_format = data.output_format || data.outputFormat || 'jpeg';
-
-    } else if (data.model === 'fal-ai/ideogram-v3') {
-      // Ideogram 3 usa image_size e parâmetros específicos
-      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
-      input.image_size = imageSize;
+    } else if (data.model === 'fal-ai/ideogram/character') {
+      // Ideogram Character usa rendering_speed, style e expand_prompt
       input.rendering_speed = data.rendering_speed || 'BALANCED';
       input.style = data.style || 'AUTO';
+      input.expand_prompt = data.expand_prompt !== undefined ? data.expand_prompt : true;
+      if (data.seed) {
+        input.seed = parseNumber(data.seed);
+      }
+    } else if (data.model === 'fal-ai/flux/krea/image-to-image') {
+      // FLUX Krea Image-to-Image usa parâmetros específicos
+      input.strength = parseNumber(data.strength) || 0.95;
+      input.num_inference_steps = parseNumber(data.num_inference_steps) || 40;
+      input.guidance_scale = parseNumber(data.guidance_scale) || 4.5;
+      input.output_format = data.output_format || 'jpeg';
+      input.seed = parseNumber(data.seed);
+    } else if (data.model === 'fal-ai/flux-1/dev/image-to-image') {
+      // FLUX.1 [dev] Image-to-Image usa parâmetros específicos
+      input.strength = parseNumber(data.strength) || 0.95;
+      input.num_inference_steps = parseNumber(data.num_inference_steps) || 40;
+      input.guidance_scale = parseNumber(data.guidance_scale) || 3.5;
+      input.output_format = data.output_format || 'jpeg';
+      input.seed = parseNumber(data.seed);
+    } else if (data.model === 'fal-ai/recraft/v3/image-to-image') {
+      // Recraft V3 Image-to-Image usa parâmetros específicos
+      input.strength = parseNumber(data.strength) !== null ? parseNumber(data.strength) : 0.5;
+      input.style = data.style || 'realistic_image';
+      
+      // Debug: log dos valores recebidos
+      console.log('🔍 Recraft V3 Debug:', {
+        receivedStrength: data.strength,
+        finalStrength: input.strength,
+        receivedStyle: data.style,
+        finalStyle: input.style,
+        allData: Object.keys(data)
+      });
+    } else if (data.model === 'fal-ai/flux-pro-v1.1') {
+      // FLUX1.1 [pro] usa todos os parâmetros específicos
+      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'landscape_4_3'] || 'landscape_4_3';
+      input.image_size = imageSize;
+      input.seed = parseNumber(data.seed);
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      input.num_images = parseNumber(data.num_images) || 1;
+      input.enable_safety_checker = data.enable_safety_checker !== undefined ? data.enable_safety_checker : true;
+      input.output_format = data.output_format || 'jpeg';
+      input.safety_tolerance = data.safety_tolerance || '2';
+      input.enhance_prompt = data.enhance_prompt !== undefined ? data.enhance_prompt : false;
+      
+      // DEBUG: Log específico para FLUX1.1 [pro]
+      console.log('🚀 FLUX1.1 [pro] Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          image_size: input.image_size,
+          seed: input.seed,
+          sync_mode: input.sync_mode,
+          num_images: input.num_images,
+          enable_safety_checker: input.enable_safety_checker,
+          output_format: input.output_format,
+          safety_tolerance: input.safety_tolerance,
+          enhance_prompt: input.enhance_prompt
+        }
+      });
+    } else if (data.model === 'fal-ai/ideogram-v3') {
+      // Ideogram V3 usa todos os parâmetros específicos
+      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
+      input.image_size = imageSize;
+      input.num_images = parseNumber(data.num_images) || 1;
+      input.rendering_speed = data.rendering_speed || 'BALANCED';
+      input.style = data.style || 'AUTO';
+      input.expand_prompt = data.expand_prompt !== undefined ? data.expand_prompt : true;
+      input.seed = parseNumber(data.seed);
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      input.negative_prompt = data.negative_prompt || '';
+      
+      // DEBUG: Log específico para Ideogram V3
+      console.log('🚀 Ideogram V3 Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          image_size: input.image_size,
+          num_images: input.num_images,
+          rendering_speed: input.rendering_speed,
+          style: input.style,
+          expand_prompt: input.expand_prompt,
+          seed: input.seed,
+          sync_mode: input.sync_mode,
+          negative_prompt: input.negative_prompt?.substring(0, 30)
+        }
+      });
     } else if (data.model === 'fal-ai/seedream-3.0') {
       // Seedream 3.0 usa image_size e guidance_scale específico
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
@@ -134,6 +366,33 @@ export async function generateImageFalAction(
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
       input.image_size = imageSize;
       input.style = data.style || 'realistic_image';
+    } else if (data.model === 'fal-ai/flux-dev') {
+      // FLUX.1 [dev] text-to-image usa todos os parâmetros da API
+      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || '1:1'] || 'landscape_4_3';
+      input.image_size = imageSize;
+      input.num_inference_steps = parseNumber(data.num_inference_steps) || 28;
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      input.num_images = parseNumber(data.num_images) || 1;
+      input.enable_safety_checker = data.enable_safety_checker !== undefined ? data.enable_safety_checker : true;
+      input.acceleration = data.acceleration || 'none';
+      
+      // DEBUG: Log específico para FLUX.1 [dev]
+      console.log('🚀 FLUX.1 [dev] Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          image_size: input.image_size,
+          num_inference_steps: input.num_inference_steps,
+          seed: input.seed,
+          guidance_scale: input.guidance_scale,
+          sync_mode: input.sync_mode,
+          num_images: input.num_images,
+          enable_safety_checker: input.enable_safety_checker,
+          output_format: input.output_format,
+          acceleration: input.acceleration
+        }
+      });
     } else {
       // Outros modelos FLUX usam image_size
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || '1:1'] || 'square_hd';
@@ -154,13 +413,25 @@ export async function generateImageFalAction(
         input.image_urls = imageNodes.map((node: any) => 
           typeof node === 'string' ? node : node.url
         );
+      } else if (data.model === 'fal-ai/ideogram/character') {
+        // Ideogram Character usa apenas reference_image_urls (uma imagem)
+        input.reference_image_urls = [typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url];
+      } else if (data.model === 'fal-ai/flux/krea/image-to-image') {
+        // FLUX Krea Image-to-Image usa image_url (singular)
+        input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
+      } else if (data.model === 'fal-ai/flux-1/dev/image-to-image') {
+        // FLUX.1 [dev] Image-to-Image usa image_url (singular)
+        input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
+      } else if (data.model === 'fal-ai/recraft/v3/image-to-image') {
+        // Recraft V3 Image-to-Image usa image_url (singular)
+        input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
       } else {
         // Outros modelos usam image_url (singular)
         const imageUrl = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
         input.image_url = imageUrl;
         
-        // Força da transformação apenas para modelos que suportam
-        if (data.model !== 'fal-ai/flux-pro-kontext') {
+        // Força da transformação apenas para modelos que suportam (exceto modelos que já definem strength)
+        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux/krea/image-to-image' && data.model !== 'fal-ai/flux-1/dev/image-to-image' && data.model !== 'fal-ai/recraft/v3/image-to-image') {
           input.strength = data.strength || 0.8;
         }
       }
@@ -171,6 +442,14 @@ export async function generateImageFalAction(
         model: data.model,
       });
     }
+
+    // DEBUG: Log completo do input que será enviado para FAL
+    console.log('📡 FAL Input Debug - Final:', {
+      model: falModel,
+      originalModel: data.model,
+      input: input,
+      inputKeys: Object.keys(input)
+    });
 
     logger.info('📡 Enviando requisição para FAL', {
       model: falModel,

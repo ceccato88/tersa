@@ -215,12 +215,12 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/flux-dev': {
     label: 'FLUX.1 [dev]',
     aspectRatios: [
-      { label: 'Square HD', value: 'square_hd' },
-      { label: 'Square', value: 'square' },
-      { label: 'Portrait 4:3', value: 'portrait_4_3' },
-      { label: 'Portrait 16:9', value: 'portrait_16_9' },
       { label: 'Landscape 4:3', value: 'landscape_4_3' },
       { label: 'Landscape 16:9', value: 'landscape_16_9' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -229,6 +229,8 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         type: 'number',
         label: 'Quantidade',
         defaultValue: 1,
+        min: 1,
+        max: 4,
         gridColumn: 2
       },
       
@@ -236,7 +238,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'num_inference_steps',
         type: 'number',
-        label: 'Número de Inferências (1-50)',
+        label: 'Passos de Inferência',
         placeholder: '28',
         defaultValue: 28,
         min: 1,
@@ -254,12 +256,26 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'guidance_scale',
         type: 'number',
-        label: 'Guidance Scale (1-20)',
+        label: 'Guidance Scale',
         placeholder: '3.5',
         defaultValue: 3.5,
         min: 1,
         max: 20,
         step: 0.1,
+        gridColumn: 1
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 2
+      },
+      {
+        name: 'enable_safety_checker',
+        type: 'checkbox',
+        label: 'Verificação de Segurança',
+        defaultValue: true,
         gridColumn: 1
       },
       {
@@ -272,6 +288,18 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         ],
         defaultValue: 'jpeg',
         gridColumn: 2
+      },
+      {
+        name: 'acceleration',
+        type: 'select',
+        label: 'Aceleração',
+        options: [
+          { value: 'none', label: 'Nenhuma' },
+          { value: 'regular', label: 'Regular' },
+          { value: 'high', label: 'Alta' }
+        ],
+        defaultValue: 'none',
+        gridColumn: 1
       }
     ]
   },
@@ -326,11 +354,11 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/flux-pro-kontext-max': {
     label: 'FLUX.1 Kontext [max]',
     aspectRatios: [
+      { label: '1:1', value: '1:1' },
       { label: '21:9', value: '21:9' },
       { label: '16:9', value: '16:9' },
       { label: '4:3', value: '4:3' },
       { label: '3:2', value: '3:2' },
-      { label: '1:1', value: '1:1' },
       { label: '2:3', value: '2:3' },
       { label: '3:4', value: '3:4' },
       { label: '9:16', value: '9:16' },
@@ -343,6 +371,8 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         type: 'number',
         label: 'Quantidade',
         defaultValue: 1,
+        min: 1,
+        max: 4,
         gridColumn: 2
       },
       
@@ -358,13 +388,20 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'guidance_scale',
         type: 'number',
-        label: 'Guidance Scale (1-20)',
+        label: 'Guidance Scale',
         placeholder: '3.5',
         defaultValue: 3.5,
         min: 1,
         max: 20,
         step: 0.1,
         gridColumn: 2
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 1
       },
       {
         name: 'output_format',
@@ -375,43 +412,125 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
           { value: 'png', label: 'PNG' }
         ],
         defaultValue: 'jpeg',
+        gridColumn: 2
+      },
+      {
+        name: 'safety_tolerance',
+        type: 'select',
+        label: 'Tolerância de Segurança',
+        options: [
+          { value: '1', label: '1 (Mais Restritivo)' },
+          { value: '2', label: '2 (Padrão)' },
+          { value: '3', label: '3' },
+          { value: '4', label: '4' },
+          { value: '5', label: '5' },
+          { value: '6', label: '6 (Mais Permissivo)' }
+        ],
+        defaultValue: '2',
         gridColumn: 1
+      },
+      {
+        name: 'enhance_prompt',
+        type: 'checkbox',
+        label: 'Melhorar Prompt',
+        defaultValue: false,
+        gridColumn: 2
       }
     ]
   },
   'fal-ai/flux-pro-kontext-text': {
     label: 'FLUX.1 Kontext [pro]',
     aspectRatios: [
+      { label: '1:1', value: '1:1' },
       { label: '21:9', value: '21:9' },
       { label: '16:9', value: '16:9' },
       { label: '4:3', value: '4:3' },
       { label: '3:2', value: '3:2' },
-      { label: '1:1', value: '1:1', default: true },
       { label: '2:3', value: '2:3' },
       { label: '3:4', value: '3:4' },
       { label: '9:16', value: '9:16' },
       { label: '9:21', value: '9:21' },
     ],
     fields: [
-      // Campo de tamanho (obrigatório)
+      // Campo que aparece no nó principal (controla quantos nós criar)
       {
-        name: 'aspect_ratio',
-        type: 'select',
-        label: 'Tamanho',
-        options: [
-          { value: '21:9', label: '21:9' },
-          { value: '16:9', label: '16:9' },
-          { value: '4:3', label: '4:3' },
-          { value: '3:2', label: '3:2' },
-          { value: '1:1', label: '1:1' },
-          { value: '2:3', label: '2:3' },
-          { value: '3:4', label: '3:4' },
-          { value: '9:16', label: '9:16' },
-          { value: '9:21', label: '9:21' },
-        ],
-        defaultValue: '1:1',
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        min: 1,
+        max: 4,
         gridColumn: 2
       },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale',
+        placeholder: '3.5',
+        defaultValue: 3.5,
+        min: 1,
+        max: 20,
+        step: 0.1,
+        gridColumn: 2
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 2
+      },
+      {
+        name: 'safety_tolerance',
+        type: 'select',
+        label: 'Tolerância de Segurança',
+        options: [
+          { value: '1', label: '1 (Mais Restritivo)' },
+          { value: '2', label: '2 (Padrão)' },
+          { value: '3', label: '3' },
+          { value: '4', label: '4' },
+          { value: '5', label: '5' },
+          { value: '6', label: '6 (Mais Permissivo)' }
+        ],
+        defaultValue: '2',
+        gridColumn: 1
+      },
+      {
+        name: 'enhance_prompt',
+        type: 'checkbox',
+        label: 'Melhorar Prompt',
+        defaultValue: false,
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/flux-pro/kontext/max': {
+    label: 'FLUX.1 Kontext [max]',
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
+    ],
+    fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
       {
         name: 'num_images',
@@ -457,12 +576,12 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/flux-pro-v1.1': {
     label: 'FLUX1.1 [pro]',
     aspectRatios: [
-      { label: 'Square HD', value: 'square_hd' },
-      { label: 'Square', value: 'square' },
-      { label: 'Portrait 4:3', value: 'portrait_4_3' },
-      { label: 'Portrait 16:9', value: 'portrait_16_9' },
       { label: 'Landscape 4:3', value: 'landscape_4_3' },
       { label: 'Landscape 16:9', value: 'landscape_16_9' },
+      { label: 'Portrait 4:3', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9', value: 'portrait_16_9' },
+      { label: 'Square HD', value: 'square_hd' },
+      { label: 'Square', value: 'square' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -471,6 +590,8 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         type: 'number',
         label: 'Quantidade',
         defaultValue: 1,
+        min: 1,
+        max: 4,
         gridColumn: 2
       },
       
@@ -484,6 +605,20 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 1
       },
       {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 2
+      },
+      {
+        name: 'enable_safety_checker',
+        type: 'checkbox',
+        label: 'Verificação de Segurança',
+        defaultValue: true,
+        gridColumn: 1
+      },
+      {
         name: 'output_format',
         type: 'select',
         label: 'Formato de Saída',
@@ -493,14 +628,36 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         ],
         defaultValue: 'jpeg',
         gridColumn: 2
+      },
+      {
+        name: 'safety_tolerance',
+        type: 'select',
+        label: 'Tolerância de Segurança',
+        options: [
+          { value: '1', label: '1 (Mais Restritivo)' },
+          { value: '2', label: '2 (Padrão)' },
+          { value: '3', label: '3' },
+          { value: '4', label: '4' },
+          { value: '5', label: '5' },
+          { value: '6', label: '6 (Mais Permissivo)' }
+        ],
+        defaultValue: '2',
+        gridColumn: 1
+      },
+      {
+        name: 'enhance_prompt',
+        type: 'checkbox',
+        label: 'Melhorar Prompt',
+        defaultValue: false,
+        gridColumn: 2
       }
     ]
   },
   'fal-ai/flux-pro-v1.1-ultra': {
     label: 'FLUX1.1 [pro] ultra',
     aspectRatios: [
-      { label: '21:9', value: '21:9' },
       { label: '16:9', value: '16:9' },
+      { label: '21:9', value: '21:9' },
       { label: '4:3', value: '4:3' },
       { label: '3:2', value: '3:2' },
       { label: '1:1', value: '1:1' },
@@ -516,6 +673,8 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         type: 'number',
         label: 'Quantidade',
         defaultValue: 1,
+        min: 1,
+        max: 4,
         gridColumn: 2
       },
       
@@ -526,6 +685,20 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         label: 'Seed',
         placeholder: 'Deixe vazio para aleatório',
         defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 2
+      },
+      {
+        name: 'enable_safety_checker',
+        type: 'checkbox',
+        label: 'Verificação de Segurança',
+        defaultValue: true,
         gridColumn: 1
       },
       {
@@ -540,9 +713,31 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       },
       {
+        name: 'safety_tolerance',
+        type: 'select',
+        label: 'Tolerância de Segurança',
+        options: [
+          { value: '1', label: '1 (Mais Restritivo)' },
+          { value: '2', label: '2 (Padrão)' },
+          { value: '3', label: '3' },
+          { value: '4', label: '4' },
+          { value: '5', label: '5' },
+          { value: '6', label: '6 (Mais Permissivo)' }
+        ],
+        defaultValue: '2',
+        gridColumn: 1
+      },
+      {
+        name: 'enhance_prompt',
+        type: 'checkbox',
+        label: 'Melhorar Prompt',
+        defaultValue: false,
+        gridColumn: 2
+      },
+      {
         name: 'raw',
         type: 'checkbox',
-        label: '',
+        label: 'Imagens Naturais (Raw)',
         defaultValue: false,
         gridColumn: 1
       }
@@ -560,6 +755,8 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         type: 'number',
         label: 'Quantidade',
         defaultValue: 1,
+        min: 1,
+        max: 4,
         gridColumn: 2
       },
       
@@ -574,6 +771,13 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         ],
         defaultValue: 'jpeg',
         gridColumn: 1
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono (Data URIs)',
+        defaultValue: false,
+        gridColumn: 2
       }
     ]
   },
@@ -638,23 +842,29 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       { label: '1:1', value: '1:1' },
       { label: '16:9', value: '16:9' },
       { label: '9:16', value: '9:16' },
-      { label: '3:4', value: '3:4' },
       { label: '4:3', value: '4:3' },
+      { label: '3:4', value: '3:4' },
     ],
     fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
       {
-        name: 'aspect_ratio',
-        type: 'select',
-        label: 'Aspecto',
-        options: [
-          { value: '1:1', label: '1:1' },
-          { value: '16:9', label: '16:9' },
-          { value: '9:16', label: '9:16' },
-          { value: '3:4', label: '3:4' },
-          { value: '4:3', label: '4:3' },
-        ],
-        defaultValue: '1:1',
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        min: 1,
+        max: 4,
         gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'negative_prompt',
+        type: 'input',
+        label: 'Prompt Negativo',
+        placeholder: 'Descreva o que você NÃO quer na imagem',
+        defaultValue: '',
+        gridColumn: 1
       },
       {
         name: 'seed',
@@ -662,7 +872,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         label: 'Seed',
         placeholder: 'Deixe vazio para aleatório',
         defaultValue: null,
-        gridColumn: 1
+        gridColumn: 2
       },
       {
         name: 'resolution',
@@ -673,7 +883,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
           { value: '2K', label: '2K' },
         ],
         defaultValue: '1K',
-        gridColumn: 2
+        gridColumn: 1
       }
     ]
   },
@@ -683,23 +893,29 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       { label: '1:1', value: '1:1' },
       { label: '16:9', value: '16:9' },
       { label: '9:16', value: '9:16' },
-      { label: '3:4', value: '3:4' },
       { label: '4:3', value: '4:3' },
+      { label: '3:4', value: '3:4' },
     ],
     fields: [
+      // Campo que aparece no nó principal (sempre 1 para Ultra)
       {
-        name: 'aspect_ratio',
-        type: 'select',
-        label: 'Aspecto',
-        options: [
-          { value: '1:1', label: '1:1' },
-          { value: '16:9', label: '16:9' },
-          { value: '9:16', label: '9:16' },
-          { value: '3:4', label: '3:4' },
-          { value: '4:3', label: '4:3' },
-        ],
-        defaultValue: '1:1',
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        min: 1,
+        max: 1,
         gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'negative_prompt',
+        type: 'input',
+        label: 'Prompt Negativo',
+        placeholder: 'Descreva o que você NÃO quer na imagem',
+        defaultValue: '',
+        gridColumn: 1
       },
       {
         name: 'seed',
@@ -707,7 +923,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         label: 'Seed',
         placeholder: 'Deixe vazio para aleatório',
         defaultValue: null,
-        gridColumn: 1
+        gridColumn: 2
       },
       {
         name: 'resolution',
@@ -718,7 +934,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
           { value: '2K', label: '2K' },
         ],
         defaultValue: '1K',
-        gridColumn: 2
+        gridColumn: 1
       }
     ]
   },
@@ -1064,6 +1280,249 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 1
       }
     ]
+  },
+  'fal-ai/ideogram/character': {
+    label: 'Ideogram Character',
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'rendering_speed',
+        type: 'select',
+        label: 'Rendering Speed',
+        options: [
+          { value: 'TURBO', label: 'Turbo' },
+          { value: 'BALANCED', label: 'Balanced' },
+          { value: 'QUALITY', label: 'Quality' },
+        ],
+        defaultValue: 'BALANCED',
+        gridColumn: 1
+      },
+      {
+        name: 'style',
+        type: 'select',
+        label: 'Style',
+        options: [
+          { value: 'AUTO', label: 'Auto' },
+          { value: 'REALISTIC', label: 'Realistic' },
+          { value: 'FICTION', label: 'Fiction' },
+        ],
+        defaultValue: 'AUTO',
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'expand_prompt',
+        type: 'checkbox',
+        label: 'Expand Prompt',
+        defaultValue: true,
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/flux/krea/image-to-image': {
+    label: 'FLUX.1 Krea [dev]',
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'strength',
+        type: 'number',
+        label: 'Strength (0.01-1)',
+        defaultValue: 0.95,
+        min: 0.01,
+        max: 1,
+        step: 0.01,
+        gridColumn: 1
+      },
+      {
+        name: 'num_inference_steps',
+        type: 'number',
+        label: 'Inference Steps (10-50)',
+        defaultValue: 40,
+        min: 10,
+        max: 50,
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale (1-20)',
+        defaultValue: 4.5,
+        min: 1,
+        max: 20,
+        step: 0.1,
+        gridColumn: 2
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Output Format',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 1
+      }
+    ]
+  },
+  'fal-ai/flux-1/dev/image-to-image': {
+    label: 'FLUX.1 [dev]',
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'strength',
+        type: 'number',
+        label: 'Strength (0.01-1)',
+        defaultValue: 0.95,
+        min: 0.01,
+        max: 1,
+        step: 0.01,
+        gridColumn: 1
+      },
+      {
+        name: 'num_inference_steps',
+        type: 'number',
+        label: 'Inference Steps (10-50)',
+        defaultValue: 40,
+        min: 10,
+        max: 50,
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'guidance_scale',
+        type: 'number',
+        label: 'Guidance Scale (1-20)',
+        defaultValue: 3.5,
+        min: 1,
+        max: 20,
+        step: 0.1,
+        gridColumn: 2
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Output Format',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 1
+      }
+    ]
+  },
+  'fal-ai/recraft/v3/image-to-image': {
+    label: 'Recraft V3',
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'strength',
+        type: 'number',
+        label: 'Strength (0-1)',
+        defaultValue: 0.5,
+        min: 0,
+        max: 1,
+        step: 0.01,
+        gridColumn: 1
+      },
+      {
+        name: 'style',
+        type: 'select',
+        label: 'Style',
+        options: [
+          { value: 'any', label: 'Any' },
+          { value: 'realistic_image', label: 'Realistic Image' },
+          { value: 'digital_illustration', label: 'Digital Illustration' },
+          { value: 'vector_illustration', label: 'Vector Illustration' },
+          { value: 'realistic_image/b_and_w', label: 'B&W' },
+          { value: 'realistic_image/hard_flash', label: 'Hard Flash' },
+          { value: 'realistic_image/hdr', label: 'HDR' },
+          { value: 'realistic_image/natural_light', label: 'Natural Light' },
+          { value: 'realistic_image/studio_portrait', label: 'Studio Portrait' },
+          { value: 'digital_illustration/pixel_art', label: 'Pixel Art' },
+          { value: 'digital_illustration/hand_drawn', label: 'Hand Drawn' },
+          { value: 'digital_illustration/grain', label: 'Grain' },
+          { value: 'digital_illustration/2d_art_poster', label: '2D Art Poster' },
+          { value: 'digital_illustration/pop_art', label: 'Pop Art' },
+          { value: 'vector_illustration/bold_stroke', label: 'Bold Stroke' },
+          { value: 'vector_illustration/line_art', label: 'Line Art' },
+          { value: 'vector_illustration/flat', label: 'Flat Vector' },
+        ],
+        defaultValue: 'realistic_image',
+        gridColumn: 2
+      }
+    ]
   }
 };
 
@@ -1121,6 +1580,13 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext-max
   if (modelId === 'fal-ai/flux-pro-kontext-max') {
     defaults.aspect_ratio = '1:1';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux-pro/kontext/max
+  if (modelId === 'fal-ai/flux-pro/kontext/max') {
+    defaults.fixed_size = 'fixed';
+    defaults.guidance_scale = 3.5;
+    defaults.output_format = 'jpeg';
   }
   
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-v1.1
@@ -1187,6 +1653,26 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   
   // Adicionar valores padrão para o modelo fal-ai/nano-banana-edit
   if (modelId === 'fal-ai/nano-banana-edit') {
+    defaults.fixed_size = 'fixed';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/ideogram/character
+  if (modelId === 'fal-ai/ideogram/character') {
+    defaults.fixed_size = 'fixed';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux/krea/image-to-image
+  if (modelId === 'fal-ai/flux/krea/image-to-image') {
+    defaults.fixed_size = 'fixed';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/flux-1/dev/image-to-image
+  if (modelId === 'fal-ai/flux-1/dev/image-to-image') {
+    defaults.fixed_size = 'fixed';
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/recraft/v3/image-to-image
+  if (modelId === 'fal-ai/recraft/v3/image-to-image') {
     defaults.fixed_size = 'fixed';
   }
   

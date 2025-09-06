@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { getModelSchema } from '@/lib/model-schemas';
 import { X, Settings } from 'lucide-react';
 import { useReactFlow } from '@xyflow/react';
+import { useState, useEffect } from 'react';
 import type { ImageNodeProps } from '.';
 
 interface AdvancedParamsPopupProps {
@@ -23,6 +24,9 @@ export const AdvancedParamsPopup = ({
   modelId,
 }: AdvancedParamsPopupProps) => {
   const { updateNodeData } = useReactFlow();
+  
+  // Estado local para inputs em edição
+  const [localValues, setLocalValues] = useState<Record<string, string>>({});
 
   if (!isOpen) return null;
 
@@ -35,6 +39,13 @@ export const AdvancedParamsPopup = ({
   ) || [];
 
   const handleFieldChange = (fieldName: string, value: any) => {
+    console.log('🔧 Advanced Param Change:', {
+      nodeId,
+      fieldName,
+      value,
+      type: typeof value,
+      modelId
+    });
     updateNodeData(nodeId, { [fieldName]: value });
   };
 
@@ -73,10 +84,14 @@ export const AdvancedParamsPopup = ({
           ) : (
             advancedFields.map((field) => {
               const fieldValue = data[field.name] ?? field.defaultValue;
+              const localValue = localValues[field.name];
+              const displayValue = localValue !== undefined ? localValue : (fieldValue === null || fieldValue === undefined ? '' : String(fieldValue));
 
               return (
                 <div key={field.name} className="space-y-2">
-                  <Label className="text-xs font-medium">{field.label}</Label>
+                  {field.type !== 'checkbox' && (
+                    <Label className="text-xs font-medium">{field.label}</Label>
+                  )}
                   
                   {field.type === 'input' && (
                     <Input
@@ -90,17 +105,59 @@ export const AdvancedParamsPopup = ({
                   
                   {field.type === 'number' && (
                     <Input
-                      type="number"
+                      type="text"
                       placeholder={field.placeholder}
-                      value={fieldValue || ''}
+                      value={displayValue}
                       onChange={(e) => {
-                        const value = Number(e.target.value);
-                        // Aplicar limites se definidos
-                        if (field.min !== undefined && value < field.min) return;
-                        if (field.max !== undefined && value > field.max) return;
-                        handleFieldChange(field.name, value);
+                        const inputValue = e.target.value;
+                        console.log('🔢 Number Input Change:', {
+                          fieldName: field.name,
+                          inputValue,
+                          displayValue
+                        });
+                        
+                        // Atualizar valor local imediatamente
+                        setLocalValues(prev => ({
+                          ...prev,
+                          [field.name]: inputValue
+                        }));
+                      }}
+                      onBlur={(e) => {
+                        const inputValue = e.target.value;
+                        console.log('🔢 Number Input Blur:', {
+                          fieldName: field.name,
+                          inputValue
+                        });
+                        
+                        // Salvar o valor final quando perder o foco
+                        if (inputValue === '') {
+                          handleFieldChange(field.name, null);
+                        } else if (inputValue.match(/^-?\d*\.?\d*$/) && inputValue !== '.') {
+                          const value = Number(inputValue);
+                          if (!isNaN(value)) {
+                            // Aplicar limites se definidos
+                            let finalValue = value;
+                            if (field.min !== undefined && value < field.min) {
+                              finalValue = field.min;
+                            }
+                            if (field.max !== undefined && value > field.max) {
+                              finalValue = field.max;
+                            }
+                            handleFieldChange(field.name, finalValue);
+                          }
+                        }
+                        
+                        // Limpar valor local após salvar
+                        setLocalValues(prev => {
+                          const newValues = { ...prev };
+                          delete newValues[field.name];
+                          return newValues;
+                        });
                       }}
                       onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.currentTarget.blur(); // Força o onBlur
+                        }
                         // Desabilitar setas completamente
                         if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                           e.preventDefault();
