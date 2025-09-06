@@ -301,7 +301,7 @@ onChange={(value) => {
 - **Configuração:** Requer atualização das condições no componente
 
 ### Tipo 3: Modelos com Image Size Customizado
-- **Exemplos:** Wan 2.2, Ideogram 3, Seedream 3.0
+- **Exemplos:** Wan 2.2, Ideogram 3.0, Seedream 3.0
 - **Parâmetros:** `image_size` + parâmetros específicos do modelo
 - **Configuração:** Lógica específica na API para parâmetros únicos
 

@@ -906,7 +906,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
     ]
   },
   'fal-ai/ideogram-v3': {
-    label: 'Ideogram 3',
+    label: 'Ideogram 3.0',
     aspectRatios: [
       { label: 'Square HD', value: 'square_hd' },
       { label: 'Square', value: 'square' },
@@ -1327,6 +1327,31 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
+
+  'fal-ai/luma-photon': {
+    label: 'Luma Photon',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+      { label: '4:3', value: '4:3' },
+      { label: '3:4', value: '3:4' },
+      { label: '21:9', value: '21:9' },
+      { label: '9:21', value: '9:21' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        min: 1,
+        max: 4,
+        gridColumn: 2
+      },
+    ]
+  },
   'fal-ai/nano-banana-edit': {
     label: 'Nano Banana Edit',
     aspectRatios: [
@@ -1364,7 +1389,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
     ]
   },
   'fal-ai/ideogram/character': {
-    label: 'Ideogram Character',
+    label: 'Ideogram 3.0 Character',
     aspectRatios: [
       { label: 'Tamanho original', value: 'fixed' },
     ],
@@ -1558,6 +1583,56 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
+  'fal-ai/ideogram/v3/reframe': {
+    label: 'Ideogram 3.0 Reframe',
+    aspectRatios: [
+      { label: 'Square HD (1024x1024)', value: 'square_hd' },
+      { label: 'Square (512x512)', value: 'square' },
+      { label: 'Portrait 4:3 (768x1024)', value: 'portrait_4_3' },
+      { label: 'Portrait 16:9 (576x1024)', value: 'portrait_16_9' },
+      { label: 'Landscape 4:3 (1024x768)', value: 'landscape_4_3' },
+      { label: 'Landscape 16:9 (1024x576)', value: 'landscape_16_9' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'rendering_speed',
+        type: 'select',
+        label: 'Velocidade de Renderização',
+        options: [
+          { value: 'TURBO', label: 'Turbo' },
+          { value: 'BALANCED', label: 'Balanceado' },
+          { value: 'QUALITY', label: 'Qualidade' }
+        ],
+        defaultValue: 'BALANCED',
+        gridColumn: 1
+      },
+      {
+        name: 'seed',
+        type: 'input',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: '',
+        gridColumn: 2
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 1
+      }
+    ]
+  },
   'fal-ai/topaz/upscale/image': {
     label: 'Topaz Upscale',
     aspectRatios: [
@@ -1661,7 +1736,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
     ]
   },
   'fal-ai/ideogram/upscale': {
-    label: 'Ideogram Upscale',
+    label: 'Ideogram 3.0 Upscale',
     aspectRatios: [
       { label: 'Upscale', value: 'upscale' },
     ],
@@ -1931,6 +2006,11 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.image_size = 'landscape_4_3';
   }
   
+  // Adicionar valores padrão para o modelo fal-ai/luma-photon
+  if (modelId === 'fal-ai/luma-photon') {
+    defaults.aspect_ratio = '1:1';
+  }
+  
   
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext-text
   if (modelId === 'fal-ai/flux-pro-kontext-text') {
@@ -1965,6 +2045,12 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.colors_r = 120;
     defaults.colors_g = 47;
     defaults.colors_b = 85;
+    defaults.sync_mode = false;
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/reframe
+  if (modelId === 'fal-ai/ideogram/v3/reframe') {
+    defaults.rendering_speed = 'BALANCED';
     defaults.sync_mode = false;
   }
   

@@ -16,31 +16,12 @@ export interface FilteredModel {
 
 // Modelos de imagem disponíveis (apenas FAL)
 const IMAGE_MODELS = {
-  'fal-ai/flux-dev': {
-    id: 'fal-ai/flux-dev',
-    label: 'FLUX.1 [dev]',
-    provider: 'fal',
-    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
-  },
-
   'fal-ai/flux-pro-kontext': {
     id: 'fal-ai/flux-pro-kontext',
     label: 'FLUX.1 Kontext [pro]',
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem
-  },
-  'fal-ai/flux-pro-kontext-max': {
-    id: 'fal-ai/flux-pro-kontext-max',
-    label: 'FLUX.1 Kontext [max]',
-    provider: 'fal',
-    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
-  },
-  'fal-ai/flux-pro-kontext-text': {
-    id: 'fal-ai/flux-pro-kontext-text',
-    label: 'FLUX.1 Kontext [pro]',
-    provider: 'fal',
-    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
   'fal-ai/flux-pro/kontext/max': {
     id: 'fal-ai/flux-pro/kontext/max',
@@ -82,7 +63,7 @@ const IMAGE_MODELS = {
   },
   'fal-ai/ideogram-v3': {
     id: 'fal-ai/ideogram-v3',
-    label: 'Ideogram 3',
+    label: 'Ideogram 3.0',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
@@ -98,6 +79,12 @@ const IMAGE_MODELS = {
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
+  'fal-ai/luma-photon': {
+    id: 'fal-ai/luma-photon',
+    label: 'Luma Photon',
+    provider: 'fal',
+    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
+  },
   'fal-ai/nano-banana-edit': {
     id: 'fal-ai/nano-banana-edit',
     label: 'Nano Banana Edit',
@@ -107,7 +94,7 @@ const IMAGE_MODELS = {
   },
   'fal-ai/ideogram/character': {
     id: 'fal-ai/ideogram/character',
-    label: 'Ideogram Character',
+    label: 'Ideogram 3.0 Character',
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem de referência
@@ -115,6 +102,13 @@ const IMAGE_MODELS = {
   'fal-ai/recraft/v3/image-to-image': {
     id: 'fal-ai/recraft/v3/image-to-image',
     label: 'Recraft V3',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
+  },
+  'fal-ai/ideogram/v3/reframe': {
+    id: 'fal-ai/ideogram/v3/reframe',
+    label: 'Ideogram 3.0 Reframe',
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem
@@ -142,7 +136,7 @@ const IMAGE_MODELS = {
   },
   'fal-ai/ideogram/upscale': {
     id: 'fal-ai/ideogram/upscale',
-    label: 'Ideogram Upscale',
+    label: 'Ideogram 3.0 Upscale',
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem

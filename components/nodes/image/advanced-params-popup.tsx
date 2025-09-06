@@ -67,7 +67,7 @@ export const AdvancedParamsPopup = ({
       }
     }
 
-    // Reset para Ideogram V3
+    // Reset para Ideogram 3.0
     if (modelId === 'fal-ai/ideogram-v3' && data.color_palette_type === 'custom' && !data.color_r) {
       console.log('🔄 Forçando reset para none devido a valor inválido');
       updateNodeData(nodeId, { color_palette_type: 'none' });
