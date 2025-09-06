@@ -17,6 +17,7 @@ import {
   ClockIcon,
   CopyIcon,
   DownloadIcon,
+  ExternalLinkIcon,
   Loader2Icon,
   PlayIcon,
   RotateCcwIcon,
@@ -655,6 +656,24 @@ export const HybridImageTransform = ({
             onClick={handleCopy}
           >
             <CopyIcon size={12} />
+          </Button>
+        ),
+      });
+
+      items.push({
+        tooltip: 'Abrir em nova janela',
+        children: (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={() => {
+              if (data.generated?.url) {
+                window.open(data.generated.url, '_blank', 'noopener,noreferrer');
+              }
+            }}
+          >
+            <ExternalLinkIcon size={12} />
           </Button>
         ),
       });
