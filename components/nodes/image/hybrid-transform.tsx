@@ -198,35 +198,6 @@ const AVAILABLE_MODELS = {
     ],
     default: false,
   },
-  'fal-ai/seedream-3.0': {
-    label: 'Seedream 3.0',
-    chef: providers.fal,
-    providers: [providers.fal],
-    aspectRatios: [
-      { label: 'Square HD', value: 'square_hd' },
-      { label: 'Square', value: 'square' },
-      { label: 'Portrait 4:3', value: 'portrait_4_3' },
-      { label: 'Portrait 16:9', value: 'portrait_16_9' },
-      { label: 'Landscape 4:3', value: 'landscape_4_3' },
-      { label: 'Landscape 16:9', value: 'landscape_16_9' },
-    ],
-    default: false,
-  },
-  'fal-ai/luma-photon': {
-    label: 'Luma Photon',
-    chef: providers.fal,
-    providers: [providers.fal],
-    aspectRatios: [
-      { label: '16:9', value: '16:9' },
-      { label: '9:16', value: '9:16' },
-      { label: '1:1', value: '1:1' },
-      { label: '4:3', value: '4:3' },
-      { label: '3:4', value: '3:4' },
-      { label: '21:9', value: '21:9' },
-      { label: '9:21', value: '9:21' },
-    ],
-    default: false,
-  },
   'fal-ai/recraft-v3': {
     label: 'Recraft V3',
     chef: providers.fal,
@@ -243,20 +214,6 @@ const AVAILABLE_MODELS = {
   },
   'fal-ai/flux-krea': {
     label: 'FLUX.1 Krea',
-    chef: providers.fal,
-    providers: [providers.fal],
-    aspectRatios: [
-      { label: 'Square HD', value: 'square_hd' },
-      { label: 'Square', value: 'square' },
-      { label: 'Portrait 4:3', value: 'portrait_4_3' },
-      { label: 'Portrait 16:9', value: 'portrait_16_9' },
-      { label: 'Landscape 4:3', value: 'landscape_4_3' },
-      { label: 'Landscape 16:9', value: 'landscape_16_9' },
-    ],
-    default: false,
-  },
-  'fal-ai/qwen-image': {
-    label: 'Qwen Image',
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
@@ -352,8 +309,8 @@ export const HybridImageTransform = ({
     if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image') {
       // Nano Banana, Nano Banana Edit e FLUX.1 Kontext [pro] têm tamanho original (1:1)
       return '1';
-    } else if (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon' || modelId === 'fal-ai/flux-pro/kontext/max') {
-      // FLUX.1 Kontext [pro], [max], [text], FLUX1.1 [pro] ultra, Imagen 4, Imagen 4 Ultra e Luma Photon usam aspect_ratio diretamente
+    } else if (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/flux-pro/kontext/max') {
+      // FLUX.1 Kontext [pro], [max], [text], FLUX1.1 [pro] ultra, Imagen 4, Imagen 4 Ultra usam aspect_ratio diretamente
       const aspectRatio = data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1');
       return aspectRatio.replace(':', '/');
     } else {
@@ -469,16 +426,16 @@ export const HybridImageTransform = ({
             body: JSON.stringify({
               prompt: data.instructions || '',
               params: {
+                // Passar TODOS os dados do nó para a API para que os parâmetros avançados funcionem
+                ...data,
                 model: modelId,
-                aspectRatio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon' || modelId === 'fal-ai/flux-pro/kontext/max') ? undefined : (data.image_size || 'landscape_4_3'),
-        aspect_ratio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon' || modelId === 'fal-ai/flux-pro/kontext/max') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : undefined,
-        image_size: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon' || modelId === 'fal-ai/flux-pro/kontext/max') ? undefined : (data.image_size || 'landscape_4_3'),
-                ...(currentSeed !== null && { seed: currentSeed }),
-                guidance: data.guidance_scale || data.guidance || 3.5,
-                numInferenceSteps: data.num_inference_steps || data.numInferenceSteps || 28,
-                outputFormat: data.output_format || data.outputFormat || 'jpeg',
-                enableSafetyChecker: data.enable_safety_checker !== false,
-                raw: (modelId === 'fal-ai/flux-pro-v1.1-ultra') ? (data.raw || false) : undefined,
+                // Manter as lógicas específicas de tamanho/aspecto por modelo
+                aspectRatio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/flux-pro/kontext/max') ? undefined : (data.image_size || 'landscape_4_3'),
+                aspect_ratio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/flux-pro/kontext/max') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : undefined,
+                image_size: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image') ? undefined : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/flux-pro/kontext/max') ? undefined : (data.image_size || 'landscape_4_3'),
+                // Sobrescrever o seed com o valor da variação atual
+                seed: currentSeed,
+                // Garantir que numOutputs seja sempre 1 para variações funcionarem
                 numOutputs: 1
               },
               imageNodes: imageNodes.length > 0 ? imageNodes : undefined
@@ -787,14 +744,14 @@ export const HybridImageTransform = ({
               value={
                 (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/flux-pro/kontext/max')
                   ? (data.fixed_size || 'fixed')
-                  : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon')
+                  : (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra')
                     ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1'))
                     : (data.image_size || 'landscape_4_3')
               }
               onValueChange={(value) => {
                 if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana-edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/flux-pro/kontext/max') {
                   updateNodeData(id, { fixed_size: value });
-                } else if (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') {
+                } else if (modelId === 'fal-ai/flux-pro-kontext-max' || modelId === 'fal-ai/flux-pro-kontext-text' || modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra') {
                   updateNodeData(id, { aspect_ratio: value });
                 } else {
                   updateNodeData(id, { image_size: value });

@@ -86,18 +86,6 @@ const IMAGE_MODELS = {
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
-  'fal-ai/seedream-3.0': {
-    id: 'fal-ai/seedream-3.0',
-    label: 'Seedream 3.0',
-    provider: 'fal',
-    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
-  },
-  'fal-ai/luma-photon': {
-    id: 'fal-ai/luma-photon',
-    label: 'Luma Photon',
-    provider: 'fal',
-    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
-  },
   'fal-ai/recraft-v3': {
     id: 'fal-ai/recraft-v3',
     label: 'Recraft V3',
@@ -107,12 +95,6 @@ const IMAGE_MODELS = {
   'fal-ai/flux-krea': {
     id: 'fal-ai/flux-krea',
     label: 'FLUX.1 Krea',
-    provider: 'fal',
-    supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
-  },
-  'fal-ai/qwen-image': {
-    id: 'fal-ai/qwen-image',
-    label: 'Qwen Image',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
@@ -130,23 +112,16 @@ const IMAGE_MODELS = {
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem de referência
   },
-  'fal-ai/flux/krea/image-to-image': {
-    id: 'fal-ai/flux/krea/image-to-image',
-    label: 'FLUX.1 Krea [dev]',
-    provider: 'fal',
-    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
-    maxImages: 1 // Aceita apenas uma imagem
-  },
-  'fal-ai/flux-1/dev/image-to-image': {
-    id: 'fal-ai/flux-1/dev/image-to-image',
-    label: 'FLUX.1 [dev]',
-    provider: 'fal',
-    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
-    maxImages: 1 // Aceita apenas uma imagem
-  },
   'fal-ai/recraft/v3/image-to-image': {
     id: 'fal-ai/recraft/v3/image-to-image',
     label: 'Recraft V3',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
+  },
+  'fal-ai/topaz/upscale/image': {
+    id: 'fal-ai/topaz/upscale/image',
+    label: 'Topaz Upscale',
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem

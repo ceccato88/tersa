@@ -238,7 +238,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'num_inference_steps',
         type: 'number',
-        label: 'Passos de Inferência',
+        label: 'Passos de Inferência (1-50)',
         placeholder: '28',
         defaultValue: 28,
         min: 1,
@@ -256,7 +256,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'guidance_scale',
         type: 'number',
-        label: 'Guidance Scale',
+        label: 'Guidance Scale (1-20)',
         placeholder: '3.5',
         defaultValue: 3.5,
         min: 1,
@@ -339,6 +339,13 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       },
       {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncronno',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
         name: 'output_format',
         type: 'select',
         label: 'Formato de Saída',
@@ -347,7 +354,29 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
           { value: 'png', label: 'PNG' }
         ],
         defaultValue: 'jpeg',
+        gridColumn: 2
+      },
+      {
+        name: 'safety_tolerance',
+        type: 'select',
+        label: 'Tolerância de Segurança (1-6)',
+        options: [
+          { value: '1', label: '1 - Mais Restritivo' },
+          { value: '2', label: '2 - Restritivo' },
+          { value: '3', label: '3 - Moderado' },
+          { value: '4', label: '4 - Permissivo' },
+          { value: '5', label: '5 - Mais Permissivo' },
+          { value: '6', label: '6 - Máximo' }
+        ],
+        defaultValue: '2',
         gridColumn: 1
+      },
+      {
+        name: 'enhance_prompt',
+        type: 'checkbox',
+        label: 'Melhorar Prompt',
+        defaultValue: false,
+        gridColumn: 2
       }
     ]
   },
@@ -388,7 +417,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'guidance_scale',
         type: 'number',
-        label: 'Guidance Scale',
+        label: 'Guidance Scale (1-20)',
         placeholder: '3.5',
         defaultValue: 3.5,
         min: 1,
@@ -475,7 +504,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'guidance_scale',
         type: 'number',
-        label: 'Guidance Scale',
+        label: 'Guidance Scale (1-20)',
         placeholder: '3.5',
         defaultValue: 3.5,
         min: 1,
@@ -561,6 +590,13 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       },
       {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncronno',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
         name: 'output_format',
         type: 'select',
         label: 'Formato de Saída',
@@ -569,7 +605,29 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
           { value: 'png', label: 'PNG' }
         ],
         defaultValue: 'jpeg',
+        gridColumn: 2
+      },
+      {
+        name: 'safety_tolerance',
+        type: 'select',
+        label: 'Tolerância de Segurança (1-6)',
+        options: [
+          { value: '1', label: '1 - Mais Restritivo' },
+          { value: '2', label: '2 - Restritivo' },
+          { value: '3', label: '3 - Moderado' },
+          { value: '4', label: '4 - Permissivo' },
+          { value: '5', label: '5 - Mais Permissivo' },
+          { value: '6', label: '6 - Máximo' }
+        ],
+        defaultValue: '2',
         gridColumn: 1
+      },
+      {
+        name: 'enhance_prompt',
+        type: 'checkbox',
+        label: 'Melhorar Prompt',
+        defaultValue: false,
+        gridColumn: 2
       }
     ]
   },
@@ -999,82 +1057,6 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/seedream-3.0': {
-    label: 'Seedream 3.0',
-    aspectRatios: [
-      { label: 'Square HD', value: 'square_hd' },
-      { label: 'Square', value: 'square' },
-      { label: 'Portrait 4:3', value: 'portrait_4_3' },
-      { label: 'Portrait 16:9', value: 'portrait_16_9' },
-      { label: 'Landscape 4:3', value: 'landscape_4_3' },
-      { label: 'Landscape 16:9', value: 'landscape_16_9' },
-    ],
-    fields: [
-      {
-        name: 'image_size',
-        type: 'select',
-        label: 'Tamanho',
-        options: [
-          { value: 'square_hd', label: 'Square HD' },
-          { value: 'square', label: 'Square' },
-          { value: 'portrait_4_3', label: 'Portrait 4:3' },
-          { value: 'portrait_16_9', label: 'Portrait 16:9' },
-          { value: 'landscape_4_3', label: 'Landscape 4:3' },
-          { value: 'landscape_16_9', label: 'Landscape 16:9' },
-        ],
-        defaultValue: 'square_hd',
-        gridColumn: 2
-      },
-      {
-        name: 'seed',
-        type: 'number',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: null,
-        gridColumn: 1
-      },
-      {
-        name: 'guidance_scale',
-        type: 'number',
-        label: 'Guidance Scale',
-        defaultValue: 2.5,
-        min: 1,
-        max: 10,
-        step: 0.1,
-        gridColumn: 2
-      }
-    ]
-  },
-  'fal-ai/luma-photon': {
-    label: 'Luma Photon',
-    aspectRatios: [
-      { label: '16:9', value: '16:9' },
-      { label: '9:16', value: '9:16' },
-      { label: '1:1', value: '1:1' },
-      { label: '4:3', value: '4:3' },
-      { label: '3:4', value: '3:4' },
-      { label: '21:9', value: '21:9' },
-      { label: '9:21', value: '9:21' },
-    ],
-    fields: [
-      {
-        name: 'aspect_ratio',
-        type: 'select',
-        label: 'Aspecto',
-        options: [
-          { value: '16:9', label: '16:9' },
-          { value: '9:16', label: '9:16' },
-          { value: '1:1', label: '1:1' },
-          { value: '4:3', label: '4:3' },
-          { value: '3:4', label: '3:4' },
-          { value: '21:9', label: '21:9' },
-          { value: '9:21', label: '9:21' },
-        ],
-        defaultValue: '1:1',
-        gridColumn: 2
-      }
-    ]
-  },
   'fal-ai/recraft-v3': {
     label: 'Recraft V3',
     aspectRatios: [
@@ -1086,25 +1068,22 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       { label: 'Landscape 16:9', value: 'landscape_16_9' },
     ],
     fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
       {
-        name: 'image_size',
-        type: 'select',
-        label: 'Tamanho',
-        options: [
-          { value: 'square_hd', label: 'Square HD' },
-          { value: 'square', label: 'Square' },
-          { value: 'portrait_4_3', label: 'Portrait 4:3' },
-          { value: 'portrait_16_9', label: 'Portrait 16:9' },
-          { value: 'landscape_4_3', label: 'Landscape 4:3' },
-          { value: 'landscape_16_9', label: 'Landscape 16:9' },
-        ],
-        defaultValue: 'square_hd',
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        min: 1,
+        max: 4,
         gridColumn: 2
       },
+      
+      // Campos que aparecem apenas na aba avançada
       {
         name: 'style',
         type: 'select',
-        label: 'Style',
+        label: 'Estilo',
         options: [
           { value: 'any', label: 'Any' },
           { value: 'realistic_image', label: 'Realistic Image' },
@@ -1115,17 +1094,108 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
           { value: 'realistic_image/hdr', label: 'HDR' },
           { value: 'realistic_image/natural_light', label: 'Natural Light' },
           { value: 'realistic_image/studio_portrait', label: 'Studio Portrait' },
+          { value: 'realistic_image/enterprise', label: 'Enterprise' },
+          { value: 'realistic_image/motion_blur', label: 'Motion Blur' },
+          { value: 'realistic_image/evening_light', label: 'Evening Light' },
+          { value: 'realistic_image/faded_nostalgia', label: 'Faded Nostalgia' },
+          { value: 'realistic_image/forest_life', label: 'Forest Life' },
+          { value: 'realistic_image/mystic_naturalism', label: 'Mystic Naturalism' },
+          { value: 'realistic_image/natural_tones', label: 'Natural Tones' },
+          { value: 'realistic_image/organic_calm', label: 'Organic Calm' },
+          { value: 'realistic_image/real_life_glow', label: 'Real Life Glow' },
+          { value: 'realistic_image/retro_realism', label: 'Retro Realism' },
+          { value: 'realistic_image/retro_snapshot', label: 'Retro Snapshot' },
+          { value: 'realistic_image/urban_drama', label: 'Urban Drama' },
+          { value: 'realistic_image/village_realism', label: 'Village Realism' },
+          { value: 'realistic_image/warm_folk', label: 'Warm Folk' },
           { value: 'digital_illustration/pixel_art', label: 'Pixel Art' },
           { value: 'digital_illustration/hand_drawn', label: 'Hand Drawn' },
           { value: 'digital_illustration/grain', label: 'Grain' },
+          { value: 'digital_illustration/infantile_sketch', label: 'Infantile Sketch' },
           { value: 'digital_illustration/2d_art_poster', label: '2D Art Poster' },
+          { value: 'digital_illustration/handmade_3d', label: 'Handmade 3D' },
+          { value: 'digital_illustration/hand_drawn_outline', label: 'Hand Drawn Outline' },
+          { value: 'digital_illustration/engraving_color', label: 'Engraving Color' },
+          { value: 'digital_illustration/2d_art_poster_2', label: '2D Art Poster 2' },
+          { value: 'digital_illustration/antiquarian', label: 'Antiquarian' },
+          { value: 'digital_illustration/bold_fantasy', label: 'Bold Fantasy' },
+          { value: 'digital_illustration/child_book', label: 'Child Book' },
+          { value: 'digital_illustration/child_books', label: 'Child Books' },
+          { value: 'digital_illustration/cover', label: 'Cover' },
+          { value: 'digital_illustration/crosshatch', label: 'Crosshatch' },
+          { value: 'digital_illustration/digital_engraving', label: 'Digital Engraving' },
+          { value: 'digital_illustration/expressionism', label: 'Expressionism' },
+          { value: 'digital_illustration/freehand_details', label: 'Freehand Details' },
+          { value: 'digital_illustration/grain_20', label: 'Grain 20' },
+          { value: 'digital_illustration/graphic_intensity', label: 'Graphic Intensity' },
+          { value: 'digital_illustration/hard_comics', label: 'Hard Comics' },
+          { value: 'digital_illustration/long_shadow', label: 'Long Shadow' },
+          { value: 'digital_illustration/modern_folk', label: 'Modern Folk' },
+          { value: 'digital_illustration/multicolor', label: 'Multicolor' },
+          { value: 'digital_illustration/neon_calm', label: 'Neon Calm' },
+          { value: 'digital_illustration/noir', label: 'Noir' },
+          { value: 'digital_illustration/nostalgic_pastel', label: 'Nostalgic Pastel' },
+          { value: 'digital_illustration/outline_details', label: 'Outline Details' },
+          { value: 'digital_illustration/pastel_gradient', label: 'Pastel Gradient' },
+          { value: 'digital_illustration/pastel_sketch', label: 'Pastel Sketch' },
           { value: 'digital_illustration/pop_art', label: 'Pop Art' },
+          { value: 'digital_illustration/pop_renaissance', label: 'Pop Renaissance' },
+          { value: 'digital_illustration/street_art', label: 'Street Art' },
+          { value: 'digital_illustration/tablet_sketch', label: 'Tablet Sketch' },
+          { value: 'digital_illustration/urban_glow', label: 'Urban Glow' },
+          { value: 'digital_illustration/urban_sketching', label: 'Urban Sketching' },
+          { value: 'digital_illustration/vanilla_dreams', label: 'Vanilla Dreams' },
+          { value: 'digital_illustration/young_adult_book', label: 'Young Adult Book' },
+          { value: 'digital_illustration/young_adult_book_2', label: 'Young Adult Book 2' },
           { value: 'vector_illustration/bold_stroke', label: 'Bold Stroke' },
+          { value: 'vector_illustration/chemistry', label: 'Chemistry' },
+          { value: 'vector_illustration/colored_stencil', label: 'Colored Stencil' },
+          { value: 'vector_illustration/contour_pop_art', label: 'Contour Pop Art' },
+          { value: 'vector_illustration/cosmics', label: 'Cosmics' },
+          { value: 'vector_illustration/cutout', label: 'Cutout' },
+          { value: 'vector_illustration/depressive', label: 'Depressive' },
+          { value: 'vector_illustration/editorial', label: 'Editorial' },
+          { value: 'vector_illustration/emotional_flat', label: 'Emotional Flat' },
+          { value: 'vector_illustration/infographical', label: 'Infographical' },
+          { value: 'vector_illustration/marker_outline', label: 'Marker Outline' },
+          { value: 'vector_illustration/mosaic', label: 'Mosaic' },
+          { value: 'vector_illustration/naivector', label: 'Naivector' },
+          { value: 'vector_illustration/roundish_flat', label: 'Roundish Flat' },
+          { value: 'vector_illustration/segmented_colors', label: 'Segmented Colors' },
+          { value: 'vector_illustration/sharp_contrast', label: 'Sharp Contrast' },
+          { value: 'vector_illustration/thin', label: 'Thin' },
+          { value: 'vector_illustration/vector_photo', label: 'Vector Photo' },
+          { value: 'vector_illustration/vivid_shapes', label: 'Vivid Shapes' },
+          { value: 'vector_illustration/engraving', label: 'Engraving' },
           { value: 'vector_illustration/line_art', label: 'Line Art' },
-          { value: 'vector_illustration/flat', label: 'Flat Vector' },
+          { value: 'vector_illustration/line_circuit', label: 'Line Circuit' },
+          { value: 'vector_illustration/linocut', label: 'Linocut' }
         ],
         defaultValue: 'realistic_image',
         gridColumn: 1
+      },
+      {
+        name: 'enable_safety_checker',
+        type: 'checkbox',
+        label: 'Verificação de Segurança',
+        defaultValue: false,
+        gridColumn: 2
+      },
+      {
+        name: 'style_id',
+        type: 'input',
+        label: 'Style ID (Opcional)',
+        placeholder: 'ID do estilo customizado',
+        defaultValue: '',
+        gridColumn: 1
+      },
+      {
+        name: 'colors',
+        type: 'input',
+        label: 'Cores Preferenciais (RGB)',
+        placeholder: 'Ex: #FF0000,#00FF00,#0000FF',
+        defaultValue: '',
+        gridColumn: 2
       }
     ]
   },
@@ -1140,21 +1210,18 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       { label: 'Landscape 16:9', value: 'landscape_16_9' },
     ],
     fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
       {
-        name: 'image_size',
-        type: 'select',
-        label: 'Tamanho',
-        options: [
-          { value: 'square_hd', label: 'Square HD' },
-          { value: 'square', label: 'Square' },
-          { value: 'portrait_4_3', label: 'Portrait 4:3' },
-          { value: 'portrait_16_9', label: 'Portrait 16:9' },
-          { value: 'landscape_4_3', label: 'Landscape 4:3' },
-          { value: 'landscape_16_9', label: 'Landscape 16:9' },
-        ],
-        defaultValue: 'landscape_4_3',
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        min: 1,
+        max: 4,
         gridColumn: 2
       },
+      
+      // Campos que aparecem apenas na aba avançada
       {
         name: 'seed',
         type: 'number',
@@ -1166,7 +1233,8 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'num_inference_steps',
         type: 'number',
-        label: 'Inference Steps',
+        label: 'Passos de Inferência (1-50)',
+        placeholder: '28',
         defaultValue: 28,
         min: 1,
         max: 50,
@@ -1175,7 +1243,8 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'guidance_scale',
         type: 'number',
-        label: 'Guidance Scale',
+        label: 'Guidance Scale (1-20)',
+        placeholder: '4.5',
         defaultValue: 4.5,
         min: 1,
         max: 20,
@@ -1183,106 +1252,46 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 1
       },
       {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 2
+      },
+      {
+        name: 'enable_safety_checker',
+        type: 'checkbox',
+        label: 'Verificação de Segurança',
+        defaultValue: true,
+        gridColumn: 1
+      },
+      {
         name: 'output_format',
         type: 'select',
-        label: 'Output Format',
+        label: 'Formato de Saída',
         options: [
           { value: 'jpeg', label: 'JPEG' },
-          { value: 'png', label: 'PNG' },
+          { value: 'png', label: 'PNG' }
         ],
         defaultValue: 'jpeg',
         gridColumn: 2
-      }
-    ]
-  },
-  'fal-ai/qwen-image': {
-    label: 'Qwen Image',
-    aspectRatios: [
-      { label: 'Square HD', value: 'square_hd' },
-      { label: 'Square', value: 'square' },
-      { label: 'Portrait 4:3', value: 'portrait_4_3' },
-      { label: 'Portrait 16:9', value: 'portrait_16_9' },
-      { label: 'Landscape 4:3', value: 'landscape_4_3' },
-      { label: 'Landscape 16:9', value: 'landscape_16_9' },
-    ],
-    fields: [
+      },
       {
-        name: 'image_size',
+        name: 'acceleration',
         type: 'select',
-        label: 'Tamanho',
+        label: 'Aceleração',
         options: [
-          { value: 'square_hd', label: 'Square HD' },
-          { value: 'square', label: 'Square' },
-          { value: 'portrait_4_3', label: 'Portrait 4:3' },
-          { value: 'portrait_16_9', label: 'Portrait 16:9' },
-          { value: 'landscape_4_3', label: 'Landscape 4:3' },
-          { value: 'landscape_16_9', label: 'Landscape 16:9' },
+          { value: 'none', label: 'Nenhuma' },
+          { value: 'regular', label: 'Regular' },
+          { value: 'high', label: 'Alta' }
         ],
-        defaultValue: 'landscape_4_3',
-        gridColumn: 2
-      },
-      {
-        name: 'seed',
-        type: 'number',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: null,
+        defaultValue: 'none',
         gridColumn: 1
-      },
-      {
-        name: 'num_inference_steps',
-        type: 'number',
-        label: 'Inference Steps',
-        defaultValue: 30,
-        min: 2,
-        max: 250,
-        gridColumn: 2
-      },
-      {
-        name: 'guidance_scale',
-        type: 'number',
-        label: 'Guidance Scale',
-        defaultValue: 2.5,
-        min: 0,
-        max: 20,
-        step: 0.1,
-        gridColumn: 1
-      },
-      {
-        name: 'output_format',
-        type: 'select',
-        label: 'Output Format',
-        options: [
-          { value: 'jpeg', label: 'JPEG' },
-          { value: 'png', label: 'PNG' },
-        ],
-        defaultValue: 'png',
-        gridColumn: 2
       }
     ]
   },
   'fal-ai/nano-banana-edit': {
     label: 'Nano Banana Edit',
-    aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
-    ],
-    fields: [
-      // Campo tamanho aparece apenas no nó principal, não na aba avançada
-      {
-        name: 'output_format',
-        type: 'select',
-        label: 'Output Format',
-        options: [
-          { value: 'jpeg', label: 'JPEG' },
-          { value: 'png', label: 'PNG' },
-        ],
-        defaultValue: 'jpeg',
-        gridColumn: 1
-      }
-    ]
-  },
-  'fal-ai/ideogram/character': {
-    label: 'Ideogram Character',
     aspectRatios: [
       { label: 'Tamanho original', value: 'fixed' },
     ],
@@ -1298,13 +1307,51 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       
       // Campos que aparecem apenas na aba avançada
       {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' },
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 1
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncronno',
+        defaultValue: false,
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/ideogram/character': {
+    label: 'Ideogram Character',
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade (1-8)',
+        defaultValue: 1,
+        min: 1,
+        max: 8,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
         name: 'rendering_speed',
         type: 'select',
-        label: 'Rendering Speed',
+        label: 'Velocidade de Renderização',
         options: [
           { value: 'TURBO', label: 'Turbo' },
-          { value: 'BALANCED', label: 'Balanced' },
-          { value: 'QUALITY', label: 'Quality' },
+          { value: 'BALANCED', label: 'Balanceado' },
+          { value: 'QUALITY', label: 'Qualidade' },
         ],
         defaultValue: 'BALANCED',
         gridColumn: 1
@@ -1312,11 +1359,11 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'style',
         type: 'select',
-        label: 'Style',
+        label: 'Estilo',
         options: [
-          { value: 'AUTO', label: 'Auto' },
-          { value: 'REALISTIC', label: 'Realistic' },
-          { value: 'FICTION', label: 'Fiction' },
+          { value: 'AUTO', label: 'Automático' },
+          { value: 'REALISTIC', label: 'Realístico' },
+          { value: 'FICTION', label: 'Ficção' },
         ],
         defaultValue: 'AUTO',
         gridColumn: 2
@@ -1332,141 +1379,24 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'expand_prompt',
         type: 'checkbox',
-        label: 'Expand Prompt',
+        label: 'Expandir Prompt',
         defaultValue: true,
         gridColumn: 2
-      }
-    ]
-  },
-  'fal-ai/flux/krea/image-to-image': {
-    label: 'FLUX.1 Krea [dev]',
-    aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
-    ],
-    fields: [
-      // Campo que aparece no nó principal (controla quantos nós criar)
-      {
-        name: 'num_images',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        gridColumn: 2
       },
-      
-      // Campos que aparecem apenas na aba avançada
       {
-        name: 'strength',
-        type: 'number',
-        label: 'Strength (0.01-1)',
-        defaultValue: 0.95,
-        min: 0.01,
-        max: 1,
-        step: 0.01,
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncronno',
+        defaultValue: false,
         gridColumn: 1
       },
       {
-        name: 'num_inference_steps',
-        type: 'number',
-        label: 'Inference Steps (10-50)',
-        defaultValue: 40,
-        min: 10,
-        max: 50,
+        name: 'negative_prompt',
+        type: 'input',
+        label: 'Prompt Negativo',
+        placeholder: 'Descreva o que excluir da imagem',
+        defaultValue: '',
         gridColumn: 2
-      },
-      {
-        name: 'seed',
-        type: 'number',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: null,
-        gridColumn: 1
-      },
-      {
-        name: 'guidance_scale',
-        type: 'number',
-        label: 'Guidance Scale (1-20)',
-        defaultValue: 4.5,
-        min: 1,
-        max: 20,
-        step: 0.1,
-        gridColumn: 2
-      },
-      {
-        name: 'output_format',
-        type: 'select',
-        label: 'Output Format',
-        options: [
-          { value: 'jpeg', label: 'JPEG' },
-          { value: 'png', label: 'PNG' }
-        ],
-        defaultValue: 'jpeg',
-        gridColumn: 1
-      }
-    ]
-  },
-  'fal-ai/flux-1/dev/image-to-image': {
-    label: 'FLUX.1 [dev]',
-    aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
-    ],
-    fields: [
-      // Campo que aparece no nó principal (controla quantos nós criar)
-      {
-        name: 'num_images',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        gridColumn: 2
-      },
-      
-      // Campos que aparecem apenas na aba avançada
-      {
-        name: 'strength',
-        type: 'number',
-        label: 'Strength (0.01-1)',
-        defaultValue: 0.95,
-        min: 0.01,
-        max: 1,
-        step: 0.01,
-        gridColumn: 1
-      },
-      {
-        name: 'num_inference_steps',
-        type: 'number',
-        label: 'Inference Steps (10-50)',
-        defaultValue: 40,
-        min: 10,
-        max: 50,
-        gridColumn: 2
-      },
-      {
-        name: 'seed',
-        type: 'number',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: null,
-        gridColumn: 1
-      },
-      {
-        name: 'guidance_scale',
-        type: 'number',
-        label: 'Guidance Scale (1-20)',
-        defaultValue: 3.5,
-        min: 1,
-        max: 20,
-        step: 0.1,
-        gridColumn: 2
-      },
-      {
-        name: 'output_format',
-        type: 'select',
-        label: 'Output Format',
-        options: [
-          { value: 'jpeg', label: 'JPEG' },
-          { value: 'png', label: 'PNG' }
-        ],
-        defaultValue: 'jpeg',
-        gridColumn: 1
       }
     ]
   },
@@ -1521,9 +1451,134 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         ],
         defaultValue: 'realistic_image',
         gridColumn: 2
+      },
+      {
+        name: 'style_id',
+        type: 'input',
+        label: 'Style ID',
+        placeholder: 'ID do estilo personalizado (opcional)',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'negative_prompt',
+        type: 'input',
+        label: 'Prompt Negativo',
+        placeholder: 'Descreva elementos indesejados',
+        defaultValue: '',
+        gridColumn: 2
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncronno',
+        defaultValue: false,
+        gridColumn: 1
       }
     ]
-  }
+  },
+  'fal-ai/topaz/upscale/image': {
+    label: 'Topaz Upscale',
+    aspectRatios: [
+      { label: 'Upscale', value: 'upscale' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'topaz_model',
+        type: 'select',
+        label: 'Modelo de Upscale',
+        options: [
+          { value: 'Low Resolution V2', label: 'Low Resolution V2' },
+          { value: 'Standard V2', label: 'Standard V2' },
+          { value: 'CGI', label: 'CGI' },
+          { value: 'High Fidelity V2', label: 'High Fidelity V2' },
+          { value: 'Text Refine', label: 'Text Refine' },
+          { value: 'Recovery', label: 'Recovery' },
+          { value: 'Redefine', label: 'Redefine' },
+          { value: 'Recovery V2', label: 'Recovery V2' }
+        ],
+        defaultValue: 'Standard V2',
+        gridColumn: 1
+      },
+      {
+        name: 'upscale_factor',
+        type: 'number',
+        label: 'Fator de Upscale (1-4)',
+        defaultValue: 2,
+        min: 1,
+        max: 4,
+        step: 0.1,
+        gridColumn: 2
+      },
+      {
+        name: 'crop_to_fill',
+        type: 'checkbox',
+        label: 'Cortar para Preencher',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 2
+      },
+      {
+        name: 'subject_detection',
+        type: 'select',
+        label: 'Detecção de Assunto',
+        options: [
+          { value: 'All', label: 'Tudo' },
+          { value: 'Foreground', label: 'Primeiro Plano' },
+          { value: 'Background', label: 'Fundo' }
+        ],
+        defaultValue: 'All',
+        gridColumn: 1
+      },
+      {
+        name: 'face_enhancement',
+        type: 'checkbox',
+        label: 'Melhoramento Facial',
+        defaultValue: true,
+        gridColumn: 2
+      },
+      {
+        name: 'face_enhancement_creativity',
+        type: 'number',
+        label: 'Criatividade Facial (0-1)',
+        defaultValue: 0,
+        min: 0,
+        max: 1,
+        step: 0.1,
+        gridColumn: 1
+      },
+      {
+        name: 'face_enhancement_strength',
+        type: 'number',
+        label: 'Força Facial (0-1)',
+        defaultValue: 0.8,
+        min: 0,
+        max: 1,
+        step: 0.1,
+        gridColumn: 2
+      }
+    ]
+  },
 };
 
 // Função para obter o esquema de um modelo
@@ -1575,6 +1630,11 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext
   if (modelId === 'fal-ai/flux-pro-kontext') {
     defaults.fixed_size = 'fixed';
+    defaults.guidance_scale = 3.5;
+    defaults.sync_mode = false;
+    defaults.output_format = 'jpeg';
+    defaults.safety_tolerance = '2';
+    defaults.enhance_prompt = false;
   }
   
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext-max
@@ -1586,7 +1646,10 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   if (modelId === 'fal-ai/flux-pro/kontext/max') {
     defaults.fixed_size = 'fixed';
     defaults.guidance_scale = 3.5;
+    defaults.sync_mode = false;
     defaults.output_format = 'jpeg';
+    defaults.safety_tolerance = '2';
+    defaults.enhance_prompt = false;
   }
   
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-v1.1
@@ -1621,15 +1684,6 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.image_size = 'square_hd';
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/seedream-3.0
-  if (modelId === 'fal-ai/seedream-3.0') {
-    defaults.image_size = 'square_hd';
-  }
-  
-  // Adicionar valores padrão para o modelo fal-ai/luma-photon
-  if (modelId === 'fal-ai/luma-photon') {
-    defaults.aspect_ratio = '1:1';
-  }
   
   // Adicionar valores padrão para o modelo fal-ai/recraft-v3
   if (modelId === 'fal-ai/recraft-v3') {
@@ -1641,10 +1695,6 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.image_size = 'landscape_4_3';
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/qwen-image
-  if (modelId === 'fal-ai/qwen-image') {
-    defaults.image_size = 'landscape_4_3';
-  }
   
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext-text
   if (modelId === 'fal-ai/flux-pro-kontext-text') {
@@ -1654,27 +1704,44 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   // Adicionar valores padrão para o modelo fal-ai/nano-banana-edit
   if (modelId === 'fal-ai/nano-banana-edit') {
     defaults.fixed_size = 'fixed';
+    defaults.output_format = 'jpeg';
+    defaults.sync_mode = false;
   }
   
   // Adicionar valores padrão para o modelo fal-ai/ideogram/character
   if (modelId === 'fal-ai/ideogram/character') {
     defaults.fixed_size = 'fixed';
+    defaults.rendering_speed = 'BALANCED';
+    defaults.style = 'AUTO';
+    defaults.expand_prompt = true;
+    defaults.sync_mode = false;
+    defaults.negative_prompt = '';
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/flux/krea/image-to-image
-  if (modelId === 'fal-ai/flux/krea/image-to-image') {
-    defaults.fixed_size = 'fixed';
-  }
-  
-  // Adicionar valores padrão para o modelo fal-ai/flux-1/dev/image-to-image
-  if (modelId === 'fal-ai/flux-1/dev/image-to-image') {
-    defaults.fixed_size = 'fixed';
-  }
   
   // Adicionar valores padrão para o modelo fal-ai/recraft/v3/image-to-image
   if (modelId === 'fal-ai/recraft/v3/image-to-image') {
     defaults.fixed_size = 'fixed';
+    defaults.strength = 0.5;
+    defaults.style = 'realistic_image';
+    defaults.style_id = null;
+    defaults.negative_prompt = '';
+    defaults.sync_mode = false;
   }
+  
+  // Adicionar valores padrão para o modelo fal-ai/topaz/upscale/image
+  if (modelId === 'fal-ai/topaz/upscale/image') {
+    defaults.upscale = 'upscale';
+    defaults.topaz_model = 'Standard V2';
+    defaults.upscale_factor = 2;
+    defaults.crop_to_fill = false;
+    defaults.output_format = 'jpeg';
+    defaults.subject_detection = 'All';
+    defaults.face_enhancement = true;
+    defaults.face_enhancement_creativity = 0;
+    defaults.face_enhancement_strength = 0.8;
+  }
+  
   
   // Adicionar valores padrão para campos ocultos no modelo wan-video
   if (modelId === 'wan-video/wan-2.2-i2v-a14b') {

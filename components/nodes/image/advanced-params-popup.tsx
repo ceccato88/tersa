@@ -97,8 +97,23 @@ export const AdvancedParamsPopup = ({
                     <Input
                       type="text"
                       placeholder={field.placeholder}
-                      value={fieldValue || ''}
-                      onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                      value={displayValue}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        setLocalValues(prev => ({
+                          ...prev,
+                          [field.name]: inputValue
+                        }));
+                      }}
+                      onBlur={(e) => {
+                        const inputValue = e.target.value;
+                        handleFieldChange(field.name, inputValue);
+                        setLocalValues(prev => {
+                          const newValues = { ...prev };
+                          delete newValues[field.name];
+                          return newValues;
+                        });
+                      }}
                       className="h-8 text-xs"
                     />
                   )}
