@@ -28,10 +28,72 @@ export const AdvancedParamsPopup = ({
   
   // Estado local para inputs em edição
   const [localValues, setLocalValues] = useState<Record<string, string>>({});
+  
+  // Estado para controlar se já fez limpeza inicial
+  const [hasCleanedUp, setHasCleanedUp] = useState(false);
+
+  // Limpeza de campos antigos (executar apenas uma vez quando abrir)
+  useEffect(() => {
+    if (!isOpen || hasCleanedUp) return;
+
+    // Reset campos antigos do Recraft V3 text-to-image
+    if (modelId === 'fal-ai/recraft-v3') {
+      let needsUpdate = false;
+      const updates: Record<string, any> = {};
+
+      // Remover style_id se existir (campo antigo)
+      if (data.style_id !== undefined) {
+        console.log('🧹 Removendo campo style_id obsoleto do Recraft V3');
+        updates.style_id = undefined;
+        needsUpdate = true;
+      }
+      
+      // Remover colors antigo se existir
+      if (data.colors !== undefined) {
+        console.log('🧹 Removendo campo colors obsoleto do Recraft V3');
+        updates.colors = undefined;
+        needsUpdate = true;
+      }
+      
+      // Reset colors_type para 'none' se valor inválido
+      if (data.colors_type === 'custom' && !data.colors_r) {
+        console.log('🔄 Forçando reset colors_type para none devido a valor inválido');
+        updates.colors_type = 'none';
+        needsUpdate = true;
+      }
+
+      if (needsUpdate) {
+        updateNodeData(nodeId, updates);
+      }
+    }
+
+    // Reset para Ideogram V3
+    if (modelId === 'fal-ai/ideogram-v3' && data.color_palette_type === 'custom' && !data.color_r) {
+      console.log('🔄 Forçando reset para none devido a valor inválido');
+      updateNodeData(nodeId, { color_palette_type: 'none' });
+    }
+
+    setHasCleanedUp(true);
+  }, [isOpen, hasCleanedUp, modelId, data, nodeId, updateNodeData]);
+
+  // Reset hasCleanedUp quando fechar o popup
+  useEffect(() => {
+    if (!isOpen) {
+      setHasCleanedUp(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const modelSchema = getModelSchema(modelId);
+  
+  // Debug para identificar qual modelo está sendo usado
+  console.log('🔍 Advanced Params Debug:', {
+    modelId,
+    modelLabel: modelSchema?.label,
+    fieldsCount: modelSchema?.fields?.length,
+    fieldNames: modelSchema?.fields?.map(f => f.name)
+  });
   
   // Filtrar apenas campos avançados (excluir básicos que aparecem no nó e campos hidden)
   const basicFields = ['prompt', 'image_size', 'quantity', 'numOutputs', 'num_images'];
@@ -100,7 +162,7 @@ export const AdvancedParamsPopup = ({
               const localValue = localValues[field.name];
               const displayValue = localValue !== undefined ? localValue : (fieldValue === null || fieldValue === undefined ? '' : String(fieldValue));
               
-              // Debug e fix para color_palette_type
+              // Debug para color_palette_type
               if (field.name === 'color_palette_type') {
                 console.log('🎨 Color Palette Type Debug:', {
                   fieldName: field.name,
@@ -110,12 +172,6 @@ export const AdvancedParamsPopup = ({
                   displayValue,
                   modelId
                 });
-                
-                // Force reset para 'none' se valor inválido para Ideogram V3
-                if (modelId === 'fal-ai/ideogram-v3' && rawValue === 'custom' && !data.color_r) {
-                  console.log('🔄 Forçando reset para none devido a valor inválido');
-                  handleFieldChange(field.name, 'none');
-                }
               }
 
               return (

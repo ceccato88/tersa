@@ -1176,19 +1176,62 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       },
       {
-        name: 'style_id',
+        name: 'negative_prompt',
         type: 'input',
-        label: 'Style ID (Opcional)',
-        placeholder: 'ID do estilo customizado',
+        label: 'Prompt Negativo',
+        placeholder: 'Descreva elementos indesejados',
         defaultValue: '',
         gridColumn: 1
       },
       {
-        name: 'colors',
-        type: 'input',
-        label: 'Cores Preferenciais (RGB)',
-        placeholder: 'Ex: #FF0000,#00FF00,#0000FF',
-        defaultValue: '',
+        name: 'colors_type',
+        type: 'select',
+        label: 'Tipo de Cores',
+        options: [
+          { value: 'none', label: 'Nenhuma' },
+          { value: 'custom', label: 'Personalizada' },
+        ],
+        defaultValue: 'none',
+        gridColumn: 2
+      },
+      {
+        name: 'colors_r',
+        type: 'number',
+        label: 'Vermelho (R)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 120,
+        gridColumn: 1,
+        conditional: { field: 'colors_type', value: 'custom' }
+      },
+      {
+        name: 'colors_g',
+        type: 'number',
+        label: 'Verde (G)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 47,
+        gridColumn: 2,
+        conditional: { field: 'colors_type', value: 'custom' }
+      },
+      {
+        name: 'colors_b',
+        type: 'number',
+        label: 'Azul (B)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 85,
+        gridColumn: 1,
+        conditional: { field: 'colors_type', value: 'custom' }
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncronno',
+        defaultValue: false,
         gridColumn: 2
       }
     ]
@@ -1447,12 +1490,12 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       },
       {
-        name: 'style_id',
+        name: 'negative_prompt',
         type: 'input',
-        label: 'Style ID',
-        placeholder: 'ID do estilo personalizado (opcional)',
-        defaultValue: null,
-        gridColumn: 1
+        label: 'Prompt Negativo',
+        placeholder: 'Descreva elementos indesejados',
+        defaultValue: '',
+        gridColumn: 2
       },
       {
         name: 'negative_prompt',
@@ -1461,6 +1504,50 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         placeholder: 'Descreva elementos indesejados',
         defaultValue: '',
         gridColumn: 2
+      },
+      {
+        name: 'colors_type',
+        type: 'select',
+        label: 'Tipo de Cores',
+        options: [
+          { value: 'none', label: 'Nenhuma' },
+          { value: 'custom', label: 'Personalizada' },
+        ],
+        defaultValue: 'none',
+        gridColumn: 1
+      },
+      {
+        name: 'colors_r',
+        type: 'number',
+        label: 'Vermelho (R)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 120,
+        gridColumn: 2,
+        conditional: { field: 'colors_type', value: 'custom' }
+      },
+      {
+        name: 'colors_g',
+        type: 'number',
+        label: 'Verde (G)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 47,
+        gridColumn: 1,
+        conditional: { field: 'colors_type', value: 'custom' }
+      },
+      {
+        name: 'colors_b',
+        type: 'number',
+        label: 'Azul (B)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 85,
+        gridColumn: 2,
+        conditional: { field: 'colors_type', value: 'custom' }
       },
       {
         name: 'sync_mode',
@@ -1830,6 +1917,13 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   // Adicionar valores padrão para o modelo fal-ai/recraft-v3
   if (modelId === 'fal-ai/recraft-v3') {
     defaults.image_size = 'square_hd';
+    defaults.style = 'realistic_image';
+    defaults.negative_prompt = '';
+    defaults.colors_type = 'none';
+    defaults.colors_r = 120;
+    defaults.colors_g = 47;
+    defaults.colors_b = 85;
+    defaults.sync_mode = false;
   }
   
   // Adicionar valores padrão para o modelo fal-ai/flux-krea
@@ -1866,8 +1960,11 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.fixed_size = 'fixed';
     defaults.strength = 0.5;
     defaults.style = 'realistic_image';
-    defaults.style_id = null;
     defaults.negative_prompt = '';
+    defaults.colors_type = 'none';
+    defaults.colors_r = 120;
+    defaults.colors_g = 47;
+    defaults.colors_b = 85;
     defaults.sync_mode = false;
   }
   

@@ -229,7 +229,9 @@ export const ModelSelector = ({
                   />
                 }
               >
-                {Object.entries(groupedOptions[chef]).map(([id, model]) => (
+                {Object.entries(groupedOptions[chef])
+                  .sort(([, a], [, b]) => a.label.localeCompare(b.label))
+                  .map(([id, model]) => (
                   <CommandItem
                     key={id}
                     value={id}

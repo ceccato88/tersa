@@ -367,15 +367,26 @@ export async function generateImageFalAction(
       // Recraft V3 Image-to-Image usa todos os parâmetros específicos
       input.strength = parseNumber(data.strength) !== null ? parseNumber(data.strength) : 0.5;
       input.style = data.style || 'realistic_image';
-      input.style_id = (data.style_id && data.style_id.trim() !== '') ? data.style_id : null;
       input.negative_prompt = data.negative_prompt || '';
       input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
       
-      // Handle colors array if provided
-      if (data.colors && Array.isArray(data.colors)) {
-        input.colors = data.colors;
-      } else {
-        input.colors = [];
+      // Cores preferenciais personalizadas (mesma lógica do text-to-image)
+      if (data.colors_type === 'custom' && (data.colors_r !== undefined || data.colors_g !== undefined || data.colors_b !== undefined)) {
+        // Usar valores padrão se não definidos
+        const r = data.colors_r !== undefined && data.colors_r !== null ? Number(data.colors_r) : 120;
+        const g = data.colors_g !== undefined && data.colors_g !== null ? Number(data.colors_g) : 47;
+        const b = data.colors_b !== undefined && data.colors_b !== null ? Number(data.colors_b) : 85;
+        
+        // Validar limites RGB (0-255)
+        const validR = Math.max(0, Math.min(255, r));
+        const validG = Math.max(0, Math.min(255, g));
+        const validB = Math.max(0, Math.min(255, b));
+        
+        input.colors = [{
+          r: validR,
+          g: validG,
+          b: validB
+        }];
       }
       
       // DEBUG: Log específico para Recraft V3 Image-to-Image
@@ -386,10 +397,10 @@ export async function generateImageFalAction(
           prompt: input.prompt?.substring(0, 50),
           strength: input.strength,
           style: input.style,
-          style_id: input.style_id,
           negative_prompt: input.negative_prompt?.substring(0, 30),
-          sync_mode: input.sync_mode,
-          colors: input.colors
+          colors: input.colors,
+          colorsCount: input.colors?.length || 0,
+          sync_mode: input.sync_mode
         }
       });
     } else if (data.model === 'fal-ai/topaz/upscale/image') {
@@ -561,27 +572,23 @@ export async function generateImageFalAction(
       input.style = data.style || 'realistic_image';
       input.enable_safety_checker = data.enable_safety_checker !== undefined ? data.enable_safety_checker : false;
       
-      // Style ID personalizado (opcional)
-      if (data.style_id && data.style_id.trim() !== '') {
-        input.style_id = data.style_id.trim();
-      }
-      
-      // Cores preferenciais (opcional) - converter string para array de objetos RGB
-      if (data.colors && data.colors.trim() !== '') {
-        const colorsArray = data.colors.split(',')
-          .map(color => color.trim())
-          .filter(color => color.match(/^#[0-9A-Fa-f]{6}$/))
-          .map(color => {
-            const hex = color.replace('#', '');
-            const r = parseInt(hex.substring(0, 2), 16);
-            const g = parseInt(hex.substring(2, 4), 16);
-            const b = parseInt(hex.substring(4, 6), 16);
-            return { r, g, b };
-          });
+      // Cores preferenciais personalizadas (tanto text-to-image quanto image-to-image)
+      if (data.colors_type === 'custom' && (data.colors_r !== undefined || data.colors_g !== undefined || data.colors_b !== undefined)) {
+        // Usar valores padrão se não definidos
+        const r = data.colors_r !== undefined && data.colors_r !== null ? Number(data.colors_r) : 120;
+        const g = data.colors_g !== undefined && data.colors_g !== null ? Number(data.colors_g) : 47;
+        const b = data.colors_b !== undefined && data.colors_b !== null ? Number(data.colors_b) : 85;
         
-        if (colorsArray.length > 0) {
-          input.colors = colorsArray;
-        }
+        // Validar limites RGB (0-255)
+        const validR = Math.max(0, Math.min(255, r));
+        const validG = Math.max(0, Math.min(255, g));
+        const validB = Math.max(0, Math.min(255, b));
+        
+        input.colors = [{
+          r: validR,
+          g: validG,
+          b: validB
+        }];
       }
       
       // DEBUG: Log específico para Recraft V3
@@ -593,7 +600,6 @@ export async function generateImageFalAction(
           image_size: input.image_size,
           style: input.style,
           enable_safety_checker: input.enable_safety_checker,
-          style_id: input.style_id,
           colors: input.colors,
           colorsCount: input.colors?.length || 0
         }

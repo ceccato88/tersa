@@ -43,20 +43,6 @@ type HybridImageTransformProps = ImageNodeProps & {
 };
 
 const AVAILABLE_MODELS = {
-  'fal-ai/flux-dev': {
-    label: 'FLUX.1 [dev]',
-    chef: providers.fal,
-    providers: [providers.fal],
-    aspectRatios: [
-      { label: 'Square 1:1', value: 'square' },
-      { label: 'Square 1:1 HD', value: 'square_hd' },
-      { label: '4:3', value: 'landscape_4_3' },
-      { label: '3:4', value: 'portrait_4_3' },
-      { label: '16:9', value: 'landscape_16_9' },
-      { label: '9:16', value: 'portrait_16_9' },
-    ],
-    default: true,
-  },
   'fal-ai/flux-pro-kontext': {
     label: 'FLUX.1 Kontext [pro]',
     chef: providers.fal,
@@ -148,7 +134,7 @@ const AVAILABLE_MODELS = {
     aspectRatios: [
       { label: 'Tamanho único', value: 'fixed' },
     ],
-    default: false,
+    default: true,
   },
   'fal-ai/nano-banana-edit': {
     label: 'Nano Banana Edit',
@@ -306,7 +292,7 @@ const getDefaultModel = () => {
   const defaultModel = Object.entries(AVAILABLE_MODELS).find(
     ([_, model]) => model.default
   );
-  return defaultModel?.[0] || 'black-forest-labs/flux-dev';
+  return defaultModel?.[0] || 'fal-ai/nano-banana';
 };
 
 export const HybridImageTransform = ({
