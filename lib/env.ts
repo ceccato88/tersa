@@ -17,10 +17,7 @@ export const env = createEnv({
     POSTGRES_URL: z.string().url().min(1),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
 
-    // AI SDK
-    OPENAI_API_KEY: z.string().min(1).startsWith('sk-'),
-    XAI_API_KEY: z.string().min(1).startsWith('xai-'),
-    REPLICATE_API_TOKEN: z.string().min(1).startsWith('r8_'),
+    // AI Keys (FAL only)
     AWS_ACCESS_KEY_ID: z.string().min(1),
     AWS_SECRET_ACCESS_KEY: z.string().min(1),
     AWS_REGION: z.string().min(1),
@@ -36,7 +33,7 @@ export const env = createEnv({
     FAL_KEY: z.string().min(1).optional(),
 
     // Vercel AI Gateway
-    AI_GATEWAY_API_KEY: z.string().min(1),
+    
   },
   client: {
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1),
@@ -51,9 +48,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_HOSTNAME: z.string().min(1),
   },
   runtimeEnv: {
-    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    XAI_API_KEY: process.env.XAI_API_KEY,
-    REPLICATE_API_TOKEN: process.env.REPLICATE_API_TOKEN,
+    
     AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
     AWS_REGION: process.env.AWS_REGION,
@@ -80,6 +75,6 @@ export const env = createEnv({
     LMNT_API_KEY: process.env.LMNT_API_KEY,
     BF_API_KEY: process.env.BF_API_KEY,
     FAL_KEY: process.env.FAL_KEY,
-    AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
+    
   },
 });

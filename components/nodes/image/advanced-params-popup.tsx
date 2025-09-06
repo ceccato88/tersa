@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { getModelSchema } from '@/lib/model-schemas';
 import { X, Settings } from 'lucide-react';
 import { useReactFlow } from '@xyflow/react';
@@ -34,9 +35,20 @@ export const AdvancedParamsPopup = ({
   
   // Filtrar apenas campos avançados (excluir básicos que aparecem no nó e campos hidden)
   const basicFields = ['prompt', 'image_size', 'quantity', 'numOutputs', 'num_images'];
-  const advancedFields = modelSchema?.fields?.filter(
-    field => !basicFields.includes(field.name) && field.type !== 'hidden'
-  ) || [];
+  const advancedFields = modelSchema?.fields?.filter(field => {
+    // Excluir campos básicos e hidden
+    if (basicFields.includes(field.name) || field.type === 'hidden') {
+      return false;
+    }
+    
+    // Verificar campos condicionais
+    if (field.conditional) {
+      const conditionFieldValue = data[field.conditional.field];
+      return conditionFieldValue === field.conditional.value;
+    }
+    
+    return true;
+  }) || [];
 
   const handleFieldChange = (fieldName: string, value: any) => {
     console.log('🔧 Advanced Param Change:', {
@@ -83,9 +95,28 @@ export const AdvancedParamsPopup = ({
             </p>
           ) : (
             advancedFields.map((field) => {
-              const fieldValue = data[field.name] ?? field.defaultValue;
+              const rawValue = data[field.name];
+              const fieldValue = rawValue !== undefined && rawValue !== null ? rawValue : field.defaultValue;
               const localValue = localValues[field.name];
               const displayValue = localValue !== undefined ? localValue : (fieldValue === null || fieldValue === undefined ? '' : String(fieldValue));
+              
+              // Debug e fix para color_palette_type
+              if (field.name === 'color_palette_type') {
+                console.log('🎨 Color Palette Type Debug:', {
+                  fieldName: field.name,
+                  rawValue,
+                  defaultValue: field.defaultValue,
+                  fieldValue,
+                  displayValue,
+                  modelId
+                });
+                
+                // Force reset para 'none' se valor inválido para Ideogram V3
+                if (modelId === 'fal-ai/ideogram-v3' && rawValue === 'custom' && !data.color_r) {
+                  console.log('🔄 Forçando reset para none devido a valor inválido');
+                  handleFieldChange(field.name, 'none');
+                }
+              }
 
               return (
                 <div key={field.name} className="space-y-2">
@@ -224,6 +255,31 @@ export const AdvancedParamsPopup = ({
                         {field.label}
                       </Label>
                     </div>
+                  )}
+                  
+                  {field.type === 'textarea' && (
+                    <Textarea
+                      placeholder={field.placeholder}
+                      value={displayValue}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        setLocalValues(prev => ({
+                          ...prev,
+                          [field.name]: inputValue
+                        }));
+                      }}
+                      onBlur={(e) => {
+                        const inputValue = e.target.value;
+                        handleFieldChange(field.name, inputValue);
+                        setLocalValues(prev => {
+                          const newValues = { ...prev };
+                          delete newValues[field.name];
+                          return newValues;
+                        });
+                      }}
+                      className="text-xs min-h-[60px] resize-y"
+                      rows={3}
+                    />
                   )}
                 </div>
               );

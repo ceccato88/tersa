@@ -1,4 +1,5 @@
 // Removido import do Replicate - usando apenas FAL
+import { updateProjectAction } from '@/app/actions/project/update';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,21 +46,7 @@ type ImageTransformProps = ImageNodeProps & {
 };
 
 const AVAILABLE_MODELS = {
-  // Modelos FAL
-  'fal-ai/flux-dev': {
-    label: 'FLUX.1 [dev]',
-    chef: providers.fal,
-    providers: [providers.fal],
-    aspectRatios: [
-      { label: 'Square 1:1', value: 'square' },
-      { label: 'Square 1:1 HD', value: 'square_hd' },
-      { label: '4:3', value: 'landscape_4_3' },
-      { label: '3:4', value: 'portrait_4_3' },
-      { label: '16:9', value: 'landscape_16_9' },
-      { label: '9:16', value: 'portrait_16_9' },
-    ],
-    default: true,
-  },
+  // Modelos removidos: FLUX.1 [dev] foi excluído conforme solicitado
 
 };
 
@@ -300,6 +287,40 @@ export const ImageTransform = ({
         }
       } else {
         toast.success('Imagem gerada com sucesso');
+      }
+
+      // Forçar salvamento imediato do projeto após gerar imagens
+      if (project?.id) {
+        try {
+          const nodes = getNodes().map((n) => ({
+            ...n,
+            selected: false,
+            dragging: false,
+          }));
+          const edges = getEdges().map((e) => ({
+            ...e,
+            selected: false,
+          }));
+          
+          const safeContent = {
+            nodes,
+            edges,
+            viewport: { x: 0, y: 0, zoom: 1 }, // viewport básico
+          };
+
+          console.log('💾 Forçando salvamento do projeto após geração de imagem...');
+          const saveResponse = await updateProjectAction(project.id, {
+            content: safeContent,
+          });
+
+          if ('error' in saveResponse) {
+            console.error('❌ Erro ao salvar projeto:', saveResponse.error);
+          } else {
+            console.log('✅ Projeto salvo com sucesso após geração de imagem');
+          }
+        } catch (saveError) {
+          console.error('❌ Erro no salvamento forçado:', saveError);
+        }
       }
 
       // Credits removed: no SWR revalidation needed

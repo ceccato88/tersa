@@ -212,97 +212,6 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
     ]
   },
   // Modelos FAL
-  'fal-ai/flux-dev': {
-    label: 'FLUX.1 [dev]',
-    aspectRatios: [
-      { label: 'Landscape 4:3', value: 'landscape_4_3' },
-      { label: 'Landscape 16:9', value: 'landscape_16_9' },
-      { label: 'Portrait 4:3', value: 'portrait_4_3' },
-      { label: 'Portrait 16:9', value: 'portrait_16_9' },
-      { label: 'Square HD', value: 'square_hd' },
-      { label: 'Square', value: 'square' },
-    ],
-    fields: [
-      // Campo que aparece no nó principal (controla quantos nós criar)
-      {
-        name: 'num_images',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        min: 1,
-        max: 4,
-        gridColumn: 2
-      },
-      
-      // Campos que aparecem apenas na aba avançada
-      {
-        name: 'num_inference_steps',
-        type: 'number',
-        label: 'Passos de Inferência (1-50)',
-        placeholder: '28',
-        defaultValue: 28,
-        min: 1,
-        max: 50,
-        gridColumn: 1
-      },
-      {
-        name: 'seed',
-        type: 'number',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: null,
-        gridColumn: 2
-      },
-      {
-        name: 'guidance_scale',
-        type: 'number',
-        label: 'Guidance Scale (1-20)',
-        placeholder: '3.5',
-        defaultValue: 3.5,
-        min: 1,
-        max: 20,
-        step: 0.1,
-        gridColumn: 1
-      },
-      {
-        name: 'sync_mode',
-        type: 'checkbox',
-        label: 'Modo Síncrono',
-        defaultValue: false,
-        gridColumn: 2
-      },
-      {
-        name: 'enable_safety_checker',
-        type: 'checkbox',
-        label: 'Verificação de Segurança',
-        defaultValue: true,
-        gridColumn: 1
-      },
-      {
-        name: 'output_format',
-        type: 'select',
-        label: 'Formato de Saída',
-        options: [
-          { value: 'jpeg', label: 'JPEG' },
-          { value: 'png', label: 'PNG' }
-        ],
-        defaultValue: 'jpeg',
-        gridColumn: 2
-      },
-      {
-        name: 'acceleration',
-        type: 'select',
-        label: 'Aceleração',
-        options: [
-          { value: 'none', label: 'Nenhuma' },
-          { value: 'regular', label: 'Regular' },
-          { value: 'high', label: 'Alta' }
-        ],
-        defaultValue: 'none',
-        gridColumn: 1
-      }
-    ]
-  },
   'fal-ai/flux-pro-kontext': {
     label: 'FLUX.1 Kontext [pro]',
     aspectRatios: [
@@ -1054,7 +963,92 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         ],
         defaultValue: 'AUTO',
         gridColumn: 1
-      }
+      },
+      {
+        name: 'expand_prompt',
+        type: 'checkbox',
+        label: 'Expandir Prompt (MagicPrompt)',
+        defaultValue: true,
+        gridColumn: 2
+      },
+      {
+        name: 'negative_prompt',
+        type: 'input',
+        label: 'Prompt Negativo',
+        placeholder: 'Descreva o que excluir da imagem',
+        defaultValue: '',
+        gridColumn: 2
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
+        name: 'color_palette_type',
+        type: 'select',
+        label: 'Tipo de Paleta',
+        options: [
+          { value: 'none', label: 'Nenhuma' },
+          { value: 'preset', label: 'Predefinida' },
+          { value: 'custom', label: 'Personalizada' },
+        ],
+        defaultValue: 'none',
+        gridColumn: 1
+      },
+      {
+        name: 'color_palette_preset',
+        type: 'select',
+        label: 'Paleta Predefinida',
+        options: [
+          { value: 'EMBER', label: 'Ember' },
+          { value: 'FRESH', label: 'Fresh' },
+          { value: 'JUNGLE', label: 'Jungle' },
+          { value: 'MAGIC', label: 'Magic' },
+          { value: 'MELON', label: 'Melon' },
+          { value: 'MOSAIC', label: 'Mosaic' },
+          { value: 'PASTEL', label: 'Pastel' },
+          { value: 'ULTRAMARINE', label: 'Ultramarine' },
+        ],
+        defaultValue: null,
+        gridColumn: 2,
+        conditional: { field: 'color_palette_type', value: 'preset' }
+      },
+      {
+        name: 'color_r',
+        type: 'number',
+        label: 'Vermelho (R)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 190,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_g',
+        type: 'number',
+        label: 'Verde (G)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_b',
+        type: 'number',
+        label: 'Azul (B)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
     ]
   },
   'fal-ai/recraft-v3': {
@@ -1770,10 +1764,6 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.promptUpsampling = false;
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/flux-dev
-  if (modelId === 'fal-ai/flux-dev') {
-    defaults.image_size = 'landscape_4_3';
-  }
   
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext
   if (modelId === 'fal-ai/flux-pro-kontext') {
@@ -1830,6 +1820,10 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   // Adicionar valores padrão para o modelo fal-ai/ideogram-v3
   if (modelId === 'fal-ai/ideogram-v3') {
     defaults.image_size = 'square_hd';
+    defaults.color_palette_type = 'none';
+    defaults.color_r = 190;
+    defaults.color_g = 29;
+    defaults.color_b = 29;
   }
   
   

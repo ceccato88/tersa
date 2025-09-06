@@ -1,3 +1,4 @@
+import { updateProjectAction } from '@/app/actions/project/update';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -611,6 +612,40 @@ export const HybridImageTransform = ({
           if (newEdges.length > 0) {
             addEdges(newEdges);
           }
+        }
+      }
+
+      // Forçar salvamento imediato do projeto após gerar imagens
+      if (project?.id) {
+        try {
+          const nodes = getNodes().map((n) => ({
+            ...n,
+            selected: false,
+            dragging: false,
+          }));
+          const edges = getEdges().map((e) => ({
+            ...e,
+            selected: false,
+          }));
+          
+          const safeContent = {
+            nodes,
+            edges,
+            viewport: { x: 0, y: 0, zoom: 1 }, // viewport básico
+          };
+
+          console.log('💾 Forçando salvamento do projeto após geração de imagem...');
+          const saveResponse = await updateProjectAction(project.id, {
+            content: safeContent,
+          });
+
+          if ('error' in saveResponse) {
+            console.error('❌ Erro ao salvar projeto:', saveResponse.error);
+          } else {
+            console.log('✅ Projeto salvo com sucesso após geração de imagem');
+          }
+        } catch (saveError) {
+          console.error('❌ Erro no salvamento forçado:', saveError);
         }
       }
       

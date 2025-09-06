@@ -1,4 +1,3 @@
-import { generateVideoReplicateAction } from '@/app/actions/video/replicate';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,21 +44,11 @@ type VideoTransformProps = VideoNodeProps & {
 };
 
 const AVAILABLE_MODELS = {
-  'wan-video/wan-2.2-i2v-a14b': {
-    label: 'WAN Video I2V (Replicate)',
-    chef: providers.replicate,
-    icon: WanIcon,
-    providers: [{
-      ...providers.replicate,
-      icon: WanIcon,
-    }],
-    default: true,
-  },
   'fal-ai/stable-video-diffusion': {
     label: 'Stable Video Diffusion (FAL)',
     chef: providers.fal,
     providers: [providers.fal],
-    default: false,
+    default: true,
   },
 };
 

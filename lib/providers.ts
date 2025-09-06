@@ -1,4 +1,4 @@
-import type { PriceBracket } from '@/providers/gateway/client';
+type PriceBracket = 'lowest' | 'low' | 'high' | 'highest';
 import {
   AlibabaCloudIcon,
   AmazonBedrockIcon,

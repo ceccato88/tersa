@@ -30,8 +30,6 @@ const ASPECT_RATIO_MAP: Record<string, string> = {
 
 // Mapeamento de modelos FAL
 const FAL_MODEL_MAP: Record<string, string> = {
-  'fal-ai/flux-dev': 'fal-ai/flux/dev',
-
   'fal-ai/flux-pro-kontext': 'fal-ai/flux-pro/kontext',
   'fal-ai/flux-pro-kontext-text': 'fal-ai/flux-pro/kontext/text-to-image',
   'fal-ai/flux-pro-kontext-max': 'fal-ai/flux-pro/kontext/max/text-to-image',
@@ -53,6 +51,31 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/recraft/upscale/crisp': 'fal-ai/recraft/upscale/crisp',
   'fal-ai/ideogram/upscale': 'fal-ai/ideogram/upscale',
 };
+
+// Função para verificar se um erro pode ser tentado novamente
+function isRetriableError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  
+  const message = error.message.toLowerCase();
+  const isTimeoutError = message.includes('timeout') || 
+                        message.includes('socket') || 
+                        message.includes('fetch failed') ||
+                        message.includes('network') ||
+                        message.includes('connection');
+  
+  // Verificar se tem cause com código específico de socket
+  const hasCause = 'cause' in error && error.cause;
+  if (hasCause && typeof error.cause === 'object' && error.cause !== null) {
+    const cause = error.cause as any;
+    if (cause.code === 'UND_ERR_SOCKET' || 
+        cause.code === 'ECONNRESET' || 
+        cause.code === 'ETIMEDOUT') {
+      return true;
+    }
+  }
+  
+  return isTimeoutError;
+}
 
 export async function generateImageFalAction(
   prompt: string,
@@ -82,7 +105,7 @@ export async function generateImageFalAction(
     }
 
     // Mapear o modelo
-    const falModel = FAL_MODEL_MAP[data.model || 'fal-ai/flux-dev'] || 'fal-ai/flux/dev';
+    const falModel = FAL_MODEL_MAP[data.model || 'fal-ai/flux-pro-kontext'] || 'fal-ai/flux-pro/kontext';
     
     // Preparar input para FAL baseado no modelo
     const isUpscaleModelType = ['fal-ai/topaz/upscale/image', 'fal-ai/recraft/upscale/creative', 'fal-ai/recraft/upscale/crisp'].includes(data.model || '');
@@ -479,13 +502,40 @@ export async function generateImageFalAction(
       // Ideogram V3 usa todos os parâmetros específicos
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
       input.image_size = imageSize;
-      input.num_images = parseNumber(data.num_images) || 1;
+      input.num_images = 1; // Sempre 1 imagem, não aparece na interface
       input.rendering_speed = data.rendering_speed || 'BALANCED';
       input.style = data.style || 'AUTO';
       input.expand_prompt = data.expand_prompt !== undefined ? data.expand_prompt : true;
       input.seed = parseNumber(data.seed);
       input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
       input.negative_prompt = data.negative_prompt || '';
+      
+      // Parâmetros avançados - Color Palette (preset ou personalizada)
+      if (data.color_palette_type === 'preset' && data.color_palette_preset && data.color_palette_preset !== null && data.color_palette_preset !== 'none' && String(data.color_palette_preset).trim() !== '') {
+        input.color_palette = {
+          name: data.color_palette_preset
+        };
+      } else if (data.color_palette_type === 'custom' && (data.color_r !== undefined || data.color_g !== undefined || data.color_b !== undefined)) {
+        // Usar valores padrão se não definidos
+        const r = data.color_r !== undefined && data.color_r !== null ? Number(data.color_r) : 190;
+        const g = data.color_g !== undefined && data.color_g !== null ? Number(data.color_g) : 29;
+        const b = data.color_b !== undefined && data.color_b !== null ? Number(data.color_b) : 29;
+        
+        // Validar limites RGB (0-255)
+        const validR = Math.max(0, Math.min(255, r));
+        const validG = Math.max(0, Math.min(255, g));
+        const validB = Math.max(0, Math.min(255, b));
+        
+        input.color_palette = {
+          members: [{
+            rgb: {
+              r: validR,
+              g: validG,
+              b: validB
+            }
+          }]
+        };
+      }
       
       // DEBUG: Log específico para Ideogram V3
       console.log('🚀 Ideogram V3 Debug - Parâmetros completos:', {
@@ -500,7 +550,8 @@ export async function generateImageFalAction(
           expand_prompt: input.expand_prompt,
           seed: input.seed,
           sync_mode: input.sync_mode,
-          negative_prompt: input.negative_prompt?.substring(0, 30)
+          negative_prompt: input.negative_prompt?.substring(0, 30),
+          color_palette: input.color_palette
         }
       });
     } else if (data.model === 'fal-ai/recraft-v3') {
@@ -562,33 +613,6 @@ export async function generateImageFalAction(
       
       // DEBUG: Log específico para FLUX.1 Krea
       console.log('🚀 FLUX.1 Krea Debug - Parâmetros completos:', {
-        model: data.model,
-        receivedData: Object.keys(data),
-        finalInput: {
-          prompt: input.prompt?.substring(0, 50),
-          image_size: input.image_size,
-          num_inference_steps: input.num_inference_steps,
-          seed: input.seed,
-          guidance_scale: input.guidance_scale,
-          sync_mode: input.sync_mode,
-          num_images: input.num_images,
-          enable_safety_checker: input.enable_safety_checker,
-          output_format: input.output_format,
-          acceleration: input.acceleration
-        }
-      });
-    } else if (data.model === 'fal-ai/flux-dev') {
-      // FLUX.1 [dev] text-to-image usa todos os parâmetros da API
-      const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || '1:1'] || 'landscape_4_3';
-      input.image_size = imageSize;
-      input.num_inference_steps = parseNumber(data.num_inference_steps) || 28;
-      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
-      input.num_images = parseNumber(data.num_images) || 1;
-      input.enable_safety_checker = data.enable_safety_checker !== undefined ? data.enable_safety_checker : true;
-      input.acceleration = data.acceleration || 'none';
-      
-      // DEBUG: Log específico para FLUX.1 [dev]
-      console.log('🚀 FLUX.1 [dev] Debug - Parâmetros completos:', {
         model: data.model,
         receivedData: Object.keys(data),
         finalInput: {
@@ -673,19 +697,53 @@ export async function generateImageFalAction(
       },
     });
 
-    // Fazer a requisição para FAL
-    const result = await fal.subscribe(falModel, {
-      input,
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === 'IN_PROGRESS') {
-          logger.info('🔄 FAL em progresso', {
-            status: update.status,
-            logs: update.logs?.map(log => log.message).join(', '),
-          });
+    // Fazer a requisição para FAL com retry logic
+    let result;
+    let attempts = 0;
+    const maxAttempts = 2;
+    
+    while (attempts < maxAttempts) {
+      try {
+        attempts++;
+        logger.info(`🔄 Tentativa ${attempts}/${maxAttempts} para FAL`, {
+          model: falModel,
+          attempt: attempts
+        });
+        
+        result = await fal.subscribe(falModel, {
+          input,
+          logs: true,
+          timeout: 120000, // 2 minutos de timeout
+          onQueueUpdate: (update) => {
+            if (update.status === 'IN_PROGRESS') {
+              logger.info('🔄 FAL em progresso', {
+                status: update.status,
+                attempt: attempts,
+                logs: update.logs?.map(log => log.message).join(', '),
+              });
+            }
+          },
+        });
+        
+        // Se chegou aqui, a requisição foi bem-sucedida
+        break;
+        
+      } catch (error) {
+        logger.error(`❌ Erro na tentativa ${attempts}/${maxAttempts}:`, {
+          error: error instanceof Error ? error.message : 'Erro desconhecido',
+          model: falModel,
+          attempt: attempts
+        });
+        
+        // Se é a última tentativa ou não é um erro de timeout/socket, re-throw
+        if (attempts >= maxAttempts || !isRetriableError(error)) {
+          throw error;
         }
-      },
-    });
+        
+        // Aguardar um pouco antes de tentar novamente
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
 
     logger.info('✅ Imagem gerada com sucesso via FAL', {
       requestId: result.requestId,
@@ -710,12 +768,65 @@ export async function generateImageFalAction(
 
     logger.info('🔗 Fazendo download da imagem da FAL:', primaryImageUrl);
     
-    // Download da imagem da FAL
-    const imageResponse = await fetch(primaryImageUrl);
-    if (!imageResponse.ok) {
-      throw new Error(`Erro ao fazer download da imagem: ${imageResponse.statusText}`);
+    // Download da imagem da FAL com retry logic
+    let imageArrayBuffer;
+    let downloadAttempts = 0;
+    const maxDownloadAttempts = 3;
+    
+    while (downloadAttempts < maxDownloadAttempts) {
+      try {
+        downloadAttempts++;
+        logger.info(`🔄 Tentativa de download ${downloadAttempts}/${maxDownloadAttempts}`);
+        
+        // Fetch com timeout personalizado para downloads grandes (modelos de upscale)
+        const controller = new AbortController();
+        const isUpscaleModel = data.model?.includes('upscale');
+        const timeoutDuration = isUpscaleModel ? 120000 : 60000; // 2 min para upscale, 1 min para outros
+        const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+        
+        logger.info(`⏱️ Usando timeout de ${timeoutDuration/1000}s para download`, {
+          model: data.model,
+          isUpscale: isUpscaleModel
+        });
+        
+        const imageResponse = await fetch(primaryImageUrl, {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'image/*',
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!imageResponse.ok) {
+          throw new Error(`Erro ao fazer download da imagem: ${imageResponse.statusText}`);
+        }
+        
+        imageArrayBuffer = await imageResponse.arrayBuffer();
+        logger.info('✅ Download da imagem concluído com sucesso', {
+          size: imageArrayBuffer.byteLength,
+          attempt: downloadAttempts
+        });
+        break; // Sucesso, sair do loop
+        
+      } catch (error) {
+        logger.error(`❌ Erro no download - tentativa ${downloadAttempts}/${maxDownloadAttempts}:`, {
+          error: error instanceof Error ? error.message : 'Erro desconhecido',
+          url: primaryImageUrl.substring(0, 100) + '...',
+          attempt: downloadAttempts
+        });
+        
+        // Se é a última tentativa ou não é um erro retriável, re-throw
+        if (downloadAttempts >= maxDownloadAttempts || !isRetriableError(error)) {
+          throw new Error(`Falha no download da imagem após ${downloadAttempts} tentativas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+        }
+        
+        // Aguardar antes de tentar novamente
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      }
     }
-    const imageArrayBuffer = await imageResponse.arrayBuffer();
 
     // Upload para Supabase Storage
     const client = await createClient();

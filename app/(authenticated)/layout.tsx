@@ -1,5 +1,4 @@
 import { currentUser, currentUserProfile } from '@/lib/auth';
-import { GatewayProvider } from '@/providers/gateway';
 import { PostHogIdentifyProvider } from '@/providers/posthog-provider';
 import {
   type SubscriptionContextType,
@@ -31,11 +30,9 @@ const AuthenticatedLayout = async ({ children }: AuthenticatedLayoutProps) => {
 
   return (
     <SubscriptionProvider isSubscribed={true} plan={plan}>
-      <GatewayProvider>
-        <PostHogIdentifyProvider>
-          <ReactFlowProvider>{children}</ReactFlowProvider>
-        </PostHogIdentifyProvider>
-      </GatewayProvider>
+      <PostHogIdentifyProvider>
+        <ReactFlowProvider>{children}</ReactFlowProvider>
+      </PostHogIdentifyProvider>
     </SubscriptionProvider>
   );
 };

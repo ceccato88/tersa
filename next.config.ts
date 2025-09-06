@@ -28,11 +28,7 @@ const nextConfig: NextConfig = {
         hostname: 'localhost',
       },
       
-      // Replicate delivery URLs
-      {
-        protocol: 'https',
-        hostname: 'replicate.delivery',
-      },
+      
     ],
   },
 

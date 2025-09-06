@@ -1,6 +1,9 @@
 import { generateImageFalAction } from '@/app/actions/image/fal';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Configurar timeout da rota para 5 minutos (modelos de upscale podem demorar mais)
+export const maxDuration = 300;
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
