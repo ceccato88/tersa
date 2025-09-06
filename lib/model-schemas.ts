@@ -1543,7 +1543,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         type: 'select',
         label: 'Detecção de Assunto',
         options: [
-          { value: 'All', label: 'Tudo' },
+          { value: 'All', label: 'Todos' },
           { value: 'Foreground', label: 'Primeiro Plano' },
           { value: 'Background', label: 'Fundo' }
         ],
@@ -1553,7 +1553,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       {
         name: 'face_enhancement',
         type: 'checkbox',
-        label: 'Melhoramento Facial',
+        label: 'Melhoria Facial',
         defaultValue: true,
         gridColumn: 2
       },
@@ -1579,6 +1579,154 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
+  'fal-ai/ideogram/upscale': {
+    label: 'Ideogram Upscale',
+    aspectRatios: [
+      { label: 'Upscale', value: 'upscale' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'prompt',
+        type: 'textarea',
+        label: 'Prompt para Upscale',
+        defaultValue: '',
+        gridColumn: 1
+      },
+      {
+        name: 'resemblance',
+        type: 'number',
+        label: 'Semelhança (1-100)',
+        defaultValue: 50,
+        min: 1,
+        max: 100,
+        step: 1,
+        gridColumn: 2
+      },
+      {
+        name: 'detail',
+        type: 'number',
+        label: 'Detalhe (1-100)',
+        defaultValue: 50,
+        min: 1,
+        max: 100,
+        step: 1,
+        gridColumn: 1
+      },
+      {
+        name: 'expand_prompt',
+        type: 'checkbox',
+        label: 'Expandir Prompt (MagicPrompt)',
+        defaultValue: false,
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/recraft/upscale/creative': {
+    label: 'Recraft Creative Upscale',
+    aspectRatios: [
+      { label: 'Upscale', value: 'upscale' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
+        name: 'enable_safety_checker',
+        type: 'checkbox',
+        label: 'Verificador de Segurança',
+        defaultValue: false,
+        gridColumn: 2
+      },
+      {
+        name: 'crop_to_fill',
+        type: 'checkbox',
+        label: 'Cortar para Preencher',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
+        name: 'output_format',
+        type: 'select',
+        label: 'Formato de Saída',
+        options: [
+          { value: 'jpeg', label: 'JPEG' },
+          { value: 'png', label: 'PNG' }
+        ],
+        defaultValue: 'jpeg',
+        gridColumn: 2
+      }
+    ]
+  },
+  'fal-ai/recraft/upscale/crisp': {
+    label: 'Recraft Crisp Upscale',
+    aspectRatios: [
+      { label: 'Upscale', value: 'upscale' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
+        name: 'enable_safety_checker',
+        type: 'checkbox',
+        label: 'Verificador de Segurança',
+        defaultValue: false,
+        gridColumn: 2
+      }
+    ]
+  }
 };
 
 // Função para obter o esquema de um modelo
@@ -1740,6 +1888,24 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.face_enhancement = true;
     defaults.face_enhancement_creativity = 0;
     defaults.face_enhancement_strength = 0.8;
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/recraft/upscale/creative
+  if (modelId === 'fal-ai/recraft/upscale/creative') {
+    defaults.upscale = 'upscale';
+    defaults.sync_mode = false;
+    defaults.enable_safety_checker = false;
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/ideogram/upscale
+  if (modelId === 'fal-ai/ideogram/upscale') {
+    defaults.upscale = 'upscale';
+    defaults.prompt = '';
+    defaults.resemblance = 50;
+    defaults.detail = 50;
+    defaults.expand_prompt = false;
+    defaults.seed = null;
+    defaults.sync_mode = false;
   }
   
   

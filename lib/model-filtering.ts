@@ -125,6 +125,27 @@ const IMAGE_MODELS = {
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem
+  },
+  'fal-ai/recraft/upscale/creative': {
+    id: 'fal-ai/recraft/upscale/creative',
+    label: 'Recraft Creative Upscale',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
+  },
+  'fal-ai/recraft/upscale/crisp': {
+    id: 'fal-ai/recraft/upscale/crisp',
+    label: 'Recraft Crisp Upscale',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
+  },
+  'fal-ai/ideogram/upscale': {
+    id: 'fal-ai/ideogram/upscale',
+    label: 'Ideogram Upscale',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
   }
 };
 

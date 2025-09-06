@@ -49,6 +49,9 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/ideogram/character': 'fal-ai/ideogram/character',
   'fal-ai/recraft/v3/image-to-image': 'fal-ai/recraft/v3/image-to-image',
   'fal-ai/topaz/upscale/image': 'fal-ai/topaz/upscale/image',
+  'fal-ai/recraft/upscale/creative': 'fal-ai/recraft/upscale/creative',
+  'fal-ai/recraft/upscale/crisp': 'fal-ai/recraft/upscale/crisp',
+  'fal-ai/ideogram/upscale': 'fal-ai/ideogram/upscale',
 };
 
 export async function generateImageFalAction(
@@ -94,7 +97,7 @@ export async function generateImageFalAction(
     };
 
     // Adicionar parâmetros globais apenas se não for Recraft V3, Nano Banana, Nano Banana Edit, Imagen 4, Imagen 4 Ultra, Ideogram V3, Ideogram Character, FLUX1.1 [pro], FLUX1.1 [pro] ultra, FLUX.1 Kontext [max], FLUX.1 Kontext [pro] text, FLUX.1 Krea ou modelos image-to-image específicos
-    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana-edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-pro-kontext-max' && data.model !== 'fal-ai/flux-pro-kontext-text' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/topaz/upscale/image') {
+    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana-edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-pro-kontext-max' && data.model !== 'fal-ai/flux-pro-kontext-text' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
       input.seed = parseNumber(data.seed);
       
       // Guidance scale específico por modelo
@@ -391,6 +394,56 @@ export async function generateImageFalAction(
           face_enhancement_strength: input.face_enhancement_strength
         }
       });
+    } else if (data.model === 'fal-ai/recraft/upscale/creative') {
+      // Recraft Creative Upscale usa parâmetros específicos
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      input.enable_safety_checker = data.enable_safety_checker !== undefined ? data.enable_safety_checker : false;
+      
+      // DEBUG: Log específico para Recraft Creative Upscale
+      console.log('🔍 Recraft Creative Upscale Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          sync_mode: input.sync_mode,
+          enable_safety_checker: input.enable_safety_checker
+        }
+      });
+    } else if (data.model === 'fal-ai/recraft/upscale/crisp') {
+      // Recraft Crisp Upscale usa parâmetros específicos
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      input.enable_safety_checker = data.enable_safety_checker !== undefined ? data.enable_safety_checker : false;
+      
+      // DEBUG: Log específico para Recraft Crisp Upscale
+      console.log('🔍 Recraft Crisp Upscale Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          sync_mode: input.sync_mode,
+          enable_safety_checker: input.enable_safety_checker
+        }
+      });
+    } else if (data.model === 'fal-ai/ideogram/upscale') {
+      // Ideogram Upscale usa parâmetros específicos
+      input.prompt = data.prompt || '';
+      input.resemblance = parseNumber(data.resemblance) || 50;
+      input.detail = parseNumber(data.detail) || 50;
+      input.expand_prompt = data.expand_prompt !== undefined ? data.expand_prompt : false;
+      input.seed = parseNumber(data.seed) || null;
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      
+      // DEBUG: Log específico para Ideogram Upscale
+      console.log('🔍 Ideogram Upscale Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          resemblance: input.resemblance,
+          detail: input.detail,
+          expand_prompt: input.expand_prompt,
+          seed: input.seed,
+          sync_mode: input.sync_mode
+        }
+      });
     } else if (data.model === 'fal-ai/flux-pro-v1.1') {
       // FLUX1.1 [pro] usa todos os parâmetros específicos
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'landscape_4_3'] || 'landscape_4_3';
@@ -577,13 +630,19 @@ export async function generateImageFalAction(
       } else if (data.model === 'fal-ai/topaz/upscale/image') {
         // Topaz Upscale usa image_url (singular)
         input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
+      } else if (data.model === 'fal-ai/recraft/upscale/creative') {
+        // Recraft Creative Upscale usa image_url (singular)
+        input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
+      } else if (data.model === 'fal-ai/recraft/upscale/crisp') {
+        // Recraft Crisp Upscale usa image_url (singular)
+        input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
       } else {
         // Outros modelos usam image_url (singular)
         const imageUrl = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
         input.image_url = imageUrl;
         
         // Força da transformação apenas para modelos que suportam (exceto modelos que já definem strength)
-        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/topaz/upscale/image') {
+        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp') {
           input.strength = data.strength || 0.8;
         }
       }
