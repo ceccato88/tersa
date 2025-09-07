@@ -24,6 +24,7 @@ import {
   RotateCcwIcon,
   StopCircleIcon,
   CopyIcon,
+  Settings,
 } from 'lucide-react';
 import {
   type ChangeEventHandler,
@@ -38,17 +39,24 @@ import { toast } from 'sonner';
 import { mutate } from 'swr';
 import type { VideoNodeProps } from '.';
 import { ModelSelector } from '../model-selector';
+import { AdvancedVideoParamsPopup } from './advanced-params-popup';
 
 type VideoTransformProps = VideoNodeProps & {
   title: string;
 };
 
 const AVAILABLE_MODELS = {
-  'fal-ai/stable-video-diffusion': {
-    label: 'Stable Video Diffusion (FAL)',
+  'fal-ai/luma-ray-2': {
+    label: 'Luma Ray 2',
     chef: providers.fal,
     providers: [providers.fal],
     default: true,
+  },
+  'fal-ai/kling-2.1-master': {
+    label: 'Kling 2.1 Master',
+    chef: providers.fal,
+    providers: [providers.fal],
+    default: false,
   },
 };
 
@@ -73,6 +81,7 @@ export const VideoTransform = ({
   const { updateNodeData, getNodes, getEdges, addNodes, addEdges } = useReactFlow();
   const [loading, setLoading] = useState(false);
   const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [showAdvancedParams, setShowAdvancedParams] = useState(false);
   const project = useProject();
   const analytics = useAnalytics();
   
@@ -121,12 +130,7 @@ export const VideoTransform = ({
         return;
       }
       
-      if (!imageNodes.length) {
-        toast.error('Imagem obrigatória', {
-          description: 'Por favor, conecte uma imagem de entrada para gerar o vídeo.'
-        });
-        return;
-      }
+      // Imagem não é obrigatória para todos os modelos; se houver, será usada.
 
       setLoading(true);
       const controller = new AbortController();
@@ -173,7 +177,7 @@ export const VideoTransform = ({
         const modelDefaults = getModelDefaults(modelId);
         const input = {
           prompt: data.instructions || '',
-          image: imageNodes[0], // Primeira imagem conectada
+          image: imageNodes[0], // Primeira imagem conectada (opcional)
           seed: currentSeed,
           resolution: resolution,
           frames_per_second: framesPerSecond,
@@ -191,14 +195,32 @@ export const VideoTransform = ({
           },
           body: JSON.stringify({
             prompt: data.instructions || '',
-            params: {
-              model: modelId,
-              imageUrl: imageNodes[0],
-              ...(currentSeed !== null && { seed: currentSeed }),
-              fps: framesPerSecond,
-              duration: 3, // Duração padrão
-              motionStrength: 0.8, // Força do movimento padrão
-            },
+            params: (
+              modelId === 'fal-ai/luma-ray-2'
+                ? {
+                    model: modelId,
+                    aspect_ratio: data.aspect_ratio || '16:9',
+                    resolution: data.resolution || '540p',
+                    duration: data.duration || '5s',
+                    loop: data.loop || false,
+                  }
+                : modelId === 'fal-ai/kling-2.1-master'
+                ? {
+                    model: modelId,
+                    duration: data.duration || '5',
+                    aspect_ratio: data.aspect_ratio || '16:9',
+                    negative_prompt: data.negative_prompt || 'blur, distort, and low quality',
+                    cfg_scale: data.cfg_scale ?? 0.5,
+                  }
+                : {
+                    model: modelId,
+                    imageUrl: imageNodes[0], // opcional
+                    ...(currentSeed !== null && { seed: currentSeed }),
+                    fps: framesPerSecond,
+                    duration: 3,
+                    motionStrength: 0.8,
+                  }
+            ),
             images: imageNodes.length > 0 ? imageNodes : undefined
           })
         });
@@ -217,7 +239,7 @@ export const VideoTransform = ({
           instructions: data.instructions || '',
           nodeId: id,
           projectId: project.id,
-          imageUrl: imageNodes[0], // URL da imagem de entrada
+          imageUrl: imageNodes[0], // URL da imagem de entrada (opcional)
           seed: currentSeed,
           numOutputs,
           resolution: resolution,
@@ -228,8 +250,12 @@ export const VideoTransform = ({
         if (result.error) {
           throw new Error(result.error);
         }
-
-        variations.push(result.nodeData);
+        // Normalizar para nodeData esperado
+        if (isFalModel) {
+          variations.push({ generated: { url: result.output } });
+        } else {
+          variations.push(result.nodeData);
+        }
       }
       
       // A primeira variação fica no nó atual
@@ -431,19 +457,25 @@ export const VideoTransform = ({
     id,
   ]);
 
-  // Calcular aspect ratio baseado na resolução
+  // Calcular aspect ratio baseado na seleção do modelo (Luma Ray 2 usa aspect_ratio)
   const aspectRatio = useMemo(() => {
-    if (resolution === '720p') {
-      return '16/9'; // 1280x720
-    }
-    return '16/9'; // 832x480 para 480p também é aproximadamente 16:9
-  }, [resolution]);
+    const ratio = (data as any).aspect_ratio || '16:9';
+    const map: Record<string, string> = {
+      '16:9': '16/9',
+      '9:16': '9/16',
+      '4:3': '4/3',
+      '3:4': '3/4',
+      '21:9': '21/9',
+      '9:21': '9/21',
+    };
+    return map[ratio] || '16/9';
+  }, [data?.aspect_ratio]);
 
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>
       {loading && (
         <Skeleton
-          className="flex w-full animate-pulse items-center justify-center rounded-b-xl min-h-[300px]"
+          className="flex w-full animate-pulse items-center justify-center rounded-b-xl"
           style={{ aspectRatio }}
         >
           <div className="flex flex-col items-center gap-2">
@@ -459,7 +491,7 @@ export const VideoTransform = ({
       )}
       {!loading && !data.generated?.url && (
         <div
-          className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4 min-h-[300px]"
+          className="flex w-full items-center justify-center rounded-b-xl bg-secondary p-4"
           style={{ aspectRatio }}
         >
           <p className="text-muted-foreground text-sm">
@@ -469,21 +501,23 @@ export const VideoTransform = ({
         </div>
       )}
       {!loading && data.generated?.url && (
-        <video
-          src={data.generated.url}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full rounded-b-xl"
-          onError={(e) => {
-            console.error('Erro ao carregar vídeo:', e);
-            console.error('URL do vídeo com erro:', data.generated.url);
-          }}
-          onLoadedData={() => {
-            console.log('Vídeo carregado com sucesso:', data.generated.url);
-          }}
-        />
+        <div className="w-full rounded-b-xl overflow-hidden" style={{ aspectRatio }}>
+          <video
+            src={data.generated.url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              console.error('Erro ao carregar vídeo:', e);
+              console.error('URL do vídeo com erro:', data.generated.url);
+            }}
+            onLoadedData={() => {
+              console.log('Vídeo carregado com sucesso:', data.generated.url);
+            }}
+          />
+        </div>
       )}
       <div className={`space-y-4 p-4 ${loading ? 'opacity-50' : ''}`}>
         <Textarea
@@ -493,205 +527,95 @@ export const VideoTransform = ({
           className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px]"
         />
         
-        {/* Modelo */}
-        <div className="space-y-2">
-          <Label>Modelo</Label>
-          {hasModels ? (
+        {/* Frente do nó: Modelo, Aspect Ratio, Quantidade */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Modelo</Label>
             <ModelSelector
               value={modelId}
               options={filteredModels}
               id={id}
-              className="w-full h-10"
+              className="w-full h-8 text-xs"
               onChange={(value) => {
-                // Ao mudar o modelo, aplicar valores padrão do novo modelo
                 const defaults = getModelDefaults(value);
                 updateNodeData(id, { model: value, ...defaults });
               }}
             />
-          ) : (
-            <div className="rounded-md border border-dashed border-muted-foreground/25 p-4 text-center text-sm text-muted-foreground">
-              {connectionType === 'none' ? (
-                'Conecte um nó de imagem para gerar vídeos'
-              ) : connectionType.startsWith('text') ? (
-                'Modelos text-to-video em breve'
-              ) : connectionType.startsWith('video') ? (
-                'Modelos video-to-video em breve'
-              ) : (
-                'Conecte um nó de imagem para gerar vídeos'
-              )}
-            </div>
-          )}
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Aspect Ratio</Label>
+            <Select
+              value={String(data.aspect_ratio || '16:9')}
+              onValueChange={(value) => updateNodeData(id, { aspect_ratio: value })}
+            >
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(getModelSchema(modelId)?.aspectRatios || []).map((ratio) => (
+                  <SelectItem key={ratio.value} value={ratio.value}>
+                    {ratio.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Quantidade</Label>
+            <Select
+              value={String(numOutputs)}
+              onValueChange={(value) => updateNodeData(id, { numOutputs: parseInt(value) })}
+            >
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4].map((num) => (
+                  <SelectItem key={num} value={String(num)}>
+                    {num}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         
-        {/* Campos dinâmicos baseados no modelo selecionado */}
-        {(() => {
-          const modelSchema = getModelSchema(modelId);
-          if (!modelSchema) {
-            // Fallback para campos básicos se não houver esquema
-            return (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Seed</Label>
-                    <Input
-                      type="text"
-                      placeholder="Deixe vazio para aleatório"
-                      value={seed}
-                      onChange={(e) => updateNodeData(id, { seed: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Quantidade</Label>
-                    <Select
-                      value={numOutputs.toString()}
-                      onValueChange={(value) => updateNodeData(id, { numOutputs: parseInt(value) })}
-                    >
-                      <SelectTrigger className="w-full h-10">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[1, 2, 3, 4].map((num) => (
-                          <SelectItem key={num} value={num.toString()}>
-                            {num} {num === 1 ? 'geração' : 'gerações'}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </>
-            );
-          }
-
-          // Renderização dinâmica baseada no esquema
-          const fieldPairs: Array<[any, any]> = [];
-          const fields = modelSchema.fields;
-          
-          for (let i = 0; i < fields.length; i += 2) {
-            fieldPairs.push([fields[i], fields[i + 1] || null]);
-          }
-
-          return fieldPairs.map((pair, pairIndex) => (
-            <div key={pairIndex} className="grid grid-cols-2 gap-4">
-              {pair.map((field, fieldIndex) => {
-                if (!field) return <div key={fieldIndex}></div>;
-                
-                const fieldValue = field.name === 'seed' ? seed : 
-                                 field.name === 'numOutputs' ? numOutputs :
-                                 field.name === 'resolution' ? resolution :
-                                 field.name === 'frames_per_second' ? framesPerSecond :
-                                 data[field.name] ?? field.defaultValue;
-
-                return (
-                  <div key={field.name} className="space-y-2">
-                    <Label>{field.label}</Label>
-                    {field.type === 'input' && (
-                      <Input
-                        type="text"
-                        placeholder={field.placeholder}
-                        value={fieldValue || ''}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (field.name === 'seed') {
-                            updateNodeData(id, { seed: value });
-                          } else {
-                            updateNodeData(id, { [field.name]: value });
-                          }
-                        }}
-                      />
-                    )}
-                    {field.type === 'number' && (
-                      <Select
-                        value={fieldValue.toString()}
-                        onValueChange={(value) => {
-                          if (field.name === 'numOutputs') {
-                            updateNodeData(id, { numOutputs: parseInt(value) });
-                          } else if (field.name === 'frames_per_second') {
-                            updateNodeData(id, { frames_per_second: parseInt(value) });
-                          } else {
-                            updateNodeData(id, { [field.name]: parseInt(value) });
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="w-full h-10">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {field.name === 'numOutputs' ? 
-                            [1, 2, 3, 4].map((num) => (
-                              <SelectItem key={num} value={num.toString()}>
-                                {num} {num === 1 ? 'geração' : 'gerações'}
-                              </SelectItem>
-                            )) : 
-                            field.name === 'frames_per_second' ?
-                            [5, 8, 12, 16, 20, 24].map((fps) => (
-                              <SelectItem key={fps} value={fps.toString()}>
-                                {fps} FPS
-                              </SelectItem>
-                            )) : null
-                          }
-                        </SelectContent>
-                      </Select>
-                    )}
-                    {field.type === 'select' && (
-                      <Select
-                        value={String(fieldValue)}
-                        onValueChange={(value) => {
-                          if (field.name === 'resolution') {
-                            updateNodeData(id, { resolution: value });
-                          } else {
-                            const parsedValue = isNaN(Number(value)) ? value : Number(value);
-                            updateNodeData(id, { [field.name]: parsedValue });
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="w-full h-10">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {field.options?.map((option) => (
-                            <SelectItem key={option.value} value={String(option.value)}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ));
-        })()}
-        
         {/* Botão Gerar horizontal */}
-        <Button
-          className="w-full"
-          onClick={handleGenerate}
-          disabled={loading || !project?.id}
-        >
-          {loading ? (
-            <>
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-              Gerando...
-            </>
-          ) : (
-            <>
-              {data.generated?.url ? (
-                <>
-                  <RotateCcwIcon className="mr-2 h-4 w-4" />
-                  Regenerar
-                </>
-              ) : (
-                <>
-                  <PlayIcon className="mr-2 h-4 w-4" />
-                  Gerar
-                </>
-              )}
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button className="flex-1" onClick={handleGenerate} disabled={loading || !project?.id}>
+            {loading ? (
+              <>
+                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                Gerando...
+              </>
+            ) : (
+              <>
+                {data.generated?.url ? (
+                  <>
+                    <RotateCcwIcon className="mr-2 h-4 w-4" />
+                    Regenerar
+                  </>
+                ) : (
+                  <>
+                    <PlayIcon className="mr-2 h-4 w-4" />
+                    Gerar
+                  </>
+                )}
+              </>
+            )}
+          </Button>
+          <Button variant="outline" size="sm" className="h-10 px-2" onClick={() => setShowAdvancedParams(true)}>
+            <Settings size={14} />
+          </Button>
+        </div>
       </div>
+      <AdvancedVideoParamsPopup
+        isOpen={showAdvancedParams}
+        onClose={() => setShowAdvancedParams(false)}
+        nodeId={id}
+        data={data}
+        modelId={modelId}
+      />
     </NodeLayout>
   );
 };

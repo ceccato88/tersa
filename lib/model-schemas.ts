@@ -750,7 +750,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   },
 
   'fal-ai/stable-video-diffusion': {
-    label: 'Stable Video Diffusion (FAL)',
+    label: 'Stable Video Diffusion',
     aspectRatios: [
       { label: '1:1 (512x512)', value: '1:1' },
       { label: '4:3 (640x480)', value: '4:3' },
@@ -787,6 +787,242 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
           { value: 2, label: '2 segundos' },
           { value: 3, label: '3 segundos' },
           { value: 4, label: '4 segundos' },
+          { value: 5, label: '5 segundos' }
+        ],
+        defaultValue: 3,
+        gridColumn: 1
+      },
+      {
+        name: 'motionStrength',
+        type: 'input',
+        label: 'Motion Strength',
+        placeholder: '127',
+        defaultValue: 127,
+        gridColumn: 2
+      }
+    ]
+  },
+
+  // Luma Ray 2 — text-to-video
+  'fal-ai/luma-ray-2': {
+    label: 'Luma Ray 2 (FAL)',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '4:3', value: '4:3' },
+      { label: '3:4', value: '3:4' },
+      { label: '21:9', value: '21:9' },
+      { label: '9:21', value: '9:21' },
+    ],
+    fields: [
+      // Frente do nó
+      {
+        name: 'numOutputs',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      {
+        name: 'aspect_ratio',
+        type: 'select',
+        label: 'Aspect Ratio',
+        options: [
+          { label: '16:9', value: '16:9' },
+          { label: '9:16', value: '9:16' },
+          { label: '4:3', value: '4:3' },
+          { label: '3:4', value: '3:4' },
+          { label: '21:9', value: '21:9' },
+          { label: '9:21', value: '9:21' },
+        ],
+        defaultValue: '16:9',
+        gridColumn: 1
+      },
+
+      // Aba avançada
+      {
+        name: 'loop',
+        type: 'checkbox',
+        label: 'Loop',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
+        name: 'resolution',
+        type: 'select',
+        label: 'Resolução',
+        options: [
+          { value: '540p', label: '540p' },
+          { value: '720p', label: '720p' },
+          { value: '1080p', label: '1080p' },
+        ],
+        defaultValue: '540p',
+        gridColumn: 2
+      },
+      {
+        name: 'duration',
+        type: 'select',
+        label: 'Duração',
+        options: [
+          { value: '5s', label: '5s' },
+          { value: '9s', label: '9s' },
+        ],
+        defaultValue: '5s',
+        gridColumn: 1
+      },
+    ]
+  },
+
+  // Kling 2.1 Master — text-to-video
+  'fal-ai/kling-2.1-master': {
+    label: 'Kling 2.1 Master (FAL)',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+    ],
+    fields: [
+      // Frente do nó
+      {
+        name: 'numOutputs',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      {
+        name: 'aspect_ratio',
+        type: 'select',
+        label: 'Aspect Ratio',
+        options: [
+          { label: '16:9', value: '16:9' },
+          { label: '9:16', value: '9:16' },
+          { label: '1:1', value: '1:1' },
+        ],
+        defaultValue: '16:9',
+        gridColumn: 1
+      },
+
+      // Avançado
+      {
+        name: 'duration',
+        type: 'select',
+        label: 'Duração (s)',
+        options: [
+          { value: '5', label: '5' },
+          { value: '10', label: '10' },
+        ],
+        defaultValue: '5',
+        gridColumn: 1
+      },
+      {
+        name: 'negative_prompt',
+        type: 'input',
+        label: 'Negative Prompt',
+        placeholder: 'blur, distort, and low quality',
+        defaultValue: 'blur, distort, and low quality',
+        gridColumn: 2
+      },
+      {
+        name: 'cfg_scale',
+        type: 'input',
+        label: 'CFG Scale (0-1)',
+        placeholder: '0.5',
+        defaultValue: 0.5,
+        gridColumn: 1
+      },
+    ]
+  },
+
+  'fal-ai/runway-gen3': {
+    label: 'Runway Gen-3 (FAL)',
+    aspectRatios: [
+      { label: '1:1 (512x512)', value: '1:1' },
+      { label: '4:3 (640x480)', value: '4:3' },
+      { label: '3:4 (480x640)', value: '3:4' },
+      { label: '16:9 (854x480)', value: '16:9' },
+      { label: '9:16 (480x854)', value: '9:16' },
+    ],
+    fields: [
+      {
+        name: 'seed',
+        type: 'input',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: '',
+        gridColumn: 1
+      },
+      {
+        name: 'fps',
+        type: 'select',
+        label: 'FPS',
+        options: [
+          { value: 12, label: '12 FPS' },
+          { value: 24, label: '24 FPS' }
+        ],
+        defaultValue: 24,
+        gridColumn: 2
+      },
+      {
+        name: 'duration',
+        type: 'select',
+        label: 'Duração',
+        options: [
+          { value: 2, label: '2 segundos' },
+          { value: 3, label: '3 segundos' },
+          { value: 4, label: '4 segundos' }
+        ],
+        defaultValue: 3,
+        gridColumn: 1
+      },
+      {
+        name: 'motionStrength',
+        type: 'input',
+        label: 'Motion Strength',
+        placeholder: '127',
+        defaultValue: 127,
+        gridColumn: 2
+      }
+    ]
+  },
+
+  'fal-ai/luma-dream-machine': {
+    label: 'Luma Dream Machine (FAL)',
+    aspectRatios: [
+      { label: '1:1 (512x512)', value: '1:1' },
+      { label: '4:3 (640x480)', value: '4:3' },
+      { label: '3:4 (480x640)', value: '3:4' },
+      { label: '16:9 (854x480)', value: '16:9' },
+      { label: '9:16 (480x854)', value: '9:16' },
+    ],
+    fields: [
+      {
+        name: 'seed',
+        type: 'input',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: '',
+        gridColumn: 1
+      },
+      {
+        name: 'fps',
+        type: 'select',
+        label: 'FPS',
+        options: [
+          { value: 6, label: '6 FPS' },
+          { value: 12, label: '12 FPS' },
+          { value: 24, label: '24 FPS' }
+        ],
+        defaultValue: 24,
+        gridColumn: 2
+      },
+      {
+        name: 'duration',
+        type: 'select',
+        label: 'Duração',
+        options: [
+          { value: 2, label: '2 segundos' },
+          { value: 3, label: '3 segundos' },
           { value: 5, label: '5 segundos' }
         ],
         defaultValue: 3,
@@ -2248,6 +2484,23 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.num_frames = 81;
     defaults.sample_steps = 40;
     defaults.sample_shift = 5;
+  }
+  
+  // Defaults para Luma Ray 2 (text-to-video)
+  if (modelId === 'fal-ai/luma-ray-2') {
+    defaults.aspect_ratio = '16:9';
+    defaults.resolution = '540p';
+    defaults.duration = '5s';
+    defaults.loop = false;
+    defaults.numOutputs = 1;
+  }
+  // Defaults para Kling 2.1 Master
+  if (modelId === 'fal-ai/kling-2.1-master') {
+    defaults.aspect_ratio = '16:9';
+    defaults.duration = '5';
+    defaults.negative_prompt = 'blur, distort, and low quality';
+    defaults.cfg_scale = 0.5;
+    defaults.numOutputs = 1;
   }
   
   return defaults;

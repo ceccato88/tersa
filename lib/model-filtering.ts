@@ -157,15 +157,34 @@ const VIDEO_MODELS = {
     id: 'wan-video/wan-2.2-i2v-a14b',
     label: 'WAN Video I2V (Replicate)',
     provider: 'replicate',
-    supportedInputs: ['image-primitive', 'image-transform']
+    supportedInputs: [
+      'text-primitive',
+      'text-transform',
+      'image-primitive',
+      'image-transform',
+      'video-primitive',
+      'video-transform'
+    ]
   },
-  // Modelos FAL
-  'fal-ai/stable-video-diffusion': {
-    id: 'fal-ai/stable-video-diffusion',
-    label: 'Stable Video Diffusion (FAL)',
+  'fal-ai/luma-ray-2': {
+    id: 'fal-ai/luma-ray-2',
+    label: 'Luma Ray 2',
     provider: 'fal',
-    supportedInputs: ['image-primitive', 'image-transform']
+    supportedInputs: [
+      'text-primitive',
+      'text-transform'
+    ]
+  },
+  'fal-ai/kling-2.1-master': {
+    id: 'fal-ai/kling-2.1-master',
+    label: 'Kling 2.1 Master',
+    provider: 'fal',
+    supportedInputs: [
+      'text-primitive',
+      'text-transform'
+    ]
   }
+  
   // Futuros modelos text-to-video serão adicionados aqui
   // 'future-text-to-video-model': {
   //   id: 'future-text-to-video-model',
@@ -215,11 +234,13 @@ export const filterVideoModels = (
   availableModels: Record<string, any>
 ): Record<string, any> => {
   const filteredModels: Record<string, any> = {};
+  // Quando não há conexões anteriores, tratar como 'text-primitive'
+  const effectiveType = connectionType === 'none' ? 'text-primitive' : connectionType;
   
   Object.entries(availableModels).forEach(([modelId, modelConfig]) => {
     const modelInfo = VIDEO_MODELS[modelId as keyof typeof VIDEO_MODELS];
     
-    if (modelInfo && modelInfo.supportedInputs.includes(connectionType)) {
+    if (modelInfo && modelInfo.supportedInputs.includes(effectiveType)) {
       filteredModels[modelId] = {
         ...modelConfig,
         provider: modelInfo.provider,

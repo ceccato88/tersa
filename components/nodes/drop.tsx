@@ -33,16 +33,16 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
   // Filter available node types based on source node type
   const getAvailableNodeTypes = () => {
     if (sourceNodeType === 'text') {
-      return ['text', 'image', 'video'];
+      return ['text', 'image', 'video', 'agent'];
     }
     if (sourceNodeType === 'image') {
-      return ['text', 'image', 'video'];
+      return ['text', 'image', 'video', 'agent'];
     }
     if (sourceNodeType === 'video') {
       return ['video'];
     }
     // Default: somente Texto, Imagem e Vídeo
-    return ['text', 'image', 'video'];
+    return ['text', 'image', 'video', 'agent'];
   };
 
   const availableNodeTypes = getAvailableNodeTypes();

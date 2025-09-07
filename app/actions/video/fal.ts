@@ -11,9 +11,8 @@ fal.config({
 
 // Mapeamento de modelos de vídeo FAL
 const FAL_VIDEO_MODEL_MAP: Record<string, string> = {
-  'fal-ai/stable-video-diffusion': 'fal-ai/stable-video-diffusion',
-  'fal-ai/runway-gen3': 'fal-ai/runway-gen3', // Exemplo - verificar disponibilidade
-  'fal-ai/luma-dream-machine': 'fal-ai/luma-dream-machine', // Exemplo - verificar disponibilidade
+  'fal-ai/luma-ray-2': 'fal-ai/luma-dream-machine/ray-2',
+  'fal-ai/kling-2.1-master': 'fal-ai/kling-video/v2.1/master/text-to-video',
 };
 
 // Mapeamento de aspect ratios para vídeo
@@ -45,27 +44,47 @@ export async function generateVideoFalAction(
     }
 
     // Mapear o modelo
-    const falModel = FAL_VIDEO_MODEL_MAP[data.model || 'fal-ai/stable-video-diffusion'] || 'fal-ai/stable-video-diffusion';
+    const falModel = FAL_VIDEO_MODEL_MAP[data.model || 'fal-ai/luma-ray-2'] || 'fal-ai/luma-dream-machine/ray-2';
     
     // Mapear dimensões do vídeo
     const dimensions = VIDEO_ASPECT_RATIO_MAP[data.aspectRatio || '16:9'] || { width: 854, height: 480 };
 
-    // Preparar input para FAL
-    const input: any = {
+  // Preparar input para FAL
+  let input: any;
+  if (data.model === 'fal-ai/luma-ray-2') {
+    // Luma Ray 2 usa parâmetros text-to-video específicos
+    input = {
+      prompt,
+      aspect_ratio: (data as any).aspect_ratio || '16:9',
+      resolution: (data as any).resolution || '540p',
+      duration: (data as any).duration || '5s',
+      loop: (data as any).loop || false,
+    };
+  } else if (data.model === 'fal-ai/kling-2.1-master') {
+    input = {
+      prompt,
+      duration: (data as any).duration || '5',
+      aspect_ratio: (data as any).aspect_ratio || '16:9',
+      negative_prompt: (data as any).negative_prompt || 'blur, distort, and low quality',
+      cfg_scale: (data as any).cfg_scale !== undefined ? parseFloat((data as any).cfg_scale as any) : 0.5,
+    };
+  } else {
+    input = {
       prompt,
       width: dimensions.width,
       height: dimensions.height,
-      num_frames: Math.floor((data.duration || 3) * (data.fps || 24)), // Calcular frames baseado na duração e FPS
-      fps: data.fps || 24,
-      motion_bucket_id: data.motionStrength || 127, // Força do movimento (0-255)
-      cond_aug: 0.02, // Augmentação condicional
-      seed: data.seed,
-    };
+        num_frames: Math.floor((data.duration || 3) * (data.fps || 24)), // Calcular frames baseado na duração e FPS
+        fps: data.fps || 24,
+        motion_bucket_id: data.motionStrength || 127, // Força do movimento (0-255)
+        cond_aug: 0.02, // Augmentação condicional
+        seed: data.seed,
+      };
+    }
 
     // Se há imagens de entrada (image-to-video)
-    if (images && images.length > 0) {
-      input.image_url = images[0];
-    }
+  if (images && images.length > 0 && !['fal-ai/luma-ray-2', 'fal-ai/kling-2.1-master'].includes(String(data.model))) {
+    input.image_url = images[0];
+  }
 
     // Remover propriedades undefined
     Object.keys(input).forEach(key => {

@@ -352,30 +352,24 @@ export const Canvas = ({ children, ...props }: ReactFlowProps) => {
           }
         }
 
-        // Validar limite de conexões de texto
-        if (source.type === 'text') {
-          // 1. Nó de texto só aceita uma conexão de texto
-          if (target.type === 'text') {
-            const existingTextConnections = edges.filter(edge => 
-              edge.target === target.id && 
-              nodes.find(n => n.id === edge.source)?.type === 'text'
-            ).length;
-            
-            if (existingTextConnections >= 1) {
-              return false;
-            }
-          }
+        // Bloquear conexões inválidas para vídeo: apenas texto/agente podem conectar
+        if (target.type === 'video' && !(source.type === 'text' || source.type === 'agent')) {
+          return false;
+        }
 
-          // 2. Nó de imagem só aceita uma conexão de texto
-          if (target.type === 'image') {
-            const existingTextConnections = edges.filter(edge => 
-              edge.target === target.id && 
-              nodes.find(n => n.id === edge.source)?.type === 'text'
-            ).length;
-            
-            if (existingTextConnections >= 1) {
-              return false;
-            }
+        // Validar limite de conexões de prompt (texto/agente)
+        // Regra: Qualquer nó (text, image, video, agent) aceita no máximo UMA entrada do tipo 'prompt'
+        // 'prompt' = conexões vindas de nós 'text' OU 'agent'. Não pode ter os dois.
+        const isPromptSource = source.type === 'text' || source.type === 'agent';
+        const isPromptTarget = ['text', 'image', 'video', 'agent'].includes(target.type);
+        if (isPromptSource && isPromptTarget) {
+          const existingPromptConnections = edges.filter(edge =>
+            edge.target === target.id &&
+            ['text', 'agent'].includes(nodes.find(n => n.id === edge.source)?.type || '')
+          ).length;
+
+          if (existingPromptConnections >= 1) {
+            return false;
           }
         }
       }

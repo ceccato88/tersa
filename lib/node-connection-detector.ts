@@ -32,7 +32,7 @@ export const detectPreviousNodeType = (
   
   // Separar tipos de conexões
   const imageNodes = incomers.filter(node => node.type === 'image');
-  const textNodes = incomers.filter(node => node.type === 'text');
+  const textNodes = incomers.filter(node => node.type === 'text' || node.type === 'agent');
   const videoNodes = incomers.filter(node => node.type === 'video');
   
   // PRIORIDADE: Se há imagens conectadas, modelos image-to-image têm prioridade
@@ -44,7 +44,10 @@ export const detectPreviousNodeType = (
   
   // Se não há imagens, verificar texto
   if (textNodes.length > 0) {
-    const textNode = textNodes[0]; // Pegar primeiro texto  
+    const textNode = textNodes[0]; // Pegar primeiro texto/agente
+    if (textNode.type === 'agent') {
+      return 'text-transform';
+    }
     const hasTextGenerated = Boolean(textNode.data?.generated?.text);
     return hasTextGenerated ? 'text-transform' : 'text-primitive';
   }
@@ -65,6 +68,9 @@ export const detectPreviousNodeType = (
       // Verificar se é primitivo ou transform baseado no conteúdo gerado
       const hasTextGenerated = Boolean(previousNode.data?.generated?.text);
       return hasTextGenerated ? 'text-transform' : 'text-primitive';
+    case 'agent':
+      // Nó de agente é sempre considerado transform (não possui modo primitivo)
+      return 'text-transform';
       
     case 'image':
       // Verificar se é primitivo ou transform baseado no conteúdo gerado
@@ -91,6 +97,8 @@ export const isNodePrimitive = (node: Node): boolean => {
   switch (node.type) {
     case 'text':
       return !Boolean(node.data?.generated?.text);
+    case 'agent':
+      return false; // agente é sempre transform
     case 'image':
       return !Boolean(node.data?.generated?.url);
     case 'video':

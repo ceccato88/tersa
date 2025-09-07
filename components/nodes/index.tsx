@@ -1,4 +1,5 @@
 import { DropNode } from './drop';
+import { AgentNode } from './agent';
 import { ImageNode } from './image';
 import { TextNode } from './text';
 import { VideoNode } from './video';
@@ -8,4 +9,5 @@ export const nodeTypes = {
   text: TextNode,
   drop: DropNode,
   video: VideoNode,
+  agent: AgentNode,
 };

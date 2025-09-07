@@ -6,7 +6,7 @@ export const getTextFromTextNodes = (nodes: Node[]) => {
   const texts: string[] = [];
 
   nodes.forEach(node => {
-    if (node.type === 'text') {
+    if (node.type === 'text' || node.type === 'agent') {
       const nodeData = node.data as TextNodeProps['data'];
       
       // Se é um nó primitivo (tem text), usar o text
@@ -14,7 +14,7 @@ export const getTextFromTextNodes = (nodes: Node[]) => {
         texts.push(nodeData.text);
       }
       // Se é um nó transform (tem generated), usar o texto gerado
-      else if (nodeData.generated?.text) {
+      else if ((nodeData as any).generated?.text) {
         texts.push(nodeData.generated.text);
       }
     }

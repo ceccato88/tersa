@@ -45,7 +45,7 @@ export const NodeLayout = ({
 
   // Verificar se o nó tem conexões de entrada
   const shouldShowInputHandle = () => {
-    if (type === 'image' || type === 'text') {
+    if (type === 'image' || type === 'text' || type === 'agent') {
       const node = getNode(id);
       if (!node) return false;
       const incomers = getIncomers(node, getNodes(), getEdges());
