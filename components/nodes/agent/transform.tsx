@@ -202,6 +202,16 @@ export const AgentTransform = ({ data, id, type, title }: AgentTransformProps) =
       });
     }
 
+    // Normaliza tooltip da data para evitar caracteres inválidos
+    if (data.updatedAt && items.length) {
+      const last = items[items.length - 1] as any;
+      if (last?.children) {
+        last.tooltip = `Última atualização: ${new Intl.DateTimeFormat('pt-BR', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+        }).format(new Date(data.updatedAt))}`;
+      }
+    }
     return items;
   }, [data.generated?.text, data.updatedAt, handleCopy]);
 
@@ -225,7 +235,7 @@ export const AgentTransform = ({ data, id, type, title }: AgentTransformProps) =
       )}
 
       {!loading && data.generated?.text && (
-        <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-6">
+        <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-6 mr-3">
           <ReactMarkdown>{data.generated.text}</ReactMarkdown>
         </div>
       )}
@@ -251,7 +261,7 @@ export const AgentTransform = ({ data, id, type, title }: AgentTransformProps) =
           value={data.instructions ?? ''}
           onChange={handleInstructionsChange}
           placeholder="Escreva instruções ou conecte um nó de texto"
-          className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px]"
+          className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px] max-h-[16rem] overflow-auto"
         />
 
         <Button className="w-full" onClick={handleGenerate} disabled={loading || !project?.id}>

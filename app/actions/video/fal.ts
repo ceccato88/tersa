@@ -13,6 +13,19 @@ fal.config({
 const FAL_VIDEO_MODEL_MAP: Record<string, string> = {
   'fal-ai/luma-ray-2': 'fal-ai/luma-dream-machine/ray-2',
   'fal-ai/kling-2.1-master': 'fal-ai/kling-video/v2.1/master/text-to-video',
+  'fal-ai/minimax/hailuo-02/pro/text-to-video': 'fal-ai/minimax/hailuo-02/pro/text-to-video',
+  'moonvalley/marey/t2v': 'moonvalley/marey/t2v',
+  'fal-ai/pika/v2.2/text-to-video': 'fal-ai/pika/v2.2/text-to-video',
+  'fal-ai/veo3': 'fal-ai/veo3',
+  'fal-ai/wan/v2.2-a14b/text-to-video': 'fal-ai/wan/v2.2-a14b/text-to-video',
+  // I2V
+  'fal-ai/minimax/hailuo-02/pro/image-to-video': 'fal-ai/minimax/hailuo-02/pro/image-to-video',
+  'moonvalley/marey/i2v': 'moonvalley/marey/i2v',
+  'fal-ai/pika/v2.2/image-to-video': 'fal-ai/pika/v2.2/image-to-video',
+  'fal-ai/veo3/image-to-video': 'fal-ai/veo3/image-to-video',
+  'fal-ai/wan/v2.2-a14b/image-to-video': 'fal-ai/wan/v2.2-a14b/image-to-video',
+  'fal-ai/luma-dream-machine/ray-2/image-to-video': 'fal-ai/luma-dream-machine/ray-2/image-to-video',
+  'fal-ai/kling-video/v2.1/master/image-to-video': 'fal-ai/kling-video/v2.1/master/image-to-video',
 };
 
 // Mapeamento de aspect ratios para vídeo
@@ -67,6 +80,139 @@ export async function generateVideoFalAction(
       aspect_ratio: (data as any).aspect_ratio || '16:9',
       negative_prompt: (data as any).negative_prompt || 'blur, distort, and low quality',
       cfg_scale: (data as any).cfg_scale !== undefined ? parseFloat((data as any).cfg_scale as any) : 0.5,
+    };
+  } else if (data.model === 'fal-ai/minimax/hailuo-02/pro/text-to-video') {
+    input = {
+      prompt,
+      prompt_optimizer: (data as any).prompt_optimizer ?? true,
+    };
+  } else if (data.model === 'moonvalley/marey/t2v') {
+    input = {
+      prompt,
+      dimensions: (data as any).dimensions || '1920x1080',
+      duration: (data as any).duration || '5s',
+      negative_prompt: (data as any).negative_prompt || '',
+      seed: (data as any).seed ?? 9,
+    };
+  } else if (data.model === 'fal-ai/pika/v2.2/text-to-video') {
+    input = {
+      prompt,
+      seed: (data as any).seed ?? null,
+      negative_prompt: (data as any).negative_prompt || '',
+      aspect_ratio: (data as any).aspect_ratio || '16:9',
+      resolution: (data as any).resolution || '720p',
+      duration: (data as any).duration ? parseInt(String((data as any).duration), 10) : 5,
+    };
+  } else if (data.model === 'fal-ai/veo3') {
+    input = {
+      prompt,
+      aspect_ratio: (data as any).aspect_ratio || '16:9',
+      duration: (data as any).duration || '8s',
+      negative_prompt: (data as any).negative_prompt || undefined,
+      enhance_prompt: (data as any).enhance_prompt ?? true,
+      auto_fix: (data as any).auto_fix ?? true,
+      resolution: (data as any).resolution || '720p',
+      generate_audio: (data as any).generate_audio ?? true,
+    };
+  } else if (data.model === 'fal-ai/wan/v2.2-a14b/text-to-video') {
+    input = {
+      prompt,
+      negative_prompt: (data as any).negative_prompt || '',
+      num_frames: (data as any).num_frames ?? 81,
+      frames_per_second: (data as any).frames_per_second ?? 16,
+      seed: (data as any).seed ?? null,
+      resolution: (data as any).resolution || '720p',
+      aspect_ratio: (data as any).aspect_ratio || '16:9',
+      num_inference_steps: (data as any).num_inference_steps ?? 27,
+      enable_safety_checker: (data as any).enable_safety_checker ?? false,
+      enable_prompt_expansion: (data as any).enable_prompt_expansion ?? false,
+      acceleration: (data as any).acceleration || 'regular',
+      guidance_scale: (data as any).guidance_scale ?? 3.5,
+      guidance_scale_2: (data as any).guidance_scale_2 ?? 4,
+      shift: (data as any).shift ?? 5,
+      interpolator_model: (data as any).interpolator_model || 'film',
+      num_interpolated_frames: (data as any).num_interpolated_frames ?? 1,
+      adjust_fps_for_interpolation: (data as any).adjust_fps_for_interpolation ?? true,
+      video_quality: (data as any).video_quality || 'high',
+      video_write_mode: (data as any).video_write_mode || 'balanced',
+    };
+  } else if (data.model === 'fal-ai/minimax/hailuo-02/pro/image-to-video') {
+    if (!images?.length) throw new Error('image_url is required for Hailuo I2V');
+    input = {
+      prompt,
+      image_url: images[0],
+      prompt_optimizer: (data as any).prompt_optimizer ?? true,
+    };
+  } else if (data.model === 'moonvalley/marey/i2v') {
+    if (!images?.length) throw new Error('image_url is required for Marey I2V');
+    input = {
+      prompt,
+      image_url: images[0],
+      dimensions: (data as any).dimensions || '1920x1080',
+      duration: (data as any).duration || '5s',
+      negative_prompt: (data as any).negative_prompt || '',
+      seed: (data as any).seed ?? null,
+    };
+  } else if (data.model === 'fal-ai/pika/v2.2/image-to-video') {
+    if (!images?.length) throw new Error('image_url is required for Pika I2V');
+    input = {
+      prompt,
+      image_url: images[0],
+      seed: (data as any).seed ?? null,
+      negative_prompt: (data as any).negative_prompt || '',
+      resolution: (data as any).resolution || '720p',
+      duration: (data as any).duration ? parseInt(String((data as any).duration), 10) : 5,
+    };
+  } else if (data.model === 'fal-ai/veo3/image-to-video') {
+    if (!images?.length) throw new Error('image_url is required for Veo3 I2V');
+    input = {
+      prompt,
+      image_url: images[0],
+      duration: (data as any).duration || '8s',
+      generate_audio: (data as any).generate_audio ?? true,
+      resolution: (data as any).resolution || '720p',
+    };
+  } else if (data.model === 'fal-ai/wan/v2.2-a14b/image-to-video') {
+    if (!images?.length) throw new Error('image_url is required for WAN I2V');
+    input = {
+      prompt,
+      image_url: images[0],
+      num_frames: (data as any).num_frames ?? 81,
+      frames_per_second: (data as any).frames_per_second ?? 16,
+      seed: (data as any).seed ?? null,
+      resolution: (data as any).resolution || '720p',
+      aspect_ratio: (data as any).aspect_ratio || 'auto',
+      num_inference_steps: (data as any).num_inference_steps ?? 27,
+      enable_safety_checker: (data as any).enable_safety_checker ?? false,
+      enable_prompt_expansion: (data as any).enable_prompt_expansion ?? false,
+      acceleration: (data as any).acceleration || 'regular',
+      guidance_scale: (data as any).guidance_scale ?? 3.5,
+      guidance_scale_2: (data as any).guidance_scale_2 ?? 3.5,
+      shift: (data as any).shift ?? 5,
+      interpolator_model: (data as any).interpolator_model || 'film',
+      num_interpolated_frames: (data as any).num_interpolated_frames ?? 1,
+      adjust_fps_for_interpolation: (data as any).adjust_fps_for_interpolation ?? true,
+      video_quality: (data as any).video_quality || 'high',
+      video_write_mode: (data as any).video_write_mode || 'balanced',
+    };
+  } else if (data.model === 'fal-ai/luma-dream-machine/ray-2/image-to-video') {
+    if (!images?.length) throw new Error('image_url is required for Luma Ray 2 I2V');
+    input = {
+      prompt,
+      image_url: images[0],
+      aspect_ratio: (data as any).aspect_ratio || '16:9',
+      loop: (data as any).loop ?? false,
+      resolution: (data as any).resolution || '540p',
+      duration: (data as any).duration || '5s',
+    };
+  } else if (data.model === 'fal-ai/kling-video/v2.1/master/image-to-video') {
+    if (!images?.length) throw new Error('image_url is required for Kling I2V');
+    input = {
+      prompt,
+      image_url: images[0],
+      duration: (data as any).duration || '5',
+      negative_prompt: (data as any).negative_prompt || 'blur, distort, and low quality',
+      cfg_scale: (data as any).cfg_scale !== undefined ? parseFloat(String((data as any).cfg_scale)) : 0.5,
     };
   } else {
     input = {

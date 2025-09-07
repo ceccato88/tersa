@@ -513,7 +513,7 @@ export const ImageTransform = ({
           value={data.instructions ?? ''}
           onChange={handleInstructionsChange}
           placeholder="Digite as instruções (obrigatório)"
-          className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px]"
+          className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px] max-h-[16rem] overflow-auto"
         />
         
         {/* Modelo e Aspect Ratio lado a lado */}

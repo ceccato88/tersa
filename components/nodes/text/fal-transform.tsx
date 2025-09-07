@@ -246,6 +246,7 @@ export function TextTransformFal({ node }: TextTransformFalProps) {
               onChange={(e) => handleInstructionsChange(e.target.value)}
               placeholder="Descreva o que você quer que seja gerado..."
               rows={4}
+              className="resize-none min-h-[100px] max-h-[16rem] overflow-auto border border-input bg-background px-3 py-2 rounded-md shadow-sm focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
 

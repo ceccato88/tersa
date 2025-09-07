@@ -23,7 +23,7 @@ export const AdvancedVideoParamsPopup = ({ isOpen, onClose, nodeId, data, modelI
   }
 
   // Campos avançados = todos, exceto os que ficam na frente
-  const advancedFields = schema.fields.filter((f) => !['aspect_ratio', 'numOutputs'].includes(f.name));
+  const advancedFields = schema.fields.filter((f) => !['aspect_ratio', 'numOutputs', 'dimensions', 'fixed_size'].includes(f.name));
 
   if (!isOpen) return null;
 
@@ -76,6 +76,24 @@ export const AdvancedVideoParamsPopup = ({ isOpen, onClose, nodeId, data, modelI
                     type="text"
                     value={String(data[field.name] ?? field.defaultValue ?? '')}
                     onChange={(e) => updateNodeData(nodeId, { [field.name]: e.target.value })}
+                    placeholder={field.placeholder}
+                  />
+                </>
+              )}
+              {field.type === 'number' && (
+                <>
+                  <Label>{field.label}</Label>
+                  <Input
+                    type="number"
+                    value={String(data[field.name] ?? field.defaultValue ?? '')}
+                    min={field.min as number | undefined}
+                    max={field.max as number | undefined}
+                    step={field.step as number | undefined}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      const num = v === '' ? '' : Number(v);
+                      updateNodeData(nodeId, { [field.name]: num });
+                    }}
                     placeholder={field.placeholder}
                   />
                 </>

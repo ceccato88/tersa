@@ -31,3 +31,4 @@ export const VideoNode = (props: VideoNodeProps) => {
 
   return <Component {...props} title="Vídeo" />;
 };
+

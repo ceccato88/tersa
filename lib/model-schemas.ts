@@ -20,6 +20,331 @@ export interface ModelSchema {
 }
 
 export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
+  // I2V: Hailuo 02 Pro
+  'fal-ai/minimax/hailuo-02/pro/image-to-video': {
+    label: 'Hailuo 02 Pro (I2V)',
+    aspectRatios: [ { label: 'Tamanho único', value: 'fixed' } ],
+    fields: [
+      { name: 'fixed_size', type: 'select', label: 'Tamanho', options: [{ value: 'fixed', label: 'Tamanho único' }], defaultValue: 'fixed', gridColumn: 2 },
+      { name: 'prompt_optimizer', type: 'checkbox', label: 'Prompt Optimizer', defaultValue: true, gridColumn: 1 },
+    ],
+  },
+  // I2V: Marey
+  'moonvalley/marey/i2v': {
+    label: 'Marey I2V',
+    aspectRatios: [
+      { label: '1920x1080 (16:9)', value: '16:9' },
+      { label: '1080x1920 (9:16)', value: '9:16' },
+      { label: '1152x1152 (1:1)', value: '1:1' },
+      { label: '1536x1152 (4:3)', value: '4:3' },
+      { label: '1152x1536 (3:4)', value: '3:4' },
+    ],
+    fields: [
+      { name: 'dimensions', type: 'select', label: 'Dimensões', defaultValue: '1920x1080', options: [
+        { value: '1920x1080', label: '1920x1080 (16:9)' },
+        { value: '1080x1920', label: '1080x1920 (9:16)' },
+        { value: '1152x1152', label: '1152x1152 (1:1)' },
+        { value: '1536x1152', label: '1536x1152 (4:3)' },
+        { value: '1152x1536', label: '1152x1536 (3:4)' },
+      ], gridColumn: 1 },
+      { name: 'duration', type: 'select', label: 'Duração', defaultValue: '5s', options: [ { value: '5s', label: '5s' }, { value: '10s', label: '10s' } ], gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', defaultValue: '', gridColumn: 1 },
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 2 },
+    ],
+  },
+  // I2V: Pika v2.2
+  'fal-ai/pika/v2.2/image-to-video': {
+    label: 'Pika v2.2 (I2V)',
+    aspectRatios: [ { label: '720p', value: '720p' }, { label: '1080p', value: '1080p' } ],
+    fields: [
+      { name: 'resolution', type: 'select', label: 'Resolução', defaultValue: '720p', options: [ { value: '720p', label: '720p' }, { value: '1080p', label: '1080p' } ], gridColumn: 1 },
+      { name: 'duration', type: 'select', label: 'Duração', defaultValue: '5', options: [ { value: '5', label: '5s' } ], gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', defaultValue: '', gridColumn: 1 },
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 2 },
+    ],
+  },
+  // I2V: Veo3
+  'fal-ai/veo3/image-to-video': {
+    label: 'Veo 3 (I2V)',
+    aspectRatios: [ { label: '16:9', value: '16:9' } ],
+    fields: [
+      { name: 'duration', type: 'select', label: 'Duração', defaultValue: '8s', options: [ { value: '8s', label: '8s' } ], gridColumn: 1 },
+      { name: 'generate_audio', type: 'checkbox', label: 'Gerar Áudio', defaultValue: true, gridColumn: 2 },
+      { name: 'resolution', type: 'select', label: 'Resolução', defaultValue: '720p', options: [ { value: '720p', label: '720p' }, { value: '1080p', label: '1080p' } ], gridColumn: 1 },
+    ],
+  },
+  // I2V: Luma Ray 2
+  'fal-ai/luma-dream-machine/ray-2/image-to-video': {
+    label: 'Luma Ray 2 (I2V)',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '4:3', value: '4:3' },
+      { label: '3:4', value: '3:4' },
+      { label: '21:9', value: '21:9' },
+      { label: '9:21', value: '9:21' },
+    ],
+    fields: [
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', defaultValue: '16:9', options: [
+        { value: '16:9', label: '16:9' }, { value: '9:16', label: '9:16' }, { value: '4:3', label: '4:3' }, { value: '3:4', label: '3:4' }, { value: '21:9', label: '21:9' }, { value: '9:21', label: '9:21' },
+      ], gridColumn: 1 },
+      { name: 'loop', type: 'checkbox', label: 'Loop', defaultValue: false, gridColumn: 2 },
+      { name: 'resolution', type: 'select', label: 'Resolução', defaultValue: '540p', options: [
+        { value: '540p', label: '540p' }, { value: '720p', label: '720p' }, { value: '1080p', label: '1080p' },
+      ], gridColumn: 1 },
+      { name: 'duration', type: 'select', label: 'Duração', defaultValue: '5s', options: [ { value: '5s', label: '5s' }, { value: '9s', label: '9s' } ], gridColumn: 2 },
+    ],
+  },
+  // I2V: Kling 2.1 Master
+  'fal-ai/kling-video/v2.1/master/image-to-video': {
+    label: 'Kling 2.1 Master (I2V)',
+    aspectRatios: [ { label: 'Tamanho único', value: 'fixed' } ],
+    fields: [
+      { name: 'fixed_size', type: 'select', label: 'Tamanho', defaultValue: 'fixed', options: [ { value: 'fixed', label: 'Tamanho único' } ], gridColumn: 2 },
+      { name: 'duration', type: 'select', label: 'Duração', defaultValue: '5', options: [ { value: '5', label: '5s' }, { value: '10', label: '10s' } ], gridColumn: 1 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', defaultValue: 'blur, distort, and low quality', gridColumn: 2 },
+      { name: 'cfg_scale', type: 'number', label: 'CFG Scale (0-1)', defaultValue: 0.5, min: 0, max: 1, step: 0.1, gridColumn: 1 },
+    ],
+  },
+  // I2V: WAN v2.2 A14B
+  'fal-ai/wan/v2.2-a14b/image-to-video': {
+    label: 'WAN 2.2 A14B (I2V)',
+    aspectRatios: [ { label: 'auto', value: 'auto' }, { label: '16:9', value: '16:9' }, { label: '9:16', value: '9:16' }, { label: '1:1', value: '1:1' } ],
+    fields: [
+      { name: 'num_frames', type: 'number', label: 'Frames (17-121)', defaultValue: 81, min: 17, max: 121, step: 1, gridColumn: 1 },
+      { name: 'frames_per_second', type: 'number', label: 'FPS (4-60)', defaultValue: 16, min: 4, max: 60, step: 1, gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', defaultValue: '', gridColumn: 1 },
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 2 },
+      { name: 'resolution', type: 'select', label: 'Resolução', defaultValue: '720p', options: [ { value: '480p', label: '480p' }, { value: '580p', label: '580p' }, { value: '720p', label: '720p' } ], gridColumn: 1 },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', defaultValue: 'auto', options: [ { value: 'auto', label: 'auto' }, { value: '16:9', label: '16:9' }, { value: '9:16', label: '9:16' }, { value: '1:1', label: '1:1' } ], gridColumn: 2 },
+      { name: 'num_inference_steps', type: 'number', label: 'Steps (2-40)', defaultValue: 27, min: 2, max: 40, step: 1, gridColumn: 1 },
+      { name: 'enable_safety_checker', type: 'checkbox', label: 'Safety Checker', defaultValue: false, gridColumn: 2 },
+      { name: 'enable_prompt_expansion', type: 'checkbox', label: 'Prompt Expansion', defaultValue: false, gridColumn: 1 },
+      { name: 'acceleration', type: 'select', label: 'Aceleração', defaultValue: 'regular', options: [ { value: 'none', label: 'None' }, { value: 'regular', label: 'Regular' } ], gridColumn: 2 },
+      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-10)', defaultValue: 3.5, min: 1, max: 10, step: 0.1, gridColumn: 1 },
+      { name: 'guidance_scale_2', type: 'number', label: 'Guidance 2 (1-10)', defaultValue: 3.5, min: 1, max: 10, step: 0.1, gridColumn: 2 },
+      { name: 'shift', type: 'number', label: 'Shift (1-10)', defaultValue: 5, min: 1, max: 10, step: 0.1, gridColumn: 1 },
+      { name: 'interpolator_model', type: 'select', label: 'Interpolador', defaultValue: 'film', options: [ { value: 'none', label: 'none' }, { value: 'film', label: 'film' }, { value: 'rife', label: 'rife' } ], gridColumn: 2 },
+      { name: 'num_interpolated_frames', type: 'number', label: 'Interpolação (0-4)', defaultValue: 1, min: 0, max: 4, step: 1, gridColumn: 1 },
+      { name: 'adjust_fps_for_interpolation', type: 'checkbox', label: 'Ajustar FPS para Interpolação', defaultValue: true, gridColumn: 2 },
+      { name: 'video_quality', type: 'select', label: 'Qualidade do Vídeo', defaultValue: 'high', options: [ { value: 'low', label: 'low' }, { value: 'medium', label: 'medium' }, { value: 'high', label: 'high' }, { value: 'maximum', label: 'maximum' } ], gridColumn: 1 },
+      { name: 'video_write_mode', type: 'select', label: 'Modo de Escrita', defaultValue: 'balanced', options: [ { value: 'fast', label: 'fast' }, { value: 'balanced', label: 'balanced' }, { value: 'small', label: 'small' } ], gridColumn: 2 },
+    ],
+  },
+  // Hailuo 02 Pro (minimal: prompt_optimizer)
+  'fal-ai/minimax/hailuo-02/pro/text-to-video': {
+    label: 'Hailuo 02 Pro',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+    ],
+    fields: [
+      { name: 'prompt_optimizer', type: 'checkbox', label: 'Prompt Optimizer', defaultValue: true, gridColumn: 1 },
+    ],
+  },
+  // Marey T2V
+  'moonvalley/marey/t2v': {
+    label: 'Marey T2V',
+    aspectRatios: [
+      { label: '1920x1080 (16:9)', value: '16:9' },
+      { label: '1152x1152 (1:1)', value: '1:1' },
+      { label: '1536x1152 (4:3)', value: '4:3' },
+      { label: '1152x1536 (3:4)', value: '3:4' },
+    ],
+    fields: [
+      { name: 'dimensions', type: 'select', label: 'Dimensões', defaultValue: '1920x1080', options: [
+        { value: '1920x1080', label: '1920x1080 (16:9)' },
+        { value: '1152x1152', label: '1152x1152 (1:1)' },
+        { value: '1536x1152', label: '1536x1152 (4:3)' },
+        { value: '1152x1536', label: '1152x1536 (3:4)' },
+      ], gridColumn: 1 },
+      { name: 'duration', type: 'select', label: 'Duração', defaultValue: '5s', options: [
+        { value: '5s', label: '5s' },
+        { value: '10s', label: '10s' },
+      ], gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 2 },
+    ],
+  },
+  // Pika v2.2
+  'fal-ai/pika/v2.2/text-to-video': {
+    label: 'Pika v2.2',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+      { label: '4:5', value: '4:5' },
+      { label: '5:4', value: '5:4' },
+      { label: '3:2', value: '3:2' },
+      { label: '2:3', value: '2:3' },
+    ],
+    fields: [
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', defaultValue: '', gridColumn: 2 },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', defaultValue: '16:9', options: [
+        { value: '16:9', label: '16:9' }, { value: '9:16', label: '9:16' }, { value: '1:1', label: '1:1' },
+        { value: '4:5', label: '4:5' }, { value: '5:4', label: '5:4' }, { value: '3:2', label: '3:2' }, { value: '2:3', label: '2:3' },
+      ], gridColumn: 1 },
+      { name: 'resolution', type: 'select', label: 'Resolução', defaultValue: '720p', options: [
+        { value: '720p', label: '720p' }, { value: '1080p', label: '1080p' },
+      ], gridColumn: 2 },
+      { name: 'duration', type: 'select', label: 'Duração', defaultValue: '5', options: [ { value: '5', label: '5s' } ], gridColumn: 1 },
+    ],
+  },
+  // Veo 3
+  'fal-ai/veo3': {
+    label: 'Veo 3',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+    ],
+    fields: [
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', defaultValue: '16:9', options: [
+        { value: '16:9', label: '16:9' }, { value: '9:16', label: '9:16' }, { value: '1:1', label: '1:1' },
+      ], gridColumn: 1 },
+      { name: 'duration', type: 'select', label: 'Duração', defaultValue: '8s', options: [ { value: '8s', label: '8s' } ], gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', defaultValue: '', gridColumn: 1 },
+      { name: 'enhance_prompt', type: 'checkbox', label: 'Enhance Prompt', defaultValue: true, gridColumn: 2 },
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
+      { name: 'auto_fix', type: 'checkbox', label: 'Auto Fix', defaultValue: true, gridColumn: 2 },
+      { name: 'resolution', type: 'select', label: 'Resolução', defaultValue: '720p', options: [
+        { value: '720p', label: '720p' }, { value: '1080p', label: '1080p' },
+      ], gridColumn: 1 },
+      { name: 'generate_audio', type: 'checkbox', label: 'Gerar Áudio', defaultValue: true, gridColumn: 2 },
+    ],
+  },
+  // WAN 2.2 A14B
+  'fal-ai/wan/v2.2-a14b/text-to-video': {
+    label: 'WAN 2.2 A14B',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+    ],
+    fields: [
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', defaultValue: '', gridColumn: 1 },
+      { name: 'num_frames', type: 'number', label: 'Frames (17-121)', defaultValue: 81, min: 17, max: 121, step: 1, gridColumn: 2 },
+      { name: 'frames_per_second', type: 'number', label: 'FPS (4-60)', defaultValue: 16, min: 4, max: 60, step: 1, gridColumn: 1 },
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 2 },
+      { name: 'resolution', type: 'select', label: 'Resolução', defaultValue: '720p', options: [
+        { value: '480p', label: '480p' }, { value: '580p', label: '580p' }, { value: '720p', label: '720p' },
+      ], gridColumn: 1 },
+      { name: 'aspect_ratio', type: 'select', label: 'Aspect Ratio', defaultValue: '16:9', options: [
+        { value: '16:9', label: '16:9' }, { value: '9:16', label: '9:16' }, { value: '1:1', label: '1:1' },
+      ], gridColumn: 2 },
+      { name: 'num_inference_steps', type: 'number', label: 'Steps (2-40)', defaultValue: 27, min: 2, max: 40, step: 1, gridColumn: 1 },
+      { name: 'enable_safety_checker', type: 'checkbox', label: 'Safety Checker', defaultValue: false, gridColumn: 2 },
+      { name: 'enable_prompt_expansion', type: 'checkbox', label: 'Prompt Expansion', defaultValue: false, gridColumn: 1 },
+      { name: 'acceleration', type: 'select', label: 'Aceleração', defaultValue: 'regular', options: [
+        { value: 'none', label: 'None' }, { value: 'regular', label: 'Regular' },
+      ], gridColumn: 2 },
+      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-10)', defaultValue: 3.5, min: 1, max: 10, step: 0.1, gridColumn: 1 },
+      { name: 'guidance_scale_2', type: 'number', label: 'Guidance 2 (1-10)', defaultValue: 4, min: 1, max: 10, step: 0.1, gridColumn: 2 },
+      { name: 'shift', type: 'number', label: 'Shift (1-10)', defaultValue: 5, min: 1, max: 10, step: 0.1, gridColumn: 1 },
+      { name: 'interpolator_model', type: 'select', label: 'Interpolador', defaultValue: 'film', options: [
+        { value: 'none', label: 'none' }, { value: 'film', label: 'film' }, { value: 'rife', label: 'rife' },
+      ], gridColumn: 2 },
+      { name: 'num_interpolated_frames', type: 'number', label: 'Interpolação (0-4)', defaultValue: 1, min: 0, max: 4, step: 1, gridColumn: 1 },
+      { name: 'adjust_fps_for_interpolation', type: 'checkbox', label: 'Ajustar FPS para Interpolação', defaultValue: true, gridColumn: 2 },
+      { name: 'video_quality', type: 'select', label: 'Qualidade do Vídeo', defaultValue: 'high', options: [
+        { value: 'low', label: 'low' }, { value: 'medium', label: 'medium' }, { value: 'high', label: 'high' }, { value: 'maximum', label: 'maximum' },
+      ], gridColumn: 1 },
+      { name: 'video_write_mode', type: 'select', label: 'Modo de Escrita', defaultValue: 'balanced', options: [
+        { value: 'fast', label: 'fast' }, { value: 'balanced', label: 'balanced' }, { value: 'small', label: 'small' },
+      ], gridColumn: 2 },
+    ],
+  },
+  'hailuo/t2v': {
+    label: 'Hailuo T2V',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+      { label: '4:3', value: '4:3' },
+      { label: '3:4', value: '3:4' },
+    ],
+    fields: [
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
+      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
+      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
+      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
+      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
+      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
+    ],
+  },
+  'runway/marey-t2v': {
+    label: 'Marey T2V',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+    ],
+    fields: [
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
+      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
+      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
+      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
+      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
+      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
+    ],
+  },
+  'pika/t2v': {
+    label: 'Pika T2V',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+      { label: '4:3', value: '4:3' },
+    ],
+    fields: [
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
+      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
+      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
+      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
+      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
+      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
+    ],
+  },
+  'google/veo-3': {
+    label: 'Veo 3',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+      { label: '21:9', value: '21:9' },
+    ],
+    fields: [
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
+      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
+      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
+      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
+      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
+      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
+    ],
+  },
+  'wan-video/wan-2.2-t2v': {
+    label: 'WAN 2.2 T2V',
+    aspectRatios: [
+      { label: '16:9', value: '16:9' },
+      { label: '9:16', value: '9:16' },
+      { label: '1:1', value: '1:1' },
+    ],
+    fields: [
+      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
+      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
+      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
+      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
+      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
+      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
+      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
+    ],
+  },
   'wan-video/wan-2.2-i2v-a14b': {
     label: 'WAN Video I2V',
     aspectRatios: [
@@ -2502,7 +2827,58 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.cfg_scale = 0.5;
     defaults.numOutputs = 1;
   }
+  // Defaults específicos T2V
+  if (modelId === 'fal-ai/minimax/hailuo-02/pro/text-to-video') {
+    defaults.prompt_optimizer = true;
+    (defaults as any).fixed_size = 'fixed';
+  }
+  if (modelId === 'moonvalley/marey/t2v') {
+    defaults.dimensions = '1920x1080';
+    defaults.duration = '5s';
+    defaults.negative_prompt = '';
+    defaults.seed = null;
+  }
+  if (modelId === 'fal-ai/pika/v2.2/text-to-video') {
+    defaults.aspect_ratio = '16:9';
+    defaults.resolution = '720p';
+    defaults.duration = 5;
+    defaults.negative_prompt = '';
+  }
+  if (modelId === 'fal-ai/veo3') {
+    defaults.aspect_ratio = '16:9';
+    defaults.duration = '8s';
+    defaults.enhance_prompt = true;
+    defaults.auto_fix = true;
+    defaults.resolution = '720p';
+    defaults.generate_audio = true;
+  }
+  if (modelId === 'fal-ai/wan/v2.2-a14b/text-to-video') {
+    defaults.negative_prompt = '';
+    defaults.num_frames = 81;
+    defaults.frames_per_second = 16;
+    defaults.resolution = '720p';
+    defaults.aspect_ratio = '16:9';
+    defaults.num_inference_steps = 27;
+    defaults.enable_safety_checker = false;
+    defaults.enable_prompt_expansion = false;
+    defaults.acceleration = 'regular';
+    defaults.guidance_scale = 3.5;
+    defaults.guidance_scale_2 = 4;
+    defaults.shift = 5;
+    defaults.interpolator_model = 'film';
+    defaults.num_interpolated_frames = 1;
+    defaults.adjust_fps_for_interpolation = true;
+    defaults.video_quality = 'high';
+    defaults.video_write_mode = 'balanced';
+  }
   
+  // I2V size-only models: preset fixed_size for UI consistency
+  if (
+    modelId === 'fal-ai/kling-video/v2.1/master/image-to-video' ||
+    modelId === 'fal-ai/veo3/image-to-video'
+  ) {
+    (defaults as any).fixed_size = 'fixed';
+  }
   return defaults;
 };
 
@@ -2510,4 +2886,3 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
 export const modelHasField = (modelId: string, fieldName: string): boolean => {
   const schema = getModelSchema(modelId);
   return schema?.fields.some(field => field.name === fieldName) || false;
-};
