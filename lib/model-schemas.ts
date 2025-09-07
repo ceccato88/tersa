@@ -1523,14 +1523,6 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         gridColumn: 2
       },
       {
-        name: 'negative_prompt',
-        type: 'input',
-        label: 'Prompt Negativo',
-        placeholder: 'Descreva elementos indesejados',
-        defaultValue: '',
-        gridColumn: 2
-      },
-      {
         name: 'colors_type',
         type: 'select',
         label: 'Tipo de Cores',
@@ -1630,6 +1622,153 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         label: 'Modo Síncrono',
         defaultValue: false,
         gridColumn: 1
+      }
+    ]
+  },
+
+  'fal-ai/ideogram/v3/remix': {
+    label: 'Ideogram 3.0 Remix',
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'strength',
+        type: 'number',
+        label: 'Strength (0.01-1)',
+        defaultValue: 0.8,
+        min: 0.01,
+        max: 1,
+        step: 0.01,
+        gridColumn: 1
+      },
+      {
+        name: 'rendering_speed',
+        type: 'select',
+        label: 'Velocidade de Renderização',
+        options: [
+          { value: 'TURBO', label: 'Turbo' },
+          { value: 'BALANCED', label: 'Balanceado' },
+          { value: 'QUALITY', label: 'Qualidade' }
+        ],
+        defaultValue: 'BALANCED',
+        gridColumn: 2
+      },
+      {
+        name: 'style',
+        type: 'select',
+        label: 'Estilo',
+        options: [
+          { value: 'AUTO', label: 'Automático' },
+          { value: 'GENERAL', label: 'Geral' },
+          { value: 'REALISTIC', label: 'Realístico' },
+          { value: 'DESIGN', label: 'Design' }
+        ],
+        defaultValue: 'AUTO',
+        gridColumn: 1
+      },
+      {
+        name: 'expand_prompt',
+        type: 'checkbox',
+        label: 'Expandir Prompt (MagicPrompt)',
+        defaultValue: true,
+        gridColumn: 2
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        placeholder: 'Deixe vazio para aleatório',
+        defaultValue: null,
+        gridColumn: 1
+      },
+      {
+        name: 'negative_prompt',
+        type: 'input',
+        label: 'Prompt Negativo',
+        placeholder: 'Descreva o que excluir da imagem',
+        defaultValue: '',
+        gridColumn: 2
+      },
+      {
+        name: 'color_palette_type',
+        type: 'select',
+        label: 'Tipo de Paleta',
+        options: [
+          { value: 'none', label: 'Nenhuma' },
+          { value: 'preset', label: 'Predefinida' },
+          { value: 'custom', label: 'Personalizada' }
+        ],
+        defaultValue: 'none',
+        gridColumn: 1
+      },
+      {
+        name: 'color_palette_preset',
+        type: 'select',
+        label: 'Paleta Predefinida',
+        options: [
+          { value: 'EMBER', label: 'Ember' },
+          { value: 'FRESH', label: 'Fresh' },
+          { value: 'JUNGLE', label: 'Jungle' },
+          { value: 'MAGIC', label: 'Magic' },
+          { value: 'MELON', label: 'Melon' },
+          { value: 'MOSAIC', label: 'Mosaic' },
+          { value: 'PASTEL', label: 'Pastel' },
+          { value: 'ULTRAMARINE', label: 'Ultramarine' }
+        ],
+        defaultValue: null,
+        gridColumn: 2,
+        conditional: { field: 'color_palette_type', value: 'preset' }
+      },
+      {
+        name: 'color_r',
+        type: 'number',
+        label: 'Vermelho (R)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 190,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_g',
+        type: 'number',
+        label: 'Verde (G)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 2,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_b',
+        type: 'number',
+        label: 'Azul (B)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 2
       }
     ]
   },
@@ -2051,6 +2190,23 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/reframe
   if (modelId === 'fal-ai/ideogram/v3/reframe') {
     defaults.rendering_speed = 'BALANCED';
+    defaults.sync_mode = false;
+  }
+  
+  // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/remix
+  if (modelId === 'fal-ai/ideogram/v3/remix') {
+    defaults.fixed_size = 'fixed';
+    defaults.strength = 0.8;
+    defaults.rendering_speed = 'BALANCED';
+    defaults.style = 'AUTO';
+    defaults.expand_prompt = true;
+    defaults.seed = null;
+    defaults.negative_prompt = '';
+    defaults.color_palette_type = 'none';
+    defaults.color_palette_preset = null;
+    defaults.color_r = 190;
+    defaults.color_g = 29;
+    defaults.color_b = 29;
     defaults.sync_mode = false;
   }
   

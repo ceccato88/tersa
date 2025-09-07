@@ -48,6 +48,7 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/ideogram/character': 'fal-ai/ideogram/character',
   'fal-ai/recraft/v3/image-to-image': 'fal-ai/recraft/v3/image-to-image',
   'fal-ai/ideogram/v3/reframe': 'fal-ai/ideogram/v3/reframe',
+  'fal-ai/ideogram/v3/remix': 'fal-ai/ideogram/v3/remix',
   'fal-ai/topaz/upscale/image': 'fal-ai/topaz/upscale/image',
   'fal-ai/recraft/upscale/creative': 'fal-ai/recraft/upscale/creative',
   'fal-ai/recraft/upscale/crisp': 'fal-ai/recraft/upscale/crisp',
@@ -85,14 +86,14 @@ export async function generateImageFalAction(
   imageNodes?: string[]
 ) {
   try {
-    // DEBUG: Log completo dos dados recebidos
-    console.log('🎨 FAL Action Debug - Dados recebidos:', {
-      model: data.model,
-      prompt: prompt.substring(0, 100),
-      allData: data,
-      dataKeys: Object.keys(data),
-      hasAdvancedParams: !!(data.seed || data.guidance_scale || data.strength || data.style || data.num_inference_steps)
-    });
+    // DEBUG: Log completo dos dados recebidos (removido para produção)
+    // console.log('🎨 FAL Action Debug - Dados recebidos:', {
+    //   model: data.model,
+    //   prompt: prompt.substring(0, 100),
+    //   allData: data,
+    //   dataKeys: Object.keys(data),
+    //   hasAdvancedParams: !!(data.seed || data.guidance_scale || data.strength || data.style || data.num_inference_steps)
+    // });
 
     logger.info('🎨 Iniciando geração de imagem via FAL', {
       model: data.model,
@@ -124,7 +125,7 @@ export async function generateImageFalAction(
     };
 
     // Adicionar parâmetros globais apenas se não for Recraft V3, Nano Banana, Nano Banana Edit, Imagen 4, Imagen 4 Ultra, Ideogram 3.0, Ideogram Character, FLUX1.1 [pro], FLUX1.1 [pro] ultra, FLUX.1 Kontext [max], FLUX.1 Kontext [pro] text, FLUX.1 Krea ou modelos image-to-image específicos
-    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana-edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-pro-kontext-max' && data.model !== 'fal-ai/flux-pro-kontext-text' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
+    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana-edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-pro-kontext-max' && data.model !== 'fal-ai/flux-pro-kontext-text' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
       input.seed = parseNumber(data.seed);
       
       // Guidance scale específico por modelo
@@ -423,6 +424,59 @@ export async function generateImageFalAction(
           sync_mode: input.sync_mode
         }
       });
+    } else if (data.model === 'fal-ai/ideogram/v3/remix') {
+      // Ideogram 3.0 Remix usa parâmetros específicos
+      input.strength = parseNumber(data.strength) !== null ? parseNumber(data.strength) : 0.8;
+      input.rendering_speed = data.rendering_speed || 'BALANCED';
+      input.style = data.style || 'AUTO';
+      input.expand_prompt = data.expand_prompt !== undefined ? data.expand_prompt : true;
+      input.seed = parseNumber(data.seed);
+      input.negative_prompt = data.negative_prompt || '';
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      
+      // Paleta de cores personalizada (mesma lógica do Ideogram texto para imagem)
+      if (data.color_palette_type === 'preset' && data.color_palette_preset) {
+        input.color_palette = {
+          name: data.color_palette_preset
+        };
+      } else if (data.color_palette_type === 'custom' && (data.color_r !== undefined || data.color_g !== undefined || data.color_b !== undefined)) {
+        // Usar valores padrão se não definidos
+        const r = data.color_r !== undefined && data.color_r !== null ? Number(data.color_r) : 190;
+        const g = data.color_g !== undefined && data.color_g !== null ? Number(data.color_g) : 29;
+        const b = data.color_b !== undefined && data.color_b !== null ? Number(data.color_b) : 29;
+        
+        // Validar limites RGB (0-255)
+        const validR = Math.max(0, Math.min(255, r));
+        const validG = Math.max(0, Math.min(255, g));
+        const validB = Math.max(0, Math.min(255, b));
+        
+        input.color_palette = {
+          members: [{
+            rgb: {
+              r: validR,
+              g: validG,
+              b: validB
+            }
+          }]
+        };
+      }
+      
+      // DEBUG: Log específico para Ideogram 3.0 Remix (removido para produção)
+      // console.log('🎨 Ideogram 3.0 Remix Debug - Parâmetros completos:', {
+      //   model: data.model,
+      //   receivedData: Object.keys(data),
+      //   finalInput: {
+      //     prompt: input.prompt?.substring(0, 50),
+      //     strength: input.strength,
+      //     rendering_speed: input.rendering_speed,
+      //     style: input.style,
+      //     expand_prompt: input.expand_prompt,
+      //     seed: input.seed,
+      //     negative_prompt: input.negative_prompt?.substring(0, 30),
+      //     color_palette: input.color_palette,
+      //     sync_mode: input.sync_mode
+      //   }
+      // });
     } else if (data.model === 'fal-ai/topaz/upscale/image') {
       // Topaz Upscale usa todos os parâmetros específicos
       input.model = data.topaz_model || 'Standard V2'; // Usando topaz_model para evitar conflito
@@ -683,6 +737,9 @@ export async function generateImageFalAction(
       } else if (data.model === 'fal-ai/ideogram/v3/reframe') {
         // Ideogram 3.0 Reframe usa image_url (singular)
         input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
+      } else if (data.model === 'fal-ai/ideogram/v3/remix') {
+        // Ideogram 3.0 Remix usa image_url (singular)
+        input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
       } else if (data.model === 'fal-ai/topaz/upscale/image') {
         // Topaz Upscale usa image_url (singular)
         input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
@@ -698,7 +755,7 @@ export async function generateImageFalAction(
         input.image_url = imageUrl;
         
         // Força da transformação apenas para modelos que suportam (exceto modelos que já definem strength)
-        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
+        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
           input.strength = data.strength || 0.8;
         }
       }
@@ -710,13 +767,13 @@ export async function generateImageFalAction(
       });
     }
 
-    // DEBUG: Log completo do input que será enviado para FAL
-    console.log('📡 FAL Input Debug - Final:', {
-      model: falModel,
-      originalModel: data.model,
-      input: input,
-      inputKeys: Object.keys(input)
-    });
+    // DEBUG: Log completo do input que será enviado para FAL (removido para produção)
+    // console.log('📡 FAL Input Debug - Final:', {
+    //   model: falModel,
+    //   originalModel: data.model,
+    //   input: input,
+    //   inputKeys: Object.keys(input)
+    // });
 
     logger.info('📡 Enviando requisição para FAL', {
       model: falModel,

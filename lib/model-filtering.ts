@@ -113,6 +113,13 @@ const IMAGE_MODELS = {
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem
   },
+  'fal-ai/ideogram/v3/remix': {
+    id: 'fal-ai/ideogram/v3/remix',
+    label: 'Ideogram 3.0 Remix',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
+  },
   'fal-ai/topaz/upscale/image': {
     id: 'fal-ai/topaz/upscale/image',
     label: 'Topaz Upscale',

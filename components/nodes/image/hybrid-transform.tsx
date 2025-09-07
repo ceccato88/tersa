@@ -279,6 +279,15 @@ const AVAILABLE_MODELS = {
     ],
     default: false,
   },
+  'fal-ai/ideogram/v3/remix': {
+    label: 'Ideogram 3.0 Remix',
+    chef: providers.fal,
+    providers: [providers.fal],
+    aspectRatios: [
+      { label: 'Tamanho original', value: 'fixed' },
+    ],
+    default: false,
+  },
   'fal-ai/topaz/upscale/image': {
     label: 'Topaz Upscale',
     chef: providers.fal,

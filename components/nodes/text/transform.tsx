@@ -358,7 +358,8 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
   ) => updateNodeData(id, { instructions: event.target.value });
 
   // Transferência automática de prompt de nós conectados
-  useEffect(() => {
+  // Usando useCallback para evitar loop infinito durante cascata de updates
+  const transferPrompt = useCallback(() => {
     const nodes = getNodes();
     const edges = getEdges();
     const incomers = getIncomers({ id }, nodes, edges);
@@ -369,7 +370,16 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
       // transferir automaticamente o primeiro prompt
       updateNodeData(id, { instructions: textPrompts[0] });
     }
-  }, [id, getNodes, getEdges, data.instructions, updateNodeData]);
+  }, [id, data.instructions, updateNodeData, getNodes, getEdges]);
+
+  // Executar transferência apenas quando instructions muda de definido para undefined
+  // Isso evita loops infinitos durante deletion de nós
+  useEffect(() => {
+    // Só executar se instructions está explicitamente undefined/empty e não durante cascatas
+    if (!data.instructions && !data.generated?.text) {
+      transferPrompt();
+    }
+  }, [data.instructions, data.generated?.text, transferPrompt]);
 
   const handleCopy = useCallback((text: string) => {
     navigator.clipboard.writeText(text);

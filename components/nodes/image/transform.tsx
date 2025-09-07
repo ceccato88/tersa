@@ -358,7 +358,8 @@ export const ImageTransform = ({
   }, [data.generated?.url]);
 
   // Transferência automática de prompt de nós conectados
-  useEffect(() => {
+  // Usando useCallback para evitar loop infinito durante cascata de updates
+  const transferPrompt = useCallback(() => {
     const nodes = getNodes();
     const edges = getEdges();
     const incomers = getIncomers({ id }, nodes, edges);
@@ -369,7 +370,16 @@ export const ImageTransform = ({
       // transferir automaticamente o primeiro prompt
       updateNodeData(id, { instructions: textPrompts[0] });
     }
-  }, [id, getNodes, getEdges, data.instructions, updateNodeData]);
+  }, [id, data.instructions, updateNodeData, getNodes, getEdges]);
+
+  // Executar transferência apenas quando instructions muda de definido para undefined
+  // Isso evita loops infinitos durante deletion de nós
+  useEffect(() => {
+    // Só executar se instructions está explicitamente undefined/empty e não durante cascatas
+    if (!data.instructions && !data.generated?.url) {
+      transferPrompt();
+    }
+  }, [data.instructions, data.generated?.url, transferPrompt]);
 
   const toolbar = useMemo<ComponentProps<typeof NodeLayout>['toolbar']>(() => {
     const items: ComponentProps<typeof NodeLayout>['toolbar'] = [];

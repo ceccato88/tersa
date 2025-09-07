@@ -9,15 +9,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { prompt, params, imageNodes } = body;
     
-    // Debug log para entender o que está sendo enviado
-    console.log('🔍 FAL Image API Debug:', {
-      model: params?.model,
-      hasPrompt: !!prompt,
-      promptLength: prompt?.length,
-      hasParams: !!params,
-      hasImageNodes: !!imageNodes,
-      imageNodesLength: imageNodes?.length
-    });
+    // Debug log para entender o que está sendo enviado (removido para produção)
+    // console.log('🔍 FAL Image API Debug:', {
+    //   model: params?.model,
+    //   hasPrompt: !!prompt,
+    //   promptLength: prompt?.length,
+    //   hasParams: !!params,
+    //   hasImageNodes: !!imageNodes,
+    //   imageNodesLength: imageNodes?.length
+    // });
     
     // Verificar se é modelo de upscale (não precisa obrigatoriamente de prompt)
     const upscaleModels = [

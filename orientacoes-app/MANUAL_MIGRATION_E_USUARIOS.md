@@ -6,6 +6,7 @@ Este manual documenta os procedimentos para:
 1. Executar migrations do banco de dados usando Drizzle
 2. Criar usuários com créditos ilimitados no sistema
 3. Configurar buckets do Supabase Storage
+4. Gerenciar limpeza automática do storage
 
 ## 🔧 Pré-requisitos
 
@@ -17,8 +18,10 @@ Este manual documenta os procedimentos para:
 
 ### Arquivos Necessários
 - `package.json` com scripts de migration
-- `create-user.js` (script personalizado)
+- `create-user.js` (script de criação de usuários)
+- `delete-user.js` (script de exclusão de usuários)
 - `setup-supabase-storage.js` (script de configuração de storage)
+- `cleanup-storage.js` (script de limpeza automática)
 - Configuração de banco em `lib/database.ts`
 - Arquivo `supabase/seed.sql` com configurações de storage
 
@@ -295,7 +298,7 @@ wsl node delete-user.js delete admin@tersa.com
 
 **⚠️ ATENÇÃO: A exclusão é IRREVERSÍVEL!**
 
-### 2.3 Script de Exclusão de Usuários
+### 3.3 Script de Exclusão de Usuários
 
 O script `delete-user.js` permite excluir usuários de forma segura das tabelas `auth.users` e `public.profile`.
 
@@ -359,7 +362,7 @@ O script executa as seguintes operações:
 🔌 Conexão fechada.
 ```
 
-### 2.4 Saída Esperada (Criação)
+### 3.4 Saída Esperada (Criação)
 
 Ao criar um usuário com sucesso:
 
@@ -373,9 +376,9 @@ Detalhes:
 - Product ID: prod_xxxxxxxxx
 ```
 
-## 🔍 Parte 3: Verificação e Troubleshooting
+## 🔍 Parte 4: Verificação e Troubleshooting
 
-### 3.1 Verificar Conexão com Banco
+### 4.1 Verificar Conexão com Banco
 
 Antes de executar qualquer operação, é fundamental testar a conexão com o PostgreSQL:
 
@@ -467,7 +470,7 @@ O projeto usa a configuração do Supabase através do arquivo `lib/database.ts`
 wsl cat lib/database.ts | grep -A 5 -B 5 POSTGRES_URL
 ```
 
-### 3.2 Problemas Comuns
+### 4.2 Problemas Comuns
 
 #### Erro: "column does not exist"
 **Solução:** Execute as migrations primeiro
@@ -481,7 +484,7 @@ wsl pnpm migrate
 #### Erro: "duplicate column"
 **Solução:** Verifique se o script está atualizado (versão corrigida)
 
-### 3.3 Validação Final
+### 4.3 Validação Final
 
 Após criar usuários, sempre execute:
 
@@ -493,15 +496,15 @@ wsl node create-user.js list
 wsl node create-user.js verify <email>
 ```
 
-## 🛠️ Parte 4: Scripts Auxiliares
+## 🛠️ Parte 5: Scripts Auxiliares
 
-### 4.1 Script de Atualização do IP da VPS
+### 5.1 Script de Atualização do IP da VPS
 
 **Arquivo:** `update-vps-ip.js`
 
 **Propósito:** Automatizar a atualização do IP da VPS no `next.config.ts` quando a infraestrutura muda.
 
-#### 4.1.1 Comandos Disponíveis
+#### 5.1.1 Comandos Disponíveis
 
 ```bash
 # Verificar IP atual configurado
@@ -514,7 +517,7 @@ wsl node update-vps-ip.js <novo-ip>
 wsl node update-vps-ip.js --help
 ```
 
-#### 4.1.2 Exemplo de Uso
+#### 5.1.2 Exemplo de Uso
 
 ```bash
 # Cenário: VPS mudou de [IP_DO_SEU_SERVIDOR] para 192.168.1.100
@@ -531,7 +534,7 @@ wsl node update-vps-ip.js 192.168.1.100
 wsl pnpm dev
 ```
 
-#### 4.1.3 Recursos do Script
+#### 5.1.3 Recursos do Script
 
 - ✅ **Backup automático:** Cria `next.config.ts.backup` antes da primeira alteração
 - ✅ **Validação de IP:** Verifica formato antes de aplicar
@@ -539,20 +542,20 @@ wsl pnpm dev
 - ✅ **Feedback detalhado:** Mostra status e próximos passos
 - ✅ **Segurança:** Mantém backup para rollback se necessário
 
-#### 4.1.4 Quando Usar
+#### 5.1.4 Quando Usar
 
 - 🔄 **Nova instalação:** IP da VPS diferente
 - 🏗️ **Mudança de infraestrutura:** Migração de servidor
 - 🔧 **Troubleshooting:** Corrigir problemas de imagem
 - 📦 **Deploy:** Configuração de ambiente de produção
 
-### 4.2 Script de Limpeza Automática do Storage
+### 5.2 Script de Limpeza Automática do Storage
 
 **Arquivo:** `cleanup-storage.js`
 
 **Propósito:** Remover automaticamente arquivos antigos do Supabase Storage para economizar espaço e manter organização.
 
-#### 4.2.1 Comandos Disponíveis
+#### 5.2.1 Comandos Disponíveis
 
 ```bash
 # Simulação (dry-run) - recomendado primeiro
@@ -574,7 +577,7 @@ wsl node cleanup-storage.js --stats
 wsl node cleanup-storage.js --help
 ```
 
-#### 4.2.2 Recursos do Script
+#### 5.2.2 Recursos do Script
 
 - ✅ **Buckets configurados:** `files`, `screenshots`, `avatars`
 - ✅ **Retenção configurável:** Padrão 30 dias, personalizável
@@ -584,7 +587,7 @@ wsl node cleanup-storage.js --help
 - ✅ **Logs detalhados:** Acompanha progresso e erros
 - ✅ **Validação de segurança:** Confirma antes de remover
 
-#### 4.2.3 Exemplo de Saída
+#### 5.2.3 Exemplo de Saída
 
 ```
 🧹 LIMPEZA AUTOMÁTICA DO SUPABASE STORAGE
@@ -610,13 +613,13 @@ wsl node cleanup-storage.js --help
 ❌ Erros: 0
 ```
 
-### 4.3 Configuração de Limpeza Automática (Cron Job)
+### 5.3 Configuração de Limpeza Automática (Cron Job)
 
 **Arquivo:** `setup-storage-cleanup-cron.js`
 
 **Propósito:** Configurar execução automática da limpeza do storage via agendamento.
 
-#### 4.3.1 Configuração Rápida
+#### 5.3.1 Configuração Rápida
 
 ```bash
 # Configuração padrão (todo dia às 2h, retenção 30 dias)
@@ -632,7 +635,7 @@ wsl node setup-storage-cleanup-cron.js --manual
 wsl node setup-storage-cleanup-cron.js --test
 ```
 
-#### 4.3.2 Exemplos de Agendamento
+#### 5.3.2 Exemplos de Agendamento
 
 | Expressão Cron | Descrição | Recomendado para |
 |----------------|-----------|------------------|
@@ -642,7 +645,7 @@ wsl node setup-storage-cleanup-cron.js --test
 | `"0 */6 * * *"` | A cada 6 horas | Alto volume |
 | `"0 4 * * 1-5"` | Dias úteis às 4h | Ambiente corporativo |
 
-#### 4.3.3 Configuração Manual (Linux/WSL)
+#### 5.3.3 Configuração Manual (Linux/WSL)
 
 ```bash
 # 1. Editar crontab
@@ -658,7 +661,7 @@ crontab -l
 tail -f /tmp/storage-cleanup.log
 ```
 
-#### 4.3.4 Configuração Manual (Windows)
+#### 5.3.4 Configuração Manual (Windows)
 
 ```powershell
 # PowerShell como Administrador
@@ -671,7 +674,7 @@ schtasks /query /tn "Supabase Storage Cleanup"
 schtasks /run /tn "Supabase Storage Cleanup"
 ```
 
-#### 4.3.5 Monitoramento e Logs
+#### 5.3.5 Monitoramento e Logs
 
 **Linux/WSL:**
 ```bash
@@ -690,7 +693,7 @@ ps aux | grep cron
 - Navegar para "Logs do Windows" > "Sistema"
 - Filtrar por "Agendador de Tarefas"
 
-#### 4.3.6 Troubleshooting
+#### 5.3.6 Troubleshooting
 
 **Problema:** Cron job não executa
 ```bash
@@ -726,9 +729,9 @@ wsl node cleanup-storage.js --dry-run
 
 ---
 
-## 📝 Parte 5: Procedimento Completo Passo a Passo
+## 📝 Parte 6: Procedimento Completo Passo a Passo
 
-### 5.1 Primeira Execução (Setup Inicial)
+### 6.1 Primeira Execução (Setup Inicial)
 
 ```bash
 # 1. Navegar para o projeto
@@ -753,7 +756,7 @@ wsl node create-user.js create admin@tersa.com senha123456
 wsl node create-user.js list
 ```
 
-### 5.2 Criação de Usuários Subsequentes
+### 6.2 Criação de Usuários Subsequentes
 
 ```bash
 # 1. Navegar para o projeto
@@ -766,7 +769,7 @@ wsl node create-user.js create <email> <senha>
 wsl node create-user.js verify <email>
 ```
 
-### 5.3 Exclusão de Usuários
+### 6.3 Exclusão de Usuários
 
 ```bash
 # 1. Navegar para o projeto
@@ -785,7 +788,7 @@ wsl node delete-user.js delete <email>
 wsl node delete-user.js list
 ```
 
-### 5.4 Teste Completo do Sistema de Exclusão
+### 6.4 Teste Completo do Sistema de Exclusão
 
 **⚠️ IMPORTANTE: Execute este teste para validar o funcionamento completo**
 
@@ -888,7 +891,7 @@ Em caso de problemas:
 - [ ] Logs de execução sendo gerados
 - [ ] Monitoramento configurado
 
-### 4.2.3 Configuração de Agendamento Automático
+### 6.5 Configuração de Agendamento Automático de Limpeza
 
 **Arquivo:** `setup-storage-cleanup-cron.js`
 
@@ -926,12 +929,22 @@ crontab -l
 tail -f /tmp/storage-cleanup.log
 ```
 
+#### Configurações Avançadas por Bucket
+
+```bash
+# Screenshots: todo dia às 2h (7 dias retenção)
+0 2 * * * cd /mnt/c/ai/tersa && node cleanup-storage.js --bucket=screenshots --days=7 >> /tmp/storage-cleanup.log 2>&1
+
 # Files: todo domingo às 3h (30 dias retenção)
 0 3 * * 0 cd /mnt/c/ai/tersa && node cleanup-storage.js --bucket=files --days=30 >> /tmp/storage-cleanup.log 2>&1
 
 # Avatars: todo dia 1 do mês às 4h (90 dias retenção)
 0 4 1 * * cd /mnt/c/ai/tersa && node cleanup-storage.js --bucket=avatars --days=90 >> /tmp/storage-cleanup.log 2>&1
+```
 
+#### Verificação da Configuração
+
+```bash
 # 3. Verificar configuração
 crontab -l
 
@@ -939,7 +952,7 @@ crontab -l
 sudo service cron status
 ```
 
-#### Opção 3: Configuração Manual (Windows)
+#### Configuração Manual para Windows
 
 ```powershell
 # PowerShell como Administrador
@@ -954,9 +967,9 @@ schtasks /query /tn "Supabase Storage Cleanup"
 schtasks /run /tn "Supabase Storage Cleanup"
 ```
 
-### 📊 Monitoramento e Logs
+## 📊 Parte 7: Monitoramento e Logs
 
-#### Verificar Execuções
+### 7.1 Verificar Execuções
 
 ```bash
 # Ver logs em tempo real (Linux/WSL)
@@ -972,7 +985,7 @@ grep -i "error\|erro" /tmp/storage-cleanup.log
 grep "$(date +%Y-%m-%d)" /tmp/storage-cleanup.log
 ```
 
-#### Estatísticas de Storage
+### 7.2 Estatísticas de Storage
 
 ```bash
 # Ver estatísticas atuais
@@ -986,9 +999,9 @@ echo "=== DEPOIS DA LIMPEZA ===" >> /tmp/storage-stats.log
 wsl node cleanup-storage.js --stats >> /tmp/storage-stats.log
 ```
 
-### 🛠️ Troubleshooting
+## 🛠️ Parte 8: Troubleshooting
 
-#### Problemas Comuns
+### 8.1 Problemas Comuns
 
 **1. Script não executa:**
 ```bash
@@ -1038,30 +1051,30 @@ wsl node cleanup-storage.js --days=1
 # (verificar RLS policies nos buckets)
 ```
 
-### 📋 Checklist de Configuração
+## 📋 Parte 9: Checklist de Configuração
 
-#### Setup Inicial
+### 9.1 Setup Inicial
 - [ ] Script `cleanup-storage.js` existe e é executável
 - [ ] Teste em modo dry-run executado com sucesso
 - [ ] Conexão PostgreSQL funcionando
 - [ ] Estatísticas de storage visualizadas
 - [ ] Parâmetros de retenção definidos
 
-#### Configuração de Agendamento
+### 9.2 Configuração de Agendamento
 - [ ] Estratégia de retenção definida por bucket
 - [ ] Cron job ou tarefa agendada configurada
 - [ ] Agendamento testado manualmente
 - [ ] Logs sendo gerados corretamente
 - [ ] Monitoramento configurado
 
-#### Validação e Manutenção
+### 9.3 Validação e Manutenção
 - [ ] Primeira execução automática verificada
 - [ ] Logs revisados para erros
 - [ ] Estatísticas antes/depois comparadas
 - [ ] Procedimentos de troubleshooting documentados
 - [ ] Backup de configurações realizado
 
-### 🎯 Exemplo de Configuração Completa
+## 🎯 Parte 10: Exemplo de Configuração Completa
 
 ```bash
 #!/bin/bash
@@ -1095,7 +1108,7 @@ echo "📊 Monitore os logs em: /tmp/storage-cleanup.log"
 echo "🔍 Verifique estatísticas com: wsl node cleanup-storage.js --stats"
 ```
 
-### 📞 Suporte e Manutenção
+## 📞 Parte 11: Suporte e Manutenção
 
 **Para problemas:**
 1. Verificar logs: `/tmp/storage-cleanup.log`
@@ -1111,7 +1124,7 @@ echo "🔍 Verifique estatísticas com: wsl node cleanup-storage.js --stats"
 - Verificar se agendamento está funcionando
 - Backup das configurações importantes
 
-### Validação Final
+## ✅ Validação Final
 - [ ] Todos os scripts funcionando corretamente
 - [ ] Documentação atualizada
 - [ ] Procedimentos de segurança seguidos

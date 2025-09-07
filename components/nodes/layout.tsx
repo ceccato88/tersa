@@ -78,9 +78,12 @@ export const NodeLayout = ({
   };
 
   const handleDelete = () => {
-    deleteElements({
-      nodes: [{ id }],
-    });
+    // Usar setTimeout para evitar conflitos durante cascatas de updates
+    setTimeout(() => {
+      deleteElements({
+        nodes: [{ id }],
+      });
+    }, 0);
   };
 
   const handleShowData = () => {

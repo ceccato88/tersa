@@ -38,21 +38,24 @@ export const ToolbarInner = () => {
       position="bottom-center"
       className="m-4 flex items-center rounded-full border bg-card/90 p-1 drop-shadow-xs backdrop-blur-sm"
     >
-      {nodeButtons.map((button) => (
-        <Tooltip key={button.id}>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full"
-              onClick={() => handleAddNode(button.id, button.data)}
-            >
-              <button.icon size={12} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{button.label}</TooltipContent>
-        </Tooltip>
-      ))}
+      {nodeButtons.map((button) => {
+        const Icon = button.icon;
+        return (
+          <Tooltip key={button.id}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                onClick={() => handleAddNode(button.id, button.data)}
+              >
+                <Icon size={12} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{button.label}</TooltipContent>
+          </Tooltip>
+        );
+      })}
     </Panel>
   );
 };
