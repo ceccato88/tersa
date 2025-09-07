@@ -153,14 +153,22 @@ export const ModelSelector = ({
   const activeModel = options[value];
 
   useEffect(() => {
+    // Não tentar ajustar o valor se não houver opções
+    const hasOptions = Object.keys(options).length > 0;
+    if (!hasOptions) return;
+
     if (value && !options[value]) {
       // Find default model or fallback to first available
       const defaultModel = Object.entries(options).find(([_, model]) => model.default)?.[0];
-      onChange?.(defaultModel || Object.keys(options)[0]);
-    } else if (!value && Object.keys(options).length > 0) {
+      if (defaultModel || Object.keys(options)[0]) {
+        onChange?.(defaultModel || Object.keys(options)[0]);
+      }
+    } else if (!value && hasOptions) {
       // Select default model when no value is set
       const defaultModel = Object.entries(options).find(([_, model]) => model.default)?.[0];
-      onChange?.(defaultModel || Object.keys(options)[0]);
+      if (defaultModel || Object.keys(options)[0]) {
+        onChange?.(defaultModel || Object.keys(options)[0]);
+      }
     }
   }, [value, options, onChange]);
 
@@ -198,11 +206,13 @@ export const ModelSelector = ({
         asChild
       >
         <Button variant="outline" className="h-9">
-          {activeModel && (
+          {activeModel ? (
             <div className="flex w-full items-center gap-2 overflow-hidden">
               <ModelIcon data={activeModel} chef={activeModel.chef} />
               <span className="block truncate">{activeModel.label}</span>
             </div>
+          ) : (
+            <span className="block truncate text-muted-foreground">Selecione um modelo</span>
           )}
         </Button>
       </DialogTrigger>

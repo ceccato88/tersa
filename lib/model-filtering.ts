@@ -185,11 +185,14 @@ export const filterImageModels = (
   availableModels: Record<string, any>
 ): Record<string, any> => {
   const filteredModels: Record<string, any> = {};
+  // Quando não há conexões anteriores, tratar como 'text-primitive'
+  // para exibir modelos text-to-image por padrão.
+  const effectiveType = connectionType === 'none' ? 'text-primitive' : connectionType;
   
   Object.entries(availableModels).forEach(([modelId, modelConfig]) => {
     const modelInfo = IMAGE_MODELS[modelId as keyof typeof IMAGE_MODELS];
     
-    if (modelInfo && modelInfo.supportedInputs.includes(connectionType)) {
+    if (modelInfo && modelInfo.supportedInputs.includes(effectiveType)) {
       filteredModels[modelId] = {
         ...modelConfig,
         provider: modelInfo.provider,
