@@ -26,6 +26,8 @@ const FAL_VIDEO_MODEL_MAP: Record<string, string> = {
   'fal-ai/wan/v2.2-a14b/image-to-video': 'fal-ai/wan/v2.2-a14b/image-to-video',
   'fal-ai/luma-dream-machine/ray-2/image-to-video': 'fal-ai/luma-dream-machine/ray-2/image-to-video',
   'fal-ai/kling-video/v2.1/master/image-to-video': 'fal-ai/kling-video/v2.1/master/image-to-video',
+  // V2V
+  'fal-ai/topaz/upscale/video': 'fal-ai/topaz/upscale/video',
 };
 
 // Mapeamento de aspect ratios para vídeo
@@ -40,7 +42,8 @@ const VIDEO_ASPECT_RATIO_MAP: Record<string, { width: number; height: number }> 
 export async function generateVideoFalAction(
   prompt: string,
   data: Partial<VideoNodeData>,
-  images?: string[]
+  images?: string[],
+  videos?: string[]
 ) {
   try {
     logger.info('🎬 Iniciando geração de vídeo via FAL', {
@@ -214,6 +217,24 @@ export async function generateVideoFalAction(
       negative_prompt: (data as any).negative_prompt || 'blur, distort, and low quality',
       cfg_scale: (data as any).cfg_scale !== undefined ? parseFloat(String((data as any).cfg_scale)) : 0.5,
     };
+  } else if (data.model === 'fal-ai/topaz/upscale/video') {
+    if (!videos?.length) throw new Error('video_url is required for Topaz Video Upscale');
+    input = {
+      video_url: videos[0],
+      upscale_factor: (data as any).upscale_factor ?? 2,
+    };
+    
+    // Adicionar target_fps se especificado
+    if ((data as any).target_fps && (data as any).target_fps >= 16 && (data as any).target_fps <= 60) {
+      input.target_fps = (data as any).target_fps;
+    }
+    
+    // Adicionar H264_output se especificado
+    if ((data as any).H264_output !== undefined) {
+      input.H264_output = (data as any).H264_output;
+    }
+    
+    // Topaz não usa prompt - não adicionar prompt ao input
   } else {
     input = {
       prompt,
@@ -243,7 +264,7 @@ export async function generateVideoFalAction(
       model: falModel,
       input: {
         ...input,
-        prompt: input.prompt.substring(0, 100),
+        prompt: input.prompt ? input.prompt.substring(0, 100) : 'N/A',
       },
     });
 

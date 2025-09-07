@@ -4,11 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { prompt, params, images } = body;
+    const { prompt, params, images, videos } = body;
     console.log('[fal-video] Incoming request', {
       promptPreview: typeof prompt === 'string' ? prompt.slice(0, 120) : null,
       model: params?.model,
       imagesCount: Array.isArray(images) ? images.length : 0,
+      videosCount: Array.isArray(videos) ? videos.length : 0,
+      videos: videos ? videos.slice(0, 2) : null, // Mostrar até 2 URLs para debug
       params,
     });
     
@@ -19,7 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await generateVideoFalAction(prompt, params, images);
+    const result = await generateVideoFalAction(prompt, params, images, videos);
     console.log('[fal-video] Generation result', {
       model: params?.model,
       output: result?.output,

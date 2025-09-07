@@ -292,6 +292,16 @@ const VIDEO_MODELS = {
       'image-primitive',
       'image-transform'
     ]
+  },
+  // Video-to-Video models (require video input)
+  'fal-ai/topaz/upscale/video': {
+    id: 'fal-ai/topaz/upscale/video',
+    label: 'Topaz Video Upscale',
+    provider: 'fal',
+    supportedInputs: [
+      'video-primitive',
+      'video-transform'
+    ]
   }
   
   // Futuros modelos text-to-video serão adicionados aqui
@@ -470,6 +480,7 @@ export const getModelMaxImages = (
 export const isUpscaleModel = (modelId: string): boolean => {
   const upscaleModels = [
     'fal-ai/topaz/upscale/image',
+    'fal-ai/topaz/upscale/video',
     'fal-ai/recraft/upscale/creative',
     'fal-ai/recraft/upscale/crisp',
     'fal-ai/ideogram/upscale'

@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { download } from '@/lib/download';
 import { getModelSchema, getModelDefaults } from '@/lib/model-schemas';
-import { useFilteredModels, getFirstAvailableModel } from '@/lib/model-filtering';
+import { useFilteredModels, getFirstAvailableModel, isUpscaleModel } from '@/lib/model-filtering';
 import { detectPreviousNodeType } from '@/lib/node-connection-detector';
 import { providers } from '@/lib/providers';
 import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
@@ -45,6 +45,8 @@ const AVAILABLE_MODELS = {
   'fal-ai/wan/v2.2-a14b/image-to-video': { label: 'WAN 2.2 A14B (I2V)', chef: providers.fal, providers: [providers.fal], default: false },
   'fal-ai/luma-dream-machine/ray-2/image-to-video': { label: 'Luma Ray 2 (I2V)', chef: providers.fal, providers: [providers.fal], default: false },
   'fal-ai/kling-video/v2.1/master/image-to-video': { label: 'Kling 2.1 Master (I2V)', chef: providers.fal, providers: [providers.fal], default: false },
+  // Video-to-video
+  'fal-ai/topaz/upscale/video': { label: 'Topaz Video Upscale', chef: providers.fal, providers: [providers.fal], default: false },
 } as const;
 
 const getDefaultModel = () => {
@@ -110,14 +112,38 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
 
   const handleGenerate = useCallback(async () => {
     if (loading || !project?.id) return;
-    if (!data.instructions?.trim()) {
+    
+    // Não exigir prompt para modelos de upscale
+    if (!data.instructions?.trim() && !isUpscaleModel(modelId)) {
       toast.error('Campo obrigatório', { description: 'Por favor, digite suas instruções antes de gerar o vídeo.' });
       return;
     }
+    
     setLoading(true);
     try {
       const incomers = getIncomers({ id }, getNodes(), getEdges());
       const images = getImagesFromImageNodes(incomers).map((i: any) => i.url).filter(Boolean);
+      const videos = (incomers as any[])
+        .filter((n) => n.type === 'video')
+        .map((n) => (n.data?.generated?.url || n.data?.content?.url))
+        .filter(Boolean);
+
+      console.log('[DEBUG] Video - Incomers:', incomers.length);
+      console.log('[DEBUG] Video - Image nodes:', images.length, images);
+      console.log('[DEBUG] Video - Video nodes:', incomers.filter(n => n.type === 'video').length);
+      console.log('[DEBUG] Video - Videos with URLs:', videos.length, videos);
+      console.log('[DEBUG] Video - Model:', modelId, isUpscaleModel(modelId) ? '(UPSCALE)' : '(NORMAL)');
+
+      // Para modelos de upscale de vídeo, só precisamos de vídeos
+      if (isUpscaleModel(modelId)) {
+        if (!videos.length) {
+          toast.error('Vídeo obrigatório', { 
+            description: 'Modelos de upscale precisam de pelo menos um vídeo conectado.' 
+          });
+          setLoading(false);
+          return;
+        }
+      }
 
       analytics.track('canvas', 'node', 'generate', {
         type,
@@ -266,6 +292,13 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
               video_quality: d.video_quality || 'high',
               video_write_mode: d.video_write_mode || 'balanced',
             };
+          case 'fal-ai/topaz/upscale/video':
+            return {
+              model: modelId,
+              upscale_factor: d.upscale_factor ?? 2,
+              target_fps: d.target_fps || undefined,
+              H264_output: d.H264_output ?? false,
+            };
           default:
             return { model: modelId };
         }
@@ -278,6 +311,7 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
         model: modelId,
         params: sendParams,
         images,
+        videos,
       });
       const res = await fetch('/api/fal-video', {
         method: 'POST',
@@ -286,6 +320,7 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
           prompt: data.instructions,
           params: sendParams,
           images,
+          videos,
         }),
       });
       if (!res.ok) {
@@ -379,12 +414,15 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
       )}
 
       <div className={`space-y-4 p-4 ${loading ? 'opacity-50' : ''}`}>
-        <Textarea
-          value={data.instructions ?? ''}
-          onChange={handleInstructionsChange}
-          placeholder="Digite as instruções (obrigatório)"
-          className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px] max-h-[16rem] overflow-auto"
-        />
+        {/* Prompt - Oculto para modelos de upscale */}
+        {modelId !== 'fal-ai/topaz/upscale/video' && (
+          <Textarea
+            value={data.instructions ?? ''}
+            onChange={handleInstructionsChange}
+            placeholder="Digite as instruções (obrigatório)"
+            className="shrink-0 resize-none border border-input bg-background px-3 py-2 shadow-sm focus-visible:ring-1 focus-visible:ring-ring rounded-md min-h-[100px] max-h-[16rem] overflow-auto"
+          />
+        )}
 
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
@@ -423,7 +461,8 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
               modelId === 'fal-ai/minimax/hailuo-02/pro/text-to-video' ||
               modelId === 'fal-ai/minimax/hailuo-02/pro/image-to-video' ||
               modelId === 'fal-ai/kling-video/v2.1/master/image-to-video' ||
-              modelId === 'fal-ai/veo3/image-to-video'
+              modelId === 'fal-ai/veo3/image-to-video' ||
+              modelId === 'fal-ai/pika/v2.2/image-to-video'
             ) ? (
               <>
                 <Label className="text-xs text-muted-foreground">Tamanho</Label>
@@ -433,6 +472,20 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="fixed">Tamanho único</SelectItem>
+                  </SelectContent>
+                </Select>
+              </>
+            ) : (
+              modelId === 'fal-ai/topaz/upscale/video'
+            ) ? (
+              <>
+                <Label className="text-xs text-muted-foreground">Tamanho</Label>
+                <Select value={String((data as any).fixed_size || 'upscale')} onValueChange={(value) => updateNodeData(id, { fixed_size: value })}>
+                  <SelectTrigger className="w-full h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="upscale">Upscale</SelectItem>
                   </SelectContent>
                 </Select>
               </>

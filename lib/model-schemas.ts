@@ -1074,6 +1074,53 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
     ]
   },
 
+  'fal-ai/topaz/upscale/video': {
+    label: 'Topaz Video Upscale',
+    aspectRatios: [
+      { label: 'Upscale', value: 'upscale' },
+    ],
+    fields: [
+      {
+        name: 'fixed_size',
+        type: 'select',
+        label: 'Tamanho',
+        options: [{ value: 'upscale', label: 'Upscale' }],
+        defaultValue: 'upscale',
+        gridColumn: 2
+      },
+      {
+        name: 'upscale_factor',
+        type: 'select',
+        label: 'Fator de Upscale',
+        options: [
+          { value: 2, label: '2x' },
+          { value: 3, label: '3x' },
+          { value: 4, label: '4x' },
+        ],
+        defaultValue: 2,
+        gridColumn: 1
+      },
+      {
+        name: 'target_fps',
+        type: 'number',
+        label: 'FPS Alvo',
+        placeholder: 'Opcional (16-60)',
+        defaultValue: null,
+        min: 16,
+        max: 60,
+        step: 1,
+        gridColumn: 2
+      },
+      {
+        name: 'H264_output',
+        type: 'checkbox',
+        label: 'Usar H264 (em vez de H265)',
+        defaultValue: false,
+        gridColumn: 1
+      }
+    ]
+  },
+
   'fal-ai/stable-video-diffusion': {
     label: 'Stable Video Diffusion',
     aspectRatios: [
@@ -2844,6 +2891,10 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.duration = 5;
     defaults.negative_prompt = '';
   }
+  // I2V UI defaults: Tamanho único no seletor (não enviado para API)
+  if (modelId === 'fal-ai/pika/v2.2/image-to-video') {
+    (defaults as any).fixed_size = 'fixed';
+  }
   if (modelId === 'fal-ai/veo3') {
     defaults.aspect_ratio = '16:9';
     defaults.duration = '8s';
@@ -2879,6 +2930,16 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   ) {
     (defaults as any).fixed_size = 'fixed';
   }
+
+  // Defaults para Topaz Video Upscale
+  if (modelId === 'fal-ai/topaz/upscale/video') {
+    (defaults as any).fixed_size = 'upscale';
+    defaults.upscale_factor = 2;
+    defaults.target_fps = null;
+    defaults.H264_output = false;
+    defaults.numOutputs = 1;
+  }
+
   return defaults;
 };
 
