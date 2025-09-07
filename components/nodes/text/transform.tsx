@@ -25,7 +25,6 @@ import { useReasoning } from '@/hooks/use-reasoning';
 import { handleError } from '@/lib/error/handle';
 import {
   getDescriptionsFromImageNodes,
-  getFilesFromFileNodes,
   getImagesFromImageNodes,
   getTextFromTextNodes,
 } from '@/lib/xyflow';
@@ -111,7 +110,7 @@ export const TextTransform = ({
     const textPrompts = getTextFromTextNodes(incomers);
     const images = getImagesFromImageNodes(incomers);
     const imageDescriptions = getDescriptionsFromImageNodes(incomers);
-    const files = getFilesFromFileNodes(incomers);
+    // File nodes removidos
 
     if (!data.instructions?.trim()) {
       toast.error('Campo obrigatório', {
@@ -147,7 +146,7 @@ A saída deve ser um resumo conciso do conteúdo, não mais que 1000 palavras.`;
       model: modelId,
       instructionsLength: data.instructions?.length ?? 0,
       imageCount: images.length,
-      fileCount: files.length,
+      fileCount: 0,
     });
 
     // Preparar input para Replicate com formato de messages correto

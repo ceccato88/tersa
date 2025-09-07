@@ -41,8 +41,8 @@ export const DropNode = ({ data, id }: DropNodeProps) => {
     if (sourceNodeType === 'video') {
       return ['video'];
     }
-    // For other node types, keep the current behavior
-    return ['text', 'image', 'video', 'file'];
+    // Default: somente Texto, Imagem e Vídeo
+    return ['text', 'image', 'video'];
   };
 
   const availableNodeTypes = getAvailableNodeTypes();

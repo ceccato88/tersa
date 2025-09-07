@@ -1,5 +1,5 @@
 // import { SiX } from '@icons-pack/react-simple-icons';
-import { /* AudioWaveformIcon, */ FileIcon, VideoIcon } from 'lucide-react';
+import { /* AudioWaveformIcon, */ VideoIcon } from 'lucide-react';
 
 import { /* CodeIcon, */ ImageIcon, TextIcon } from 'lucide-react';
 
@@ -32,11 +32,7 @@ export const nodeButtons = [
   //     content: { language: 'javascript' },
   //   },
   // },
-  {
-    id: 'file',
-    label: 'Arquivo',
-    icon: FileIcon,
-  },
+  // Removido: botão de Arquivo
   // {
   //   id: 'tweet',
   //   label: 'Tweet',

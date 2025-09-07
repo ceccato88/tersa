@@ -1,4 +1,3 @@
-import type { FileNodeProps } from '@/components/nodes/file';
 import type { ImageNodeProps } from '@/components/nodes/image';
 import type { TextNodeProps } from '@/components/nodes/text';
 import type { Node } from '@xyflow/react';
@@ -88,11 +87,4 @@ export const isValidSourceTarget = (source: Node, target: Node) => {
 
 
 
-export const getFilesFromFileNodes = (nodes: Node[]) => {
-  const files = nodes
-    .filter((node) => node.type === 'file')
-    .map((node) => (node.data as FileNodeProps['data']).content)
-    .filter(Boolean) as { url: string; type: string; name: string }[];
-
-  return files;
-};
+// File nodes removidos: funções relacionadas a arquivos não são mais necessárias
