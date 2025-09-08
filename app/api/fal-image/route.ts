@@ -17,18 +17,19 @@ export async function POST(request: NextRequest) {
       params,
     });
     
-    // Verificar se é modelo de upscale (não precisa obrigatoriamente de prompt)
-    const upscaleModels = [
+    // Verificar se é modelo que não precisa obrigatoriamente de prompt
+    const modelsWithoutMandatoryPrompt = [
       'fal-ai/topaz/upscale/image',
       'fal-ai/recraft/upscale/creative', 
       'fal-ai/recraft/upscale/crisp',
-      'fal-ai/ideogram/upscale'
+      'fal-ai/ideogram/upscale',
+      'fal-ai/ideogram/v3/reframe'
     ];
     
-    const isUpscaleModel = upscaleModels.includes(params?.model);
+    const isUpscaleModel = modelsWithoutMandatoryPrompt.includes(params?.model);
     
     if (!prompt && !isUpscaleModel) {
-      console.log('❌ Prompt obrigatório para modelo não-upscale:', params?.model);
+      console.log('❌ Prompt obrigatório para modelo:', params?.model);
       return NextResponse.json(
         { error: 'Prompt is required' },
         { status: 400 }

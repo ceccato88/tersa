@@ -48,7 +48,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: false,
   },
@@ -57,7 +57,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: false,
   },
@@ -98,7 +98,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: 'Tamanho único', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: true,
   },
@@ -107,7 +107,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: false,
   },
@@ -200,7 +200,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: false,
   },
@@ -209,7 +209,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: false,
   },
@@ -218,7 +218,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: false,
   },
@@ -227,7 +227,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: false,
   },
@@ -250,7 +250,7 @@ const AVAILABLE_MODELS = {
     chef: providers.fal,
     providers: [providers.fal],
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: false,
   },
@@ -287,6 +287,15 @@ const AVAILABLE_MODELS = {
     providers: [providers.fal],
     aspectRatios: [
       { label: 'Upscale', value: 'fixed' },
+    ],
+    default: false,
+  },
+  'fal-ai/ideogram/v3/replace-background': {
+    label: 'Ideogram 3.0 Replace Background',
+    chef: providers.fal,
+    providers: [providers.fal],
+    aspectRatios: [
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     default: false,
   },
@@ -334,8 +343,8 @@ export const HybridImageTransform = ({
   
   // Calcular aspectRatio baseado no modelo
   const imageAspectRatio = useMemo(() => {
-    if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') {
-      // Nano Banana, Nano Banana Edit e FLUX.1 Kontext [pro] têm tamanho original (1:1)
+    if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/ideogram/v3/replace-background' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') {
+      // Nano Banana, Nano Banana Edit e FLUX.1 Kontext [pro] têm Não Aplicável (1:1)
       return '1';
     } else if (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/flux-pro/kontext/max' || modelId === 'fal-ai/luma-photon') {
       // FLUX.1 Kontext [pro], [max], [text], FLUX1.1 [pro] ultra, Imagen 4, Imagen 4 Ultra usam aspect_ratio diretamente
@@ -402,7 +411,7 @@ export const HybridImageTransform = ({
     console.log('[DEBUG] Image - Model:', modelId);
 
     try {
-      // Não exigir prompt para modelos de upscale
+      // Não exigir prompt para modelos de upscale e alguns modelos image-to-image
       if (!data.instructions?.trim() && !isUpscaleModel(data.model || '')) {
         toast.error('Campo obrigatório', {
           description: 'Por favor, digite suas instruções antes de gerar a imagem.'
@@ -410,9 +419,11 @@ export const HybridImageTransform = ({
         return;
       }
       
-      // Para modelos de upscale, só precisamos de imagens
+      // Para modelos que não precisam de prompt obrigatório, só precisamos de imagens (quando aplicável)
       if (isUpscaleModel(data.model || '')) {
-        if (!imageNodes.length) {
+        // Apenas modelos de upscale reais precisam obrigatoriamente de imagens
+        const realUpscaleModels = ['fal-ai/topaz/upscale/image', 'fal-ai/recraft/upscale/creative', 'fal-ai/recraft/upscale/crisp', 'fal-ai/ideogram/upscale'];
+        if (realUpscaleModels.includes(data.model || '') && !imageNodes.length) {
           throw new Error('Modelos de upscale precisam de pelo menos uma imagem conectada');
         }
       } else {
@@ -430,7 +441,7 @@ export const HybridImageTransform = ({
         imagePromptsLength: imageNodes.length,
         model: modelId,
         instructionsLength: data.instructions?.length ?? 0,
-        aspectRatio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') ? (data.fixed_size || 'fixed') : (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon' || modelId === 'fal-ai/flux-pro/kontext/max') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : (data.image_size || 'landscape_4_3'),
+        aspectRatio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/ideogram/v3/remix' || modelId === 'fal-ai/ideogram/v3/replace-background' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') ? (data.fixed_size || 'fixed') : (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon' || modelId === 'fal-ai/flux-pro/kontext/max') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : (data.image_size || 'landscape_4_3'),
         seed: seed ?? null,
         quantity: quantity,
       });
@@ -573,7 +584,7 @@ export const HybridImageTransform = ({
               data: {
                 ...variations[i],
                 model: modelId,
-                aspectRatio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') ? undefined : (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
+                aspectRatio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/ideogram/v3/replace-background' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') ? undefined : (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
         aspect_ratio: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') ? undefined : (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1')) : undefined,
         image_size: (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') ? undefined : (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') ? undefined : (data.image_size || 'landscape_4_3'),
                 seed: i === 0 ? (seedString !== '' && seedString !== 'null' && seedString !== 'undefined' ? seedString : '') : (seedString !== '' && seedString !== 'null' && seedString !== 'undefined' ? Math.floor(Math.random() * 1000000).toString() : ''),
@@ -784,8 +795,8 @@ export const HybridImageTransform = ({
       
       {/* Controles Compactos */}
       <div className="space-y-3 p-4">
-        {/* Prompt - Oculto para modelos de upscale */}
-        {modelId !== 'fal-ai/topaz/upscale/image' && modelId !== 'fal-ai/recraft/upscale/creative' && modelId !== 'fal-ai/recraft/upscale/crisp' && modelId !== 'fal-ai/ideogram/upscale' && (
+        {/* Prompt - Oculto para modelos de upscale e Ideogram Reframe */}
+        {modelId !== 'fal-ai/topaz/upscale/image' && modelId !== 'fal-ai/recraft/upscale/creative' && modelId !== 'fal-ai/recraft/upscale/crisp' && modelId !== 'fal-ai/ideogram/upscale' && modelId !== 'fal-ai/ideogram/v3/reframe' && (
           <div className="space-y-1">
             <Textarea
               value={data.instructions ?? ''}
@@ -838,14 +849,14 @@ export const HybridImageTransform = ({
             <Label className="text-xs text-muted-foreground">Tamanho</Label>
             <Select
               value={
-                (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/flux-pro/kontext/max' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale')
+                (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/ideogram/v3/remix' || modelId === 'fal-ai/ideogram/v3/replace-background' || modelId === 'fal-ai/flux-pro/kontext/max' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale')
                   ? (data.fixed_size || 'fixed')
                   : (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon')
                     ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1'))
                     : (data.image_size || 'landscape_4_3')
               }
               onValueChange={(value) => {
-                if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/flux-pro/kontext/max' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') {
+                if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/recraft/v3/image-to-image' || modelId === 'fal-ai/ideogram/v3/reframe' || modelId === 'fal-ai/ideogram/v3/remix' || modelId === 'fal-ai/ideogram/v3/replace-background' || modelId === 'fal-ai/flux-pro/kontext/max' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp' || modelId === 'fal-ai/ideogram/upscale') {
                   updateNodeData(id, { fixed_size: value });
                 } else if (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon') {
                   updateNodeData(id, { aspect_ratio: value });

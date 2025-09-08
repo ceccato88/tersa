@@ -48,7 +48,7 @@ The API accepts the following input parameters:
   - Default: `0.5`
   - Range: `0` to `1`
 
-Tamanho usamos apenas o rótulo Tamanho único no seletor, não enviamos pra api
+Tamanho usamos apenas o rótulo Não Aplicável no seletor, não enviamos pra api
 
 **Required Parameters Example**:
 

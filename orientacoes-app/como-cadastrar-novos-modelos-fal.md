@@ -32,7 +32,7 @@ Adicione a configuração do modelo no objeto `MODEL_SCHEMAS`:
     { label: 'Square HD', value: 'square_hd' },
     { label: 'Landscape 4:3', value: 'landscape_4_3' },
     // OU para modelos com tamanho fixo
-    { label: 'Tamanho único', value: 'fixed' },
+    { label: 'Não Aplicável', value: 'fixed' },
   ],
   fields: [
     // Campo de tamanho (SEMPRE INCLUA UM DESTES)
@@ -153,7 +153,7 @@ Os modelos FLUX padrão não precisam de lógica especial, apenas do mapeamento.
     // OU
     { label: 'Square HD', value: 'square_hd' }, // Para image_size
     // OU
-    { label: 'Tamanho único', value: 'fixed' }, // Para fixed_size
+    { label: 'Não Aplicável', value: 'fixed' }, // Para fixed_size
   ],
   default: false, // true apenas se for modelo padrão
 },
@@ -388,13 +388,13 @@ supportedInputs: ['text-primitive', 'text-transform']
 // MODEL_SCHEMAS
 'fal-ai/nano-banana/edit': {
   label: 'Nano Banana Edit',
-  aspectRatios: [{ label: 'Tamanho original', value: 'fixed' }],
+  aspectRatios: [{ label: 'Não Aplicável', value: 'fixed' }],
   fields: [
     {
       name: 'fixed_size',
       type: 'select',
       label: 'Tamanho',
-      options: [{ value: 'fixed', label: 'Tamanho original' }],
+      options: [{ value: 'fixed', label: 'Não Aplicável' }],
       defaultValue: 'fixed',
       gridColumn: 2
     },
@@ -441,13 +441,13 @@ if (data.model === 'fal-ai/nano-banana/edit') {
 // MODEL_SCHEMAS - convertido de text-only para image-to-image
 'fal-ai/flux-pro-kontext': {
   label: 'FLUX.1 Kontext [pro]',
-  aspectRatios: [{ label: 'Tamanho original', value: 'fixed' }],
+  aspectRatios: [{ label: 'Não Aplicável', value: 'fixed' }],
   fields: [
     {
       name: 'fixed_size',
       type: 'select',
       label: 'Tamanho',
-      options: [{ value: 'fixed', label: 'Tamanho original' }],
+      options: [{ value: 'fixed', label: 'Não Aplicável' }],
       defaultValue: 'fixed',
       gridColumn: 2
     },

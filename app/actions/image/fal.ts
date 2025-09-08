@@ -51,6 +51,7 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/recraft/upscale/creative': 'fal-ai/recraft/upscale/creative',
   'fal-ai/recraft/upscale/crisp': 'fal-ai/recraft/upscale/crisp',
   'fal-ai/ideogram/upscale': 'fal-ai/ideogram/upscale',
+  'fal-ai/ideogram/v3/replace-background': 'fal-ai/ideogram/v3/replace-background',
 };
 
 // Função para verificar se um erro pode ser tentado novamente
@@ -123,7 +124,7 @@ export async function generateImageFalAction(
     };
 
     // Adicionar parâmetros globais apenas se não for Recraft V3, Nano Banana, Nano Banana Edit, Imagen 4, Imagen 4 Ultra, Ideogram 3.0, Ideogram Character, FLUX1.1 [pro], FLUX1.1 [pro] ultra, FLUX.1 Kontext [max], FLUX.1 Kontext [pro] text, FLUX.1 Krea ou modelos image-to-image específicos
-    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana/edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
+    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana/edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/ideogram/v3/replace-background' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
       input.seed = parseNumber(data.seed);
       
       // Guidance scale específico por modelo
@@ -385,11 +386,14 @@ export async function generateImageFalAction(
         }
       });
     } else if (data.model === 'fal-ai/ideogram/v3/reframe') {
-      // Ideogram 3.0 Reframe usa parâmetros específicos
+      // Ideogram 3.0 Reframe usa parâmetros específicos (sem prompt)
       input.image_size = data.image_size || data.aspectRatio || 'square_hd';
       input.rendering_speed = data.rendering_speed || 'BALANCED';
       input.seed = parseNumber(data.seed);
       input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      
+      // Remover prompt para Ideogram Reframe (funciona sem prompt)
+      delete input.prompt;
       
       // DEBUG: Log específico para Ideogram 3.0 Reframe
       console.log('🖼️ Ideogram 3.0 Reframe Debug - Parâmetros completos:', {
@@ -399,7 +403,8 @@ export async function generateImageFalAction(
           image_size: input.image_size,
           rendering_speed: input.rendering_speed,
           seed: input.seed,
-          sync_mode: input.sync_mode
+          sync_mode: input.sync_mode,
+          hasPrompt: 'prompt' in input
         }
       });
     } else if (data.model === 'fal-ai/ideogram/v3/remix') {
@@ -531,6 +536,49 @@ export async function generateImageFalAction(
           expand_prompt: input.expand_prompt,
           seed: input.seed,
           sync_mode: input.sync_mode
+        }
+      });
+    } else if (data.model === 'fal-ai/ideogram/v3/replace-background') {
+      // Ideogram 3.0 Replace Background usa parâmetros específicos
+      input.rendering_speed = data.rendering_speed || 'BALANCED';
+      input.style = data.style || 'AUTO';
+      input.expand_prompt = data.expand_prompt !== undefined ? data.expand_prompt : true;
+      input.seed = parseNumber(data.seed) || null;
+      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
+      
+      // Configuração de paleta de cores baseada no tipo
+      if (data.color_palette_type === 'preset' && data.color_palette_preset) {
+        input.color_palette = {
+          name: data.color_palette_preset
+        };
+      } else if (data.color_palette_type === 'custom') {
+        const r = parseNumber(data.color_r) || 190;
+        const g = parseNumber(data.color_g) || 29;
+        const b = parseNumber(data.color_b) || 29;
+        
+        input.color_palette = {
+          members: [
+            {
+              color: `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`,
+              weight: 1
+            }
+          ]
+        };
+      }
+      // Se color_palette_type for 'none' ou não definido, não enviamos color_palette
+      
+      // DEBUG: Log específico para Ideogram Replace Background
+      console.log('🎨 Ideogram Replace Background Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          rendering_speed: input.rendering_speed,
+          style: input.style,
+          expand_prompt: input.expand_prompt,
+          seed: input.seed,
+          sync_mode: input.sync_mode,
+          color_palette: input.color_palette
         }
       });
     } else if (data.model === 'fal-ai/flux-pro-v1.1') {
@@ -733,7 +781,7 @@ export async function generateImageFalAction(
         input.image_url = imageUrl;
         
         // Força da transformação apenas para modelos que suportam (exceto modelos que já definem strength)
-        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
+        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/ideogram/v3/replace-background' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
           input.strength = data.strength || 0.8;
         }
       }

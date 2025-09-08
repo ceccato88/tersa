@@ -32,7 +32,7 @@ The API accepts the following input parameters:
   Whether to use the model's prompt optimizer Default value: `true`
   - Default: `true`
 
-Tamanho usamos apenas o rótulo Tamanho único no seletor, não enviamos pra api
+Tamanho usamos apenas o rótulo Não Aplicável no seletor, não enviamos pra api
 
 **Required Parameters Example**:
 

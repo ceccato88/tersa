@@ -471,7 +471,7 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fixed">Tamanho único</SelectItem>
+                    <SelectItem value="fixed">Não Aplicável</SelectItem>
                   </SelectContent>
                 </Select>
               </>

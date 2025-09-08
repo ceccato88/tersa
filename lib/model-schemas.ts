@@ -23,9 +23,9 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   // I2V: Hailuo 02 Pro
   'fal-ai/minimax/hailuo-02/pro/image-to-video': {
     label: 'Hailuo 02 Pro (I2V)',
-    aspectRatios: [ { label: 'Tamanho único', value: 'fixed' } ],
+    aspectRatios: [ { label: 'Não Aplicável', value: 'fixed' } ],
     fields: [
-      { name: 'fixed_size', type: 'select', label: 'Tamanho', options: [{ value: 'fixed', label: 'Tamanho único' }], defaultValue: 'fixed', gridColumn: 2 },
+      { name: 'fixed_size', type: 'select', label: 'Tamanho', options: [{ value: 'fixed', label: 'Não Aplicável' }], defaultValue: 'fixed', gridColumn: 2 },
       { name: 'prompt_optimizer', type: 'checkbox', label: 'Prompt Optimizer', defaultValue: true, gridColumn: 1 },
     ],
   },
@@ -98,9 +98,9 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   // I2V: Kling 2.1 Master
   'fal-ai/kling-video/v2.1/master/image-to-video': {
     label: 'Kling 2.1 Master (I2V)',
-    aspectRatios: [ { label: 'Tamanho único', value: 'fixed' } ],
+    aspectRatios: [ { label: 'Não Aplicável', value: 'fixed' } ],
     fields: [
-      { name: 'fixed_size', type: 'select', label: 'Tamanho', defaultValue: 'fixed', options: [ { value: 'fixed', label: 'Tamanho único' } ], gridColumn: 2 },
+      { name: 'fixed_size', type: 'select', label: 'Tamanho', defaultValue: 'fixed', options: [ { value: 'fixed', label: 'Não Aplicável' } ], gridColumn: 2 },
       { name: 'duration', type: 'select', label: 'Duração', defaultValue: '5', options: [ { value: '5', label: '5s' }, { value: '10', label: '10s' } ], gridColumn: 1 },
       { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', defaultValue: 'blur, distort, and low quality', gridColumn: 2 },
       { name: 'cfg_scale', type: 'number', label: 'CFG Scale (0-1)', defaultValue: 0.5, min: 0, max: 1, step: 0.1, gridColumn: 1 },
@@ -540,7 +540,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/flux-pro-kontext': {
     label: 'FLUX.1 Kontext [pro]',
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -617,7 +617,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/flux-pro/kontext/max': {
     label: 'FLUX.1 Kontext [max]',
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -864,7 +864,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/nano-banana': {
     label: 'Nano Banana',
     aspectRatios: [
-      { label: 'Tamanho único', value: 'fixed' }, // Valor especial que não é enviado para API
+      { label: 'Não Aplicável', value: 'fixed' }, // Valor especial que não é enviado para API
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -1805,7 +1805,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/nano-banana/edit': {
     label: 'Nano Banana Edit',
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -1841,7 +1841,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/ideogram/character': {
     label: 'Ideogram 3.0 Character',
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -1915,7 +1915,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/recraft/v3/image-to-image': {
     label: 'Recraft V3',
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -2079,7 +2079,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/ideogram/v3/remix': {
     label: 'Ideogram 3.0 Remix',
     aspectRatios: [
-      { label: 'Tamanho original', value: 'fixed' },
+      { label: 'Não Aplicável', value: 'fixed' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -2220,6 +2220,133 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         defaultValue: false,
         gridColumn: 2
       }
+    ]
+  },
+  'fal-ai/ideogram/v3/replace-background': {
+    label: 'Ideogram 3.0 Replace Background',
+    aspectRatios: [
+      { label: 'Não Aplicável', value: 'fixed' },
+    ],
+    fields: [
+      // Campo que aparece no nó principal (controla quantos nós criar)
+      {
+        name: 'num_images',
+        type: 'number',
+        label: 'Quantidade',
+        defaultValue: 1,
+        gridColumn: 2
+      },
+      
+      // Campos que aparecem apenas na aba avançada
+      {
+        name: 'rendering_speed',
+        type: 'select',
+        label: 'Velocidade de Renderização',
+        options: [
+          { value: 'TURBO', label: 'Turbo' },
+          { value: 'BALANCED', label: 'Balanceado' },
+          { value: 'QUALITY', label: 'Qualidade' }
+        ],
+        defaultValue: 'BALANCED',
+        gridColumn: 1
+      },
+      {
+        name: 'style',
+        type: 'select',
+        label: 'Estilo',
+        options: [
+          { value: 'AUTO', label: 'Automático' },
+          { value: 'GENERAL', label: 'Geral' },
+          { value: 'REALISTIC', label: 'Realista' },
+          { value: 'DESIGN', label: 'Design' }
+        ],
+        defaultValue: 'AUTO',
+        gridColumn: 2
+      },
+      {
+        name: 'expand_prompt',
+        type: 'checkbox',
+        label: 'Expandir Prompt (MagicPrompt)',
+        defaultValue: true,
+        gridColumn: 1
+      },
+      {
+        name: 'seed',
+        type: 'number',
+        label: 'Seed',
+        defaultValue: null,
+        gridColumn: 2
+      },
+      {
+        name: 'sync_mode',
+        type: 'checkbox',
+        label: 'Modo Síncrono',
+        defaultValue: false,
+        gridColumn: 1
+      },
+      {
+        name: 'color_palette_type',
+        type: 'select',
+        label: 'Tipo de Paleta',
+        options: [
+          { value: 'none', label: 'Nenhuma' },
+          { value: 'preset', label: 'Predefinida' },
+          { value: 'custom', label: 'Personalizada' },
+        ],
+        defaultValue: 'none',
+        gridColumn: 2
+      },
+      {
+        name: 'color_palette_preset',
+        type: 'select',
+        label: 'Paleta Predefinida',
+        options: [
+          { value: 'EMBER', label: 'Ember' },
+          { value: 'FRESH', label: 'Fresh' },
+          { value: 'JUNGLE', label: 'Jungle' },
+          { value: 'MAGIC', label: 'Magic' },
+          { value: 'MELON', label: 'Melon' },
+          { value: 'MOSAIC', label: 'Mosaic' },
+          { value: 'PASTEL', label: 'Pastel' },
+          { value: 'ULTRAMARINE', label: 'Ultramarine' },
+        ],
+        defaultValue: null,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'preset' }
+      },
+      {
+        name: 'color_r',
+        type: 'number',
+        label: 'Vermelho (R)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 190,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_g',
+        type: 'number',
+        label: 'Verde (G)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 2,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_b',
+        type: 'number',
+        label: 'Azul (B)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
     ]
   },
   'fal-ai/topaz/upscale/image': {
@@ -2637,6 +2764,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   
   // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/remix
   if (modelId === 'fal-ai/ideogram/v3/remix') {
+    defaults.aspectRatio = 'fixed';
     defaults.fixed_size = 'fixed';
     defaults.strength = 0.8;
     defaults.rendering_speed = 'BALANCED';
@@ -2683,6 +2811,22 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.sync_mode = false;
   }
   
+  // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/replace-background
+  if (modelId === 'fal-ai/ideogram/v3/replace-background') {
+    defaults.aspectRatio = 'fixed';
+    defaults.fixed_size = 'fixed';
+    defaults.rendering_speed = 'BALANCED';
+    defaults.style = 'AUTO';
+    defaults.expand_prompt = true;
+    defaults.seed = null;
+    defaults.sync_mode = false;
+    defaults.color_palette_type = 'none';
+    defaults.color_palette_preset = null;
+    defaults.color_r = 190;
+    defaults.color_g = 29;
+    defaults.color_b = 29;
+  }
+  
   
   // Adicionar valores padrão para campos ocultos no modelo wan-video
   if (modelId === 'wan-video/wan-2.2-i2v-a14b') {
@@ -2725,7 +2869,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.duration = 5;
     defaults.negative_prompt = '';
   }
-  // I2V UI defaults: Tamanho único no seletor (não enviado para API)
+  // I2V UI defaults: Não Aplicável no seletor (não enviado para API)
   if (modelId === 'fal-ai/pika/v2.2/image-to-video') {
     (defaults as any).fixed_size = 'fixed';
   }

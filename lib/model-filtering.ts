@@ -147,6 +147,13 @@ const IMAGE_MODELS = {
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem
+  },
+  'fal-ai/ideogram/v3/replace-background': {
+    id: 'fal-ai/ideogram/v3/replace-background',
+    label: 'Ideogram 3.0 Replace Background',
+    provider: 'fal',
+    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
+    maxImages: 1 // Aceita apenas uma imagem
   }
 };
 
@@ -473,18 +480,22 @@ export const getModelMaxImages = (
 };
 
 /**
- * Verifica se um modelo é de upscale (não precisa de prompt)
+ * Verifica se um modelo não precisa de prompt obrigatório
+ * Inclui modelos de upscale e o Ideogram Reframe
  * @param modelId - ID do modelo
- * @returns true se for modelo de upscale, false caso contrário
+ * @returns true se não precisar de prompt obrigatório, false caso contrário
  */
 export const isUpscaleModel = (modelId: string): boolean => {
-  const upscaleModels = [
+  const modelsWithoutMandatoryPrompt = [
+    // Modelos de upscale
     'fal-ai/topaz/upscale/image',
     'fal-ai/topaz/upscale/video',
     'fal-ai/recraft/upscale/creative',
     'fal-ai/recraft/upscale/crisp',
-    'fal-ai/ideogram/upscale'
+    'fal-ai/ideogram/upscale',
+    // Modelos image-to-image que podem rodar sem prompt
+    'fal-ai/ideogram/v3/reframe'
   ];
   
-  return upscaleModels.includes(modelId);
+  return modelsWithoutMandatoryPrompt.includes(modelId);
 };
