@@ -1,5 +1,6 @@
 import { generateVideoFalAction } from '@/app/actions/video/fal';
 import { NextRequest, NextResponse } from 'next/server';
+import { appendMockLog } from '@/lib/mock-log';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,3 +39,17 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+    // Test mode: log inputs and return mock video URL without calling external API
+    if (process.env.TEST_LOG_ONLY === 'true') {
+      const payload = { route: '/api/fal-video', prompt, params, images, videos };
+      console.log('[TEST_LOG_ONLY]', payload);
+      appendMockLog(payload).catch(() => {});
+      return NextResponse.json({
+        success: true,
+        data: {
+          output: 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4',
+          prompt,
+          model: params?.model || 'mock/video-model',
+        },
+      });
+    }

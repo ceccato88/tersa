@@ -1,4 +1,4 @@
-import { updateProjectAction } from '@/app/actions/project/update';
+﻿import { updateProjectAction } from '@/app/actions/project/update';
 import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -774,7 +774,7 @@ export const HybridImageTransform = ({
       {/* Controles Compactos */}
       <div className="space-y-3 p-4">
         {/* Prompt - Oculto para modelos de upscale e Ideogram Reframe */}
-        {modelId !== 'fal-ai/topaz/upscale/image' && modelId !== 'fal-ai/recraft/upscale/creative' && modelId !== 'fal-ai/recraft/upscale/crisp' && modelId !== 'fal-ai/ideogram/upscale' && modelId !== 'fal-ai/ideogram/v3/reframe' && (
+        {modelId !== 'fal-ai/topaz/upscale/image' && modelId !== 'fal-ai/recraft/upscale/creative' && modelId !== 'fal-ai/recraft/upscale/crisp' && modelId !== 'fal-ai/ideogram/v3/reframe' && (
           <div className="space-y-1">
             <Textarea
               value={data.instructions ?? ''}
@@ -818,8 +818,7 @@ export const HybridImageTransform = ({
                   value === 'fal-ai/flux-pro/kontext/max' ||
                   value === 'fal-ai/topaz/upscale/image' ||
                   value === 'fal-ai/recraft/upscale/creative' ||
-                  value === 'fal-ai/recraft/upscale/crisp' ||
-                  value === 'fal-ai/ideogram/upscale'
+                  value === 'fal-ai/recraft/upscale/crisp'
                 );
 
                 if (usesAspect) {
@@ -872,10 +871,10 @@ export const HybridImageTransform = ({
             <Select
               value={
                 (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/ideogram/v3/remix' || modelId === 'fal-ai/ideogram/v3/replace-background' || modelId === 'fal-ai/flux-pro/kontext/max' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp')
-                  ? (data.fixed_size || 'fixed')
-                  : (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon')
-                    ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1'))
-                    : (data.image_size || (modelId === 'fal-ai/ideogram/v3/reframe' ? 'square_hd' : 'landscape_4_3'))
+              ? (data.fixed_size || 'fixed')
+              : (modelId === 'fal-ai/flux-pro-v1.1-ultra' || modelId === 'fal-ai/imagen4' || modelId === 'fal-ai/imagen4-ultra' || modelId === 'fal-ai/luma-photon')
+                ? (data.aspect_ratio || (modelId === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1'))
+                : (data.image_size || (modelId === 'fal-ai/ideogram/v3/reframe' ? 'square_hd' : 'landscape_4_3'))
               }
               onValueChange={(value) => {
                 if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/ideogram/v3/remix' || modelId === 'fal-ai/ideogram/v3/replace-background' || modelId === 'fal-ai/flux-pro/kontext/max' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp') {
@@ -973,3 +972,5 @@ export const HybridImageTransform = ({
     </NodeLayout>
   );
 };
+
+

@@ -1,6 +1,5 @@
 import { useNodeConnections } from '@xyflow/react';
 import { ImagePrimitive } from './primitive';
-import { ImageTransform } from './transform';
 import { HybridImageTransform } from './hybrid-transform';
 
 export type ImageNodeProps = {

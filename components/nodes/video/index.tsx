@@ -5,14 +5,8 @@ import { VideoTransform } from './transform';
 export type VideoNodeProps = {
   type: string;
   data: {
-    content?: {
-      url: string;
-      type: string;
-    };
-    generated?: {
-      url: string;
-      type: string;
-    };
+    content?: { url: string; type: string };
+    generated?: { url: string; type: string };
     updatedAt?: string;
     model?: string;
     instructions?: string;

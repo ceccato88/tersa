@@ -29,6 +29,12 @@ const nextConfig: NextConfig = {
       },
       
       
+      // Placeholder images for mock/testing
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+
     ],
   },
 

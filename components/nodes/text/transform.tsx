@@ -33,8 +33,8 @@ export const TextTransform = ({ data, id, type, title }: TextTransformProps) => 
   const analytics = useAnalytics();
   const [loading, setLoading] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-
   const [variationCount, setVariationCount] = useState<number>(data.variationCount ?? 1);
+  const modelId = 'openai/gpt-5-chat';
 
   // Transfere prompt automaticamente de nós conectados se instructions estiver vazio
   useEffect(() => {
@@ -47,6 +47,13 @@ export const TextTransform = ({ data, id, type, title }: TextTransformProps) => 
       updateNodeData(id, { instructions: textPrompts[0] });
     }
   }, [id, getNodes, getEdges, data.instructions, updateNodeData]);
+
+  // Garantir que o nó registre o modelo usado
+  useEffect(() => {
+    if (data.model !== modelId) {
+      updateNodeData(id, { model: modelId });
+    }
+  }, [data.model, id, modelId, updateNodeData]);
 
   const handleInstructionsChange: ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (event) => {
@@ -83,7 +90,6 @@ export const TextTransform = ({ data, id, type, title }: TextTransformProps) => 
       return;
     }
 
-    const modelId = 'openai/gpt-5-chat';
     const systemPrompt = '';
     const userContentBase = data.instructions || textPrompts[0] || '';
     const finalContent = imageDescriptions.length
@@ -145,6 +151,7 @@ export const TextTransform = ({ data, id, type, title }: TextTransformProps) => 
             generated: { text: fullText },
             updatedAt: new Date().toISOString(),
             variationCount,
+            model: modelId,
           });
         }
       }
@@ -162,7 +169,7 @@ export const TextTransform = ({ data, id, type, title }: TextTransformProps) => 
               id: newNodeId,
               type: 'text',
               position: {
-                x: currentNode.position.x + i * 420, // 384px (w-sm) + 36px spacing
+                x: currentNode.position.x + i * 420,
                 y: baseY,
               },
               origin: currentNode.origin || [0, 0.5],
@@ -308,4 +315,3 @@ export const TextTransform = ({ data, id, type, title }: TextTransformProps) => 
     </NodeLayout>
   );
 };
-

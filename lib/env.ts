@@ -31,6 +31,8 @@ export const env = createEnv({
     LUMA_API_KEY: z.string().min(1).startsWith('luma-'),
     BF_API_KEY: z.string().min(1),
     FAL_KEY: z.string().min(1).optional(),
+    // Test mode: when 'true', log inputs and return mock responses (no external API calls)
+    TEST_LOG_ONLY: z.string().optional(),
 
     // Vercel AI Gateway
     
@@ -75,6 +77,7 @@ export const env = createEnv({
     LMNT_API_KEY: process.env.LMNT_API_KEY,
     BF_API_KEY: process.env.BF_API_KEY,
     FAL_KEY: process.env.FAL_KEY,
+    TEST_LOG_ONLY: process.env.TEST_LOG_ONLY,
     
   },
 });

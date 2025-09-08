@@ -1,4 +1,4 @@
-import { NodeLayout } from '@/components/nodes/layout';
+﻿import { NodeLayout } from '@/components/nodes/layout';
 import {
   Dropzone,
   DropzoneContent,
@@ -100,3 +100,4 @@ export const VideoPrimitive = ({
     </NodeLayout>
   );
 };
+

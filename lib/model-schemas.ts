@@ -1,4 +1,4 @@
-// Configuração de esquemas dinâmicos por modelo de IA
+﻿// Configuração de esquemas dinâmicos por modelo de IA
 
 export interface ModelField {
   name: string;
@@ -2409,3 +2409,4 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
 export const modelHasField = (modelId: string, fieldName: string): boolean => {
   const schema = getModelSchema(modelId);
   return schema?.fields.some(field => field.name === fieldName) || false;
+

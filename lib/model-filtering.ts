@@ -468,6 +468,6 @@ export const isUpscaleModel = (modelId: string): boolean => {
     // Modelos image-to-image que podem rodar sem prompt
     'fal-ai/ideogram/v3/reframe'
   ];
-  
+
   return modelsWithoutMandatoryPrompt.includes(modelId);
 };

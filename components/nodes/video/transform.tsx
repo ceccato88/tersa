@@ -1,4 +1,4 @@
-import { NodeLayout } from '@/components/nodes/layout';
+﻿import { NodeLayout } from '@/components/nodes/layout';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -549,3 +549,5 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
     </NodeLayout>
   );
 };
+
+
