@@ -155,7 +155,7 @@ const VIDEO_MODELS = {
   // Modelos Replicate
   'wan-video/wan-2.2-i2v-a14b': {
     id: 'wan-video/wan-2.2-i2v-a14b',
-    label: 'WAN Video I2V (Replicate)',
+    label: 'WAN Video (Replicate)',
     provider: 'replicate',
     supportedInputs: [
       'text-primitive',

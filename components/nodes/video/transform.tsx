@@ -38,13 +38,13 @@ const AVAILABLE_MODELS = {
   'fal-ai/veo3': { label: 'Veo 3', chef: providers.fal, providers: [providers.fal], default: false },
   'fal-ai/wan/v2.2-a14b/text-to-video': { label: 'WAN 2.2 A14B', chef: providers.fal, providers: [providers.fal], default: false },
   // Image-to-video
-  'fal-ai/minimax/hailuo-02/pro/image-to-video': { label: 'Hailuo 02 Pro (I2V)', chef: providers.fal, providers: [providers.fal], default: false },
-  'moonvalley/marey/i2v': { label: 'Marey I2V', chef: providers.fal, providers: [providers.fal], default: false },
-  'fal-ai/pika/v2.2/image-to-video': { label: 'Pika v2.2 (I2V)', chef: providers.fal, providers: [providers.fal], default: false },
-  'fal-ai/veo3/image-to-video': { label: 'Veo 3 (I2V)', chef: providers.fal, providers: [providers.fal], default: false },
-  'fal-ai/wan/v2.2-a14b/image-to-video': { label: 'WAN 2.2 A14B (I2V)', chef: providers.fal, providers: [providers.fal], default: false },
-  'fal-ai/luma-dream-machine/ray-2/image-to-video': { label: 'Luma Ray 2 (I2V)', chef: providers.fal, providers: [providers.fal], default: false },
-  'fal-ai/kling-video/v2.1/master/image-to-video': { label: 'Kling 2.1 Master (I2V)', chef: providers.fal, providers: [providers.fal], default: false },
+  'fal-ai/minimax/hailuo-02/pro/image-to-video': { label: 'Hailuo 02 Pro', chef: providers.fal, providers: [providers.fal], default: false },
+  'moonvalley/marey/i2v': { label: 'Marey', chef: providers.fal, providers: [providers.fal], default: false },
+  'fal-ai/pika/v2.2/image-to-video': { label: 'Pika v2.2', chef: providers.fal, providers: [providers.fal], default: false },
+  'fal-ai/veo3/image-to-video': { label: 'Veo 3', chef: providers.fal, providers: [providers.fal], default: false },
+  'fal-ai/wan/v2.2-a14b/image-to-video': { label: 'WAN 2.2 A14B', chef: providers.fal, providers: [providers.fal], default: false },
+  'fal-ai/luma-dream-machine/ray-2/image-to-video': { label: 'Luma Ray 2', chef: providers.fal, providers: [providers.fal], default: false },
+  'fal-ai/kling-video/v2.1/master/image-to-video': { label: 'Kling 2.1 Master', chef: providers.fal, providers: [providers.fal], default: false },
   // Video-to-video
   'fal-ai/topaz/upscale/video': { label: 'Topaz Video Upscale', chef: providers.fal, providers: [providers.fal], default: false },
 } as const;

@@ -22,7 +22,7 @@ export interface ModelSchema {
 export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   // I2V: Hailuo 02 Pro
   'fal-ai/minimax/hailuo-02/pro/image-to-video': {
-    label: 'Hailuo 02 Pro (I2V)',
+    label: 'Hailuo 02 Pro',
     aspectRatios: [ { label: 'Não Aplicável', value: 'fixed' } ],
     fields: [
       { name: 'fixed_size', type: 'select', label: 'Tamanho', options: [{ value: 'fixed', label: 'Não Aplicável' }], defaultValue: 'fixed', gridColumn: 2 },
@@ -31,7 +31,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   },
   // I2V: Marey
   'moonvalley/marey/i2v': {
-    label: 'Marey I2V',
+    label: 'Marey',
     aspectRatios: [
       { label: '1920x1080 (16:9)', value: '16:9' },
       { label: '1080x1920 (9:16)', value: '9:16' },
@@ -54,7 +54,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   },
   // I2V: Pika v2.2
   'fal-ai/pika/v2.2/image-to-video': {
-    label: 'Pika v2.2 (I2V)',
+    label: 'Pika v2.2',
     aspectRatios: [ { label: '720p', value: '720p' }, { label: '1080p', value: '1080p' } ],
     fields: [
       { name: 'resolution', type: 'select', label: 'Resolução', defaultValue: '720p', options: [ { value: '720p', label: '720p' }, { value: '1080p', label: '1080p' } ], gridColumn: 1 },
@@ -65,7 +65,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   },
   // I2V: Veo3
   'fal-ai/veo3/image-to-video': {
-    label: 'Veo 3 (I2V)',
+    label: 'Veo 3',
     aspectRatios: [ { label: '16:9', value: '16:9' } ],
     fields: [
       { name: 'duration', type: 'select', label: 'Duração', defaultValue: '8s', options: [ { value: '8s', label: '8s' } ], gridColumn: 1 },
@@ -75,7 +75,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   },
   // I2V: Luma Ray 2
   'fal-ai/luma-dream-machine/ray-2/image-to-video': {
-    label: 'Luma Ray 2 (I2V)',
+    label: 'Luma Ray 2',
     aspectRatios: [
       { label: '16:9', value: '16:9' },
       { label: '9:16', value: '9:16' },
@@ -97,7 +97,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   },
   // I2V: Kling 2.1 Master
   'fal-ai/kling-video/v2.1/master/image-to-video': {
-    label: 'Kling 2.1 Master (I2V)',
+    label: 'Kling 2.1 Master',
     aspectRatios: [ { label: 'Não Aplicável', value: 'fixed' } ],
     fields: [
       { name: 'fixed_size', type: 'select', label: 'Tamanho', defaultValue: 'fixed', options: [ { value: 'fixed', label: 'Não Aplicável' } ], gridColumn: 2 },
@@ -108,7 +108,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   },
   // I2V: WAN v2.2 A14B
   'fal-ai/wan/v2.2-a14b/image-to-video': {
-    label: 'WAN 2.2 A14B (I2V)',
+    label: 'WAN 2.2 A14B',
     aspectRatios: [ { label: 'auto', value: 'auto' }, { label: '16:9', value: '16:9' }, { label: '9:16', value: '9:16' }, { label: '1:1', value: '1:1' } ],
     fields: [
       { name: 'num_frames', type: 'number', label: 'Frames (17-121)', defaultValue: 81, min: 17, max: 121, step: 1, gridColumn: 1 },

@@ -140,14 +140,14 @@ export async function generateVideoFalAction(
       video_write_mode: (data as any).video_write_mode || 'balanced',
     };
   } else if (data.model === 'fal-ai/minimax/hailuo-02/pro/image-to-video') {
-    if (!images?.length) throw new Error('image_url is required for Hailuo I2V');
+    if (!images?.length) throw new Error('image_url is required for Hailuo');
     input = {
       prompt,
       image_url: images[0],
       prompt_optimizer: (data as any).prompt_optimizer ?? true,
     };
   } else if (data.model === 'moonvalley/marey/i2v') {
-    if (!images?.length) throw new Error('image_url is required for Marey I2V');
+    if (!images?.length) throw new Error('image_url is required for Marey');
     input = {
       prompt,
       image_url: images[0],
@@ -157,7 +157,7 @@ export async function generateVideoFalAction(
       seed: (data as any).seed ?? null,
     };
   } else if (data.model === 'fal-ai/pika/v2.2/image-to-video') {
-    if (!images?.length) throw new Error('image_url is required for Pika I2V');
+    if (!images?.length) throw new Error('image_url is required for Pika');
     input = {
       prompt,
       image_url: images[0],
@@ -167,7 +167,7 @@ export async function generateVideoFalAction(
       duration: (data as any).duration ? parseInt(String((data as any).duration), 10) : 5,
     };
   } else if (data.model === 'fal-ai/veo3/image-to-video') {
-    if (!images?.length) throw new Error('image_url is required for Veo3 I2V');
+    if (!images?.length) throw new Error('image_url is required for Veo3');
     input = {
       prompt,
       image_url: images[0],
@@ -176,7 +176,7 @@ export async function generateVideoFalAction(
       resolution: (data as any).resolution || '720p',
     };
   } else if (data.model === 'fal-ai/wan/v2.2-a14b/image-to-video') {
-    if (!images?.length) throw new Error('image_url is required for WAN I2V');
+    if (!images?.length) throw new Error('image_url is required for WAN');
     input = {
       prompt,
       image_url: images[0],
@@ -199,7 +199,7 @@ export async function generateVideoFalAction(
       video_write_mode: (data as any).video_write_mode || 'balanced',
     };
   } else if (data.model === 'fal-ai/luma-dream-machine/ray-2/image-to-video') {
-    if (!images?.length) throw new Error('image_url is required for Luma Ray 2 I2V');
+    if (!images?.length) throw new Error('image_url is required for Luma Ray 2');
     input = {
       prompt,
       image_url: images[0],
@@ -209,7 +209,7 @@ export async function generateVideoFalAction(
       duration: (data as any).duration || '5s',
     };
   } else if (data.model === 'fal-ai/kling-video/v2.1/master/image-to-video') {
-    if (!images?.length) throw new Error('image_url is required for Kling I2V');
+    if (!images?.length) throw new Error('image_url is required for Kling');
     input = {
       prompt,
       image_url: images[0],

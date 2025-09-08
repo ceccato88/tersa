@@ -5,7 +5,9 @@
       "Bash(npm run:*)",
       "Bash(find:*)",
       "Bash(sed:*)",
-      "Bash(wsl pnpm:*)"
+      "Bash(wsl pnpm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
