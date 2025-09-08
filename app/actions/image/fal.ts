@@ -44,13 +44,11 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/luma-photon': 'fal-ai/luma-photon',
   'fal-ai/nano-banana/edit': 'fal-ai/nano-banana/edit',
   'fal-ai/ideogram/character': 'fal-ai/ideogram/character',
-  'fal-ai/recraft/v3/image-to-image': 'fal-ai/recraft/v3/image-to-image',
   'fal-ai/ideogram/v3/reframe': 'fal-ai/ideogram/v3/reframe',
   'fal-ai/ideogram/v3/remix': 'fal-ai/ideogram/v3/remix',
   'fal-ai/topaz/upscale/image': 'fal-ai/topaz/upscale/image',
   'fal-ai/recraft/upscale/creative': 'fal-ai/recraft/upscale/creative',
   'fal-ai/recraft/upscale/crisp': 'fal-ai/recraft/upscale/crisp',
-  'fal-ai/ideogram/upscale': 'fal-ai/ideogram/upscale',
   'fal-ai/ideogram/v3/replace-background': 'fal-ai/ideogram/v3/replace-background',
 };
 
@@ -124,7 +122,7 @@ export async function generateImageFalAction(
     };
 
     // Adicionar parâmetros globais apenas se não for Recraft V3, Nano Banana, Nano Banana Edit, Imagen 4, Imagen 4 Ultra, Ideogram 3.0, Ideogram Character, FLUX1.1 [pro], FLUX1.1 [pro] ultra, FLUX.1 Kontext [max], FLUX.1 Kontext [pro] text, FLUX.1 Krea ou modelos image-to-image específicos
-    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana/edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/ideogram/v3/replace-background' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
+    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana/edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/ideogram/v3/replace-background' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp') {
       input.seed = parseNumber(data.seed);
       
       // Guidance scale específico por modelo
@@ -345,46 +343,6 @@ export async function generateImageFalAction(
           negative_prompt: input.negative_prompt?.substring(0, 30)
         }
       });
-    } else if (data.model === 'fal-ai/recraft/v3/image-to-image') {
-      // Recraft V3 Image-to-Image usa todos os parâmetros específicos
-      input.strength = parseNumber(data.strength) !== null ? parseNumber(data.strength) : 0.5;
-      input.style = data.style || 'realistic_image';
-      input.negative_prompt = data.negative_prompt || '';
-      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
-      
-      // Cores preferenciais personalizadas (mesma lógica do text-to-image)
-      if (data.colors_type === 'custom' && (data.colors_r !== undefined || data.colors_g !== undefined || data.colors_b !== undefined)) {
-        // Usar valores padrão se não definidos
-        const r = data.colors_r !== undefined && data.colors_r !== null ? Number(data.colors_r) : 120;
-        const g = data.colors_g !== undefined && data.colors_g !== null ? Number(data.colors_g) : 47;
-        const b = data.colors_b !== undefined && data.colors_b !== null ? Number(data.colors_b) : 85;
-        
-        // Validar limites RGB (0-255)
-        const validR = Math.max(0, Math.min(255, r));
-        const validG = Math.max(0, Math.min(255, g));
-        const validB = Math.max(0, Math.min(255, b));
-        
-        input.colors = [{
-          r: validR,
-          g: validG,
-          b: validB
-        }];
-      }
-      
-      // DEBUG: Log específico para Recraft V3 Image-to-Image
-      console.log('🎨 Recraft V3 I2I Debug - Parâmetros completos:', {
-        model: data.model,
-        receivedData: Object.keys(data),
-        finalInput: {
-          prompt: input.prompt?.substring(0, 50),
-          strength: input.strength,
-          style: input.style,
-          negative_prompt: input.negative_prompt?.substring(0, 30),
-          colors: input.colors,
-          colorsCount: input.colors?.length || 0,
-          sync_mode: input.sync_mode
-        }
-      });
     } else if (data.model === 'fal-ai/ideogram/v3/reframe') {
       // Ideogram 3.0 Reframe usa parâmetros específicos (sem prompt)
       input.image_size = data.image_size || data.aspectRatio || 'square_hd';
@@ -513,29 +471,6 @@ export async function generateImageFalAction(
         finalInput: {
           sync_mode: input.sync_mode,
           enable_safety_checker: input.enable_safety_checker
-        }
-      });
-    } else if (data.model === 'fal-ai/ideogram/upscale') {
-      // Ideogram Upscale usa parâmetros específicos
-      // Para modelos de upscale, prompt é opcional (pode ser vazio)
-      input.prompt = prompt || data.instructions || '';
-      input.resemblance = parseNumber(data.resemblance) || 50;
-      input.detail = parseNumber(data.detail) || 50;
-      input.expand_prompt = data.expand_prompt !== undefined ? data.expand_prompt : false;
-      input.seed = parseNumber(data.seed) || null;
-      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
-      
-      // DEBUG: Log específico para Ideogram Upscale
-      console.log('🔍 Ideogram Upscale Debug - Parâmetros completos:', {
-        model: data.model,
-        receivedData: Object.keys(data),
-        finalInput: {
-          prompt: input.prompt?.substring(0, 50),
-          resemblance: input.resemblance,
-          detail: input.detail,
-          expand_prompt: input.expand_prompt,
-          seed: input.seed,
-          sync_mode: input.sync_mode
         }
       });
     } else if (data.model === 'fal-ai/ideogram/v3/replace-background') {
@@ -757,9 +692,6 @@ export async function generateImageFalAction(
       } else if (data.model === 'fal-ai/ideogram/character') {
         // Ideogram Character usa apenas reference_image_urls (uma imagem)
         input.reference_image_urls = [typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url];
-      } else if (data.model === 'fal-ai/recraft/v3/image-to-image') {
-        // Recraft V3 Image-to-Image usa image_url (singular)
-        input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
       } else if (data.model === 'fal-ai/ideogram/v3/reframe') {
         // Ideogram 3.0 Reframe usa image_url (singular)
         input.image_url = typeof imageNodes[0] === 'string' ? imageNodes[0] : imageNodes[0].url;
@@ -781,7 +713,7 @@ export async function generateImageFalAction(
         input.image_url = imageUrl;
         
         // Força da transformação apenas para modelos que suportam (exceto modelos que já definem strength)
-        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/ideogram/v3/replace-background' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
+        if (data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/ideogram/v3/replace-background' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp') {
           input.strength = data.strength || 0.8;
         }
       }

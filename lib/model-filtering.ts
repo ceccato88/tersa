@@ -99,13 +99,6 @@ const IMAGE_MODELS = {
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem de referência
   },
-  'fal-ai/recraft/v3/image-to-image': {
-    id: 'fal-ai/recraft/v3/image-to-image',
-    label: 'Recraft V3',
-    provider: 'fal',
-    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
-    maxImages: 1 // Aceita apenas uma imagem
-  },
   'fal-ai/ideogram/v3/reframe': {
     id: 'fal-ai/ideogram/v3/reframe',
     label: 'Ideogram 3.0 Reframe',
@@ -137,13 +130,6 @@ const IMAGE_MODELS = {
   'fal-ai/recraft/upscale/crisp': {
     id: 'fal-ai/recraft/upscale/crisp',
     label: 'Recraft Crisp Upscale',
-    provider: 'fal',
-    supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
-    maxImages: 1 // Aceita apenas uma imagem
-  },
-  'fal-ai/ideogram/upscale': {
-    id: 'fal-ai/ideogram/upscale',
-    label: 'Ideogram 3.0 Upscale',
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem
@@ -492,7 +478,6 @@ export const isUpscaleModel = (modelId: string): boolean => {
     'fal-ai/topaz/upscale/video',
     'fal-ai/recraft/upscale/creative',
     'fal-ai/recraft/upscale/crisp',
-    'fal-ai/ideogram/upscale',
     // Modelos image-to-image que podem rodar sem prompt
     'fal-ai/ideogram/v3/reframe'
   ];

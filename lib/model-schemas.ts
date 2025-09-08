@@ -1912,119 +1912,6 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/recraft/v3/image-to-image': {
-    label: 'Recraft V3',
-    aspectRatios: [
-      { label: 'Não Aplicável', value: 'fixed' },
-    ],
-    fields: [
-      // Campo que aparece no nó principal (controla quantos nós criar)
-      {
-        name: 'num_images',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        gridColumn: 2
-      },
-      
-      // Campos que aparecem apenas na aba avançada
-      {
-        name: 'strength',
-        type: 'number',
-        label: 'Strength (0-1)',
-        defaultValue: 0.5,
-        min: 0,
-        max: 1,
-        step: 0.01,
-        gridColumn: 1
-      },
-      {
-        name: 'style',
-        type: 'select',
-        label: 'Style',
-        options: [
-          { value: 'any', label: 'Any' },
-          { value: 'realistic_image', label: 'Realistic Image' },
-          { value: 'digital_illustration', label: 'Digital Illustration' },
-          { value: 'vector_illustration', label: 'Vector Illustration' },
-          { value: 'realistic_image/b_and_w', label: 'B&W' },
-          { value: 'realistic_image/hard_flash', label: 'Hard Flash' },
-          { value: 'realistic_image/hdr', label: 'HDR' },
-          { value: 'realistic_image/natural_light', label: 'Natural Light' },
-          { value: 'realistic_image/studio_portrait', label: 'Studio Portrait' },
-          { value: 'digital_illustration/pixel_art', label: 'Pixel Art' },
-          { value: 'digital_illustration/hand_drawn', label: 'Hand Drawn' },
-          { value: 'digital_illustration/grain', label: 'Grain' },
-          { value: 'digital_illustration/2d_art_poster', label: '2D Art Poster' },
-          { value: 'digital_illustration/pop_art', label: 'Pop Art' },
-          { value: 'vector_illustration/bold_stroke', label: 'Bold Stroke' },
-          { value: 'vector_illustration/line_art', label: 'Line Art' },
-          { value: 'vector_illustration/flat', label: 'Flat Vector' },
-        ],
-        defaultValue: 'realistic_image',
-        gridColumn: 2
-      },
-      {
-        name: 'negative_prompt',
-        type: 'input',
-        label: 'Prompt Negativo',
-        placeholder: 'Descreva elementos indesejados',
-        defaultValue: '',
-        gridColumn: 2
-      },
-      {
-        name: 'colors_type',
-        type: 'select',
-        label: 'Tipo de Cores',
-        options: [
-          { value: 'none', label: 'Nenhuma' },
-          { value: 'custom', label: 'Personalizada' },
-        ],
-        defaultValue: 'none',
-        gridColumn: 1
-      },
-      {
-        name: 'colors_r',
-        type: 'number',
-        label: 'Vermelho (R)',
-        placeholder: '0-255',
-        min: 0,
-        max: 255,
-        defaultValue: 120,
-        gridColumn: 2,
-        conditional: { field: 'colors_type', value: 'custom' }
-      },
-      {
-        name: 'colors_g',
-        type: 'number',
-        label: 'Verde (G)',
-        placeholder: '0-255',
-        min: 0,
-        max: 255,
-        defaultValue: 47,
-        gridColumn: 1,
-        conditional: { field: 'colors_type', value: 'custom' }
-      },
-      {
-        name: 'colors_b',
-        type: 'number',
-        label: 'Azul (B)',
-        placeholder: '0-255',
-        min: 0,
-        max: 255,
-        defaultValue: 85,
-        gridColumn: 2,
-        conditional: { field: 'colors_type', value: 'custom' }
-      },
-      {
-        name: 'sync_mode',
-        type: 'checkbox',
-        label: 'Modo Síncronno',
-        defaultValue: false,
-        gridColumn: 1
-      }
-    ]
-  },
   'fal-ai/ideogram/v3/reframe': {
     label: 'Ideogram 3.0 Reframe',
     aspectRatios: [
@@ -2451,72 +2338,6 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/ideogram/upscale': {
-    label: 'Ideogram 3.0 Upscale',
-    aspectRatios: [
-      { label: 'Upscale', value: 'upscale' },
-    ],
-    fields: [
-      // Campo que aparece no nó principal (controla quantos nós criar)
-      {
-        name: 'num_images',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        gridColumn: 2
-      },
-      
-      // Campos que aparecem apenas na aba avançada
-      {
-        name: 'prompt',
-        type: 'textarea',
-        label: 'Prompt para Upscale',
-        defaultValue: '',
-        gridColumn: 1
-      },
-      {
-        name: 'resemblance',
-        type: 'number',
-        label: 'Semelhança (1-100)',
-        defaultValue: 50,
-        min: 1,
-        max: 100,
-        step: 1,
-        gridColumn: 2
-      },
-      {
-        name: 'detail',
-        type: 'number',
-        label: 'Detalhe (1-100)',
-        defaultValue: 50,
-        min: 1,
-        max: 100,
-        step: 1,
-        gridColumn: 1
-      },
-      {
-        name: 'expand_prompt',
-        type: 'checkbox',
-        label: 'Expandir Prompt (MagicPrompt)',
-        defaultValue: false,
-        gridColumn: 2
-      },
-      {
-        name: 'seed',
-        type: 'number',
-        label: 'Seed',
-        defaultValue: null,
-        gridColumn: 1
-      },
-      {
-        name: 'sync_mode',
-        type: 'checkbox',
-        label: 'Modo Síncrono',
-        defaultValue: false,
-        gridColumn: 2
-      }
-    ]
-  },
   'fal-ai/recraft/upscale/creative': {
     label: 'Recraft Creative Upscale',
     aspectRatios: [
@@ -2743,21 +2564,9 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   }
   
   
-  // Adicionar valores padrão para o modelo fal-ai/recraft/v3/image-to-image
-  if (modelId === 'fal-ai/recraft/v3/image-to-image') {
-    defaults.fixed_size = 'fixed';
-    defaults.strength = 0.5;
-    defaults.style = 'realistic_image';
-    defaults.negative_prompt = '';
-    defaults.colors_type = 'none';
-    defaults.colors_r = 120;
-    defaults.colors_g = 47;
-    defaults.colors_b = 85;
-    defaults.sync_mode = false;
-  }
-  
   // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/reframe
   if (modelId === 'fal-ai/ideogram/v3/reframe') {
+    defaults.image_size = 'square_hd';
     defaults.rendering_speed = 'BALANCED';
     defaults.sync_mode = false;
   }
@@ -2800,16 +2609,6 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.enable_safety_checker = false;
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/ideogram/upscale
-  if (modelId === 'fal-ai/ideogram/upscale') {
-    defaults.upscale = 'upscale';
-    defaults.prompt = '';
-    defaults.resemblance = 50;
-    defaults.detail = 50;
-    defaults.expand_prompt = false;
-    defaults.seed = null;
-    defaults.sync_mode = false;
-  }
   
   // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/replace-background
   if (modelId === 'fal-ai/ideogram/v3/replace-background') {
