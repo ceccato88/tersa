@@ -256,286 +256,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       ], gridColumn: 2 },
     ],
   },
-  'hailuo/t2v': {
-    label: 'Hailuo T2V',
-    aspectRatios: [
-      { label: '16:9', value: '16:9' },
-      { label: '9:16', value: '9:16' },
-      { label: '1:1', value: '1:1' },
-      { label: '4:3', value: '4:3' },
-      { label: '3:4', value: '3:4' },
-    ],
-    fields: [
-      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
-      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
-      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
-      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
-      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
-      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
-      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
-    ],
-  },
-  'runway/marey-t2v': {
-    label: 'Marey T2V',
-    aspectRatios: [
-      { label: '16:9', value: '16:9' },
-      { label: '9:16', value: '9:16' },
-      { label: '1:1', value: '1:1' },
-    ],
-    fields: [
-      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
-      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
-      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
-      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
-      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
-      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
-      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
-    ],
-  },
-  'pika/t2v': {
-    label: 'Pika T2V',
-    aspectRatios: [
-      { label: '16:9', value: '16:9' },
-      { label: '9:16', value: '9:16' },
-      { label: '1:1', value: '1:1' },
-      { label: '4:3', value: '4:3' },
-    ],
-    fields: [
-      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
-      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
-      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
-      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
-      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
-      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
-      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
-    ],
-  },
-  'google/veo-3': {
-    label: 'Veo 3',
-    aspectRatios: [
-      { label: '16:9', value: '16:9' },
-      { label: '9:16', value: '9:16' },
-      { label: '1:1', value: '1:1' },
-      { label: '21:9', value: '21:9' },
-    ],
-    fields: [
-      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
-      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
-      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
-      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
-      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
-      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
-      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
-    ],
-  },
-  'wan-video/wan-2.2-t2v': {
-    label: 'WAN 2.2 T2V',
-    aspectRatios: [
-      { label: '16:9', value: '16:9' },
-      { label: '9:16', value: '9:16' },
-      { label: '1:1', value: '1:1' },
-    ],
-    fields: [
-      { name: 'seed', type: 'number', label: 'Seed', defaultValue: null, gridColumn: 1 },
-      { name: 'numOutputs', type: 'number', label: 'Quantidade', defaultValue: 1, min: 1, max: 4, gridColumn: 2 },
-      { name: 'guidance_scale', type: 'number', label: 'Guidance (1-20)', defaultValue: 3.5, min: 1, max: 20, step: 0.1, gridColumn: 1 },
-      { name: 'num_inference_steps', type: 'number', label: 'Steps (1-50)', defaultValue: 28, min: 1, max: 50, step: 1, gridColumn: 2 },
-      { name: 'frames_per_second', type: 'number', label: 'FPS (8-24)', defaultValue: 16, min: 8, max: 24, step: 1, gridColumn: 1 },
-      { name: 'duration_seconds', type: 'number', label: 'Duração (1-10)', defaultValue: 5, min: 1, max: 10, step: 1, gridColumn: 2 },
-      { name: 'negative_prompt', type: 'input', label: 'Negative Prompt', placeholder: 'opcional', defaultValue: '', gridColumn: 1 },
-    ],
-  },
-  'wan-video/wan-2.2-i2v-a14b': {
-    label: 'WAN Video I2V',
-    aspectRatios: [
-      { label: '480p (832x480)', value: '480p' },
-      { label: '720p (1280x720)', value: '720p' }
-    ],
-    fields: [
-      {
-        name: 'seed',
-        type: 'input',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: '',
-        gridColumn: 1
-      },
-      {
-        name: 'numOutputs',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        gridColumn: 2
-      },
-      {
-        name: 'resolution',
-        type: 'select',
-        label: 'Resolução',
-        options: [
-          { value: '480p', label: '480p' },
-          { value: '720p', label: '720p' }
-        ],
-        defaultValue: '480p',
-        gridColumn: 1
-      },
-      {
-        name: 'frames_per_second',
-        type: 'select',
-        label: 'FPS',
-        options: [
-          { value: 5, label: '5 FPS' },
-          { value: 8, label: '8 FPS' },
-          { value: 12, label: '12 FPS' },
-          { value: 16, label: '16 FPS' },
-          { value: 20, label: '20 FPS' },
-          { value: 24, label: '24 FPS' }
-        ],
-        defaultValue: 16,
-        gridColumn: 2
-      }
-    ]
-  },
-  'black-forest-labs/flux-dev': {
-    label: 'FLUX Dev',
-    aspectRatios: [
-      { label: '1:1 (1024x1024)', value: '1:1' },
-      { label: '9:16 (832x1216)', value: '9:16' },
-      { label: '16:9 (1216x832)', value: '16:9' },
-      { label: '4:5 (896x1152)', value: '4:5' },
-      { label: '5:4 (1152x896)', value: '5:4' },
-      { label: '3:4 (768x1024)', value: '3:4' },
-      { label: '4:3 (1024x768)', value: '4:3' },
-      { label: '2:3 (832x1216)', value: '2:3' },
-      { label: '3:2 (1216x832)', value: '3:2' },
-    ],
-    fields: [
-      {
-        name: 'seed',
-        type: 'input',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: '',
-        gridColumn: 1
-      },
-      {
-        name: 'numOutputs',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        gridColumn: 2
-      },
-      {
-        name: 'guidance',
-        type: 'input',
-        label: 'Guidance',
-        placeholder: '4.5',
-        defaultValue: 3.5,
-        gridColumn: 1
-      },
-      {
-        name: 'promptStrength',
-        type: 'input',
-        label: 'Prompt Strength',
-        placeholder: '0.8',
-        defaultValue: 0.8,
-        gridColumn: 2
-      },
-      {
-        name: 'numInferenceSteps',
-        type: 'input',
-        label: 'Inference Steps',
-        placeholder: '28',
-        defaultValue: 28,
-        gridColumn: 1
-      }
-    ]
-  },
-  'black-forest-labs/flux-krea-dev': {
-    label: 'FLUX Krea Dev',
-    aspectRatios: [
-      { label: '1:1 (1024x1024)', value: '1:1' },
-      { label: '9:16 (832x1216)', value: '9:16' },
-      { label: '16:9 (1216x832)', value: '16:9' },
-      { label: '4:5 (896x1152)', value: '4:5' },
-      { label: '5:4 (1152x896)', value: '5:4' },
-      { label: '3:4 (768x1024)', value: '3:4' },
-      { label: '4:3 (1024x768)', value: '4:3' },
-      { label: '2:3 (832x1216)', value: '2:3' },
-      { label: '3:2 (1216x832)', value: '3:2' },
-    ],
-    fields: [
-      {
-        name: 'seed',
-        type: 'input',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: '',
-        gridColumn: 1
-      },
-      {
-        name: 'numOutputs',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        gridColumn: 2
-      },
-      {
-        name: 'guidance',
-        type: 'input',
-        label: 'Guidance',
-        placeholder: '3.5',
-        defaultValue: 3.5,
-        gridColumn: 1
-      },
-      {
-        name: 'promptStrength',
-        type: 'input',
-        label: 'Prompt Strength',
-        placeholder: '0.8',
-        defaultValue: 0.8,
-        gridColumn: 2
-      },
-      {
-        name: 'numInferenceSteps',
-        type: 'input',
-        label: 'Inference Steps',
-        placeholder: '28',
-        defaultValue: 28,
-        gridColumn: 1
-      }
-    ]
-  },
-  'black-forest-labs/flux-1.1-pro': {
-    label: 'FLUX 1.1 Pro',
-    aspectRatios: [
-      { label: '1:1 (1024x1024)', value: '1:1' },
-      { label: '16:9 (1216x832)', value: '16:9' },
-      { label: '3:2 (1216x832)', value: '3:2' },
-      { label: '2:3 (832x1216)', value: '2:3' },
-      { label: '4:5 (896x1152)', value: '4:5' },
-      { label: '5:4 (1152x896)', value: '5:4' },
-      { label: '9:16 (832x1216)', value: '9:16' },
-      { label: '3:4 (768x1024)', value: '3:4' },
-      { label: '4:3 (1024x768)', value: '4:3' },
-    ],
-    fields: [
-      {
-        name: 'seed',
-        type: 'input',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: '',
-        gridColumn: 1
-      },
-      {
-        name: 'numOutputs',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        gridColumn: 2
-      }
-    ]
-  },
+  
   // Modelos FAL
   'fal-ai/flux-pro-kontext': {
     label: 'FLUX.1 Kontext [pro]',
@@ -2436,34 +2157,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   schema.fields.forEach(field => {
     defaults[field.name] = field.defaultValue;
   });
-  
-  // Adicionar valores padrão para campos ocultos no modelo flux-dev
-  if (modelId === 'black-forest-labs/flux-dev') {
-    defaults.megapixels = 1;
-    defaults.outputFormat = 'png';
-    defaults.outputQuality = 100;
-    defaults.disableSafetyChecker = false;
-    defaults.goFast = false;
-  }
-  
-  // Adicionar valores padrão para campos ocultos no modelo flux-krea-dev
-  if (modelId === 'black-forest-labs/flux-krea-dev') {
-    defaults.megapixels = 1;
-    defaults.outputFormat = 'png';
-    defaults.outputQuality = 100;
-    defaults.disableSafetyChecker = false;
-    defaults.goFast = false;
-  }
-  
-  // Adicionar valores padrão para campos ocultos no modelo flux-1.1-pro
-  if (modelId === 'black-forest-labs/flux-1.1-pro') {
-    defaults.outputFormat = 'png';
-    defaults.outputQuality = 100;
-    defaults.safetyTolerance = 2;
-    defaults.promptUpsampling = false;
-  }
-  
-  
+    
   // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext
   if (modelId === 'fal-ai/flux-pro-kontext') {
     defaults.fixed_size = 'fixed';
@@ -2473,8 +2167,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.safety_tolerance = '2';
     defaults.enhance_prompt = false;
   }
-  
-  
+    
   // Adicionar valores padrão para o modelo fal-ai/flux-pro/kontext/max
   if (modelId === 'fal-ai/flux-pro/kontext/max') {
     defaults.fixed_size = 'fixed';
@@ -2499,9 +2192,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   if (modelId === 'fal-ai/nano-banana') {
     defaults.fixed_size = 'fixed'; // Valor especial para tamanho fixo
   }
-  
-
-  
+    
   // Adicionar valores padrão para o modelo fal-ai/imagen4
   if (modelId === 'fal-ai/imagen4') {
     defaults.aspect_ratio = '1:1';
@@ -2520,8 +2211,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.color_g = 29;
     defaults.color_b = 29;
   }
-  
-  
+    
   // Adicionar valores padrão para o modelo fal-ai/recraft-v3
   if (modelId === 'fal-ai/recraft-v3') {
     defaults.image_size = 'square_hd';
@@ -2543,9 +2233,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   if (modelId === 'fal-ai/luma-photon') {
     defaults.aspect_ratio = '1:1';
   }
-  
-  
-  
+    
   // Adicionar valores padrão para o modelo fal-ai/nano-banana/edit
   if (modelId === 'fal-ai/nano-banana/edit') {
     defaults.fixed_size = 'fixed';
@@ -2562,8 +2250,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.sync_mode = false;
     defaults.negative_prompt = '';
   }
-  
-  
+    
   // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/reframe
   if (modelId === 'fal-ai/ideogram/v3/reframe') {
     defaults.image_size = 'square_hd';
@@ -2608,8 +2295,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.sync_mode = false;
     defaults.enable_safety_checker = false;
   }
-  
-  
+    
   // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/replace-background
   if (modelId === 'fal-ai/ideogram/v3/replace-background') {
     defaults.aspectRatio = 'fixed';
@@ -2625,8 +2311,7 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.color_g = 29;
     defaults.color_b = 29;
   }
-  
-  
+    
   // Adicionar valores padrão para campos ocultos no modelo wan-video
   if (modelId === 'wan-video/wan-2.2-i2v-a14b') {
     defaults.go_fast = false;
