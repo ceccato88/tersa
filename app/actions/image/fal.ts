@@ -31,8 +31,6 @@ const ASPECT_RATIO_MAP: Record<string, string> = {
 // Mapeamento de modelos FAL
 const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/flux-pro-kontext': 'fal-ai/flux-pro/kontext',
-  'fal-ai/flux-pro-kontext-text': 'fal-ai/flux-pro/kontext/text-to-image',
-  'fal-ai/flux-pro-kontext-max': 'fal-ai/flux-pro/kontext/max/text-to-image',
   'fal-ai/flux-pro/kontext/max': 'fal-ai/flux-pro/kontext/max',
   'fal-ai/flux-pro-v1.1': 'fal-ai/flux-pro/v1.1',
   'fal-ai/flux-pro-v1.1-ultra': 'fal-ai/flux-pro/v1.1-ultra',
@@ -44,7 +42,7 @@ const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/recraft-v3': 'fal-ai/recraft/v3/text-to-image',
   'fal-ai/flux-krea': 'fal-ai/flux/krea',
   'fal-ai/luma-photon': 'fal-ai/luma-photon',
-  'fal-ai/nano-banana-edit': 'fal-ai/nano-banana/edit',
+  'fal-ai/nano-banana/edit': 'fal-ai/nano-banana/edit',
   'fal-ai/ideogram/character': 'fal-ai/ideogram/character',
   'fal-ai/recraft/v3/image-to-image': 'fal-ai/recraft/v3/image-to-image',
   'fal-ai/ideogram/v3/reframe': 'fal-ai/ideogram/v3/reframe',
@@ -125,7 +123,7 @@ export async function generateImageFalAction(
     };
 
     // Adicionar parâmetros globais apenas se não for Recraft V3, Nano Banana, Nano Banana Edit, Imagen 4, Imagen 4 Ultra, Ideogram 3.0, Ideogram Character, FLUX1.1 [pro], FLUX1.1 [pro] ultra, FLUX.1 Kontext [max], FLUX.1 Kontext [pro] text, FLUX.1 Krea ou modelos image-to-image específicos
-    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana-edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-pro-kontext-max' && data.model !== 'fal-ai/flux-pro-kontext-text' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
+    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana/edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/recraft/v3/image-to-image' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp' && data.model !== 'fal-ai/ideogram/upscale') {
       input.seed = parseNumber(data.seed);
       
       // Guidance scale específico por modelo
@@ -138,61 +136,7 @@ export async function generateImageFalAction(
     }
 
     // Configurações específicas por modelo
-    if (data.model === 'fal-ai/flux-pro-kontext-max') {
-      // FLUX.1 Kontext [max] text-to-image usa todos os parâmetros específicos
-      input.aspect_ratio = data.aspect_ratio || '1:1';
-      input.seed = parseNumber(data.seed);
-      input.guidance_scale = parseNumber(data.guidance_scale) || 3.5;
-      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
-      input.num_images = parseNumber(data.num_images) || 1;
-      input.output_format = data.output_format || 'jpeg';
-      input.safety_tolerance = data.safety_tolerance || '2';
-      input.enhance_prompt = data.enhance_prompt !== undefined ? data.enhance_prompt : false;
-      
-      // DEBUG: Log específico para FLUX.1 Kontext [max]
-      console.log('🚀 FLUX.1 Kontext [max] Debug - Parâmetros completos:', {
-        model: data.model,
-        receivedData: Object.keys(data),
-        finalInput: {
-          prompt: input.prompt?.substring(0, 50),
-          aspect_ratio: input.aspect_ratio,
-          seed: input.seed,
-          guidance_scale: input.guidance_scale,
-          sync_mode: input.sync_mode,
-          num_images: input.num_images,
-          output_format: input.output_format,
-          safety_tolerance: input.safety_tolerance,
-          enhance_prompt: input.enhance_prompt
-        }
-      });
-    } else if (data.model === 'fal-ai/flux-pro-kontext-text') {
-      // FLUX.1 Kontext [pro] text-to-image usa todos os parâmetros específicos
-      input.aspect_ratio = data.aspect_ratio || '1:1';
-      input.seed = parseNumber(data.seed);
-      input.guidance_scale = parseNumber(data.guidance_scale) || 3.5;
-      input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
-      input.num_images = parseNumber(data.num_images) || 1;
-      input.output_format = data.output_format || 'jpeg';
-      input.safety_tolerance = data.safety_tolerance || '2';
-      input.enhance_prompt = data.enhance_prompt !== undefined ? data.enhance_prompt : false;
-      
-      // DEBUG: Log específico para FLUX.1 Kontext [pro]
-      console.log('🚀 FLUX.1 Kontext [pro] Debug - Parâmetros completos:', {
-        model: data.model,
-        receivedData: Object.keys(data),
-        finalInput: {
-          prompt: input.prompt?.substring(0, 50),
-          aspect_ratio: input.aspect_ratio,
-          seed: input.seed,
-          guidance_scale: input.guidance_scale,
-          sync_mode: input.sync_mode,
-          num_images: input.num_images,
-          output_format: input.output_format,
-          safety_tolerance: input.safety_tolerance,
-          enhance_prompt: input.enhance_prompt
-        }
-      });
-    } else if (data.model === 'fal-ai/flux-pro-v1.1-ultra') {
+    if (data.model === 'fal-ai/flux-pro-v1.1-ultra') {
       // FLUX1.1 [pro] ultra usa todos os parâmetros específicos
       input.aspect_ratio = data.aspect_ratio || '16:9';
       input.seed = parseNumber(data.seed);
@@ -219,6 +163,40 @@ export async function generateImageFalAction(
           safety_tolerance: input.safety_tolerance,
           enhance_prompt: input.enhance_prompt,
           raw: input.raw
+        }
+      });
+    } else if (data.model === 'fal-ai/luma-photon') {
+      // Luma Photon usa apenas prompt + aspect_ratio
+      // Converter image_size para aspect_ratio válido do Luma Photon
+      let lumaAspectRatio = data.aspect_ratio || '1:1';
+      
+      // Se não tem aspect_ratio específico, mapear do aspectRatio genérico
+      if (!data.aspect_ratio && (data as any).aspectRatio) {
+        const genericAspectRatio = (data as any).aspectRatio;
+        // Mapear landscape_4_3 -> 4:3, etc.
+        const aspectMap: Record<string, string> = {
+          'landscape_4_3': '4:3',
+          'landscape_16_9': '16:9', 
+          'portrait_4_3': '3:4',
+          'portrait_16_9': '9:16',
+          'square': '1:1',
+          'square_hd': '1:1'
+        };
+        lumaAspectRatio = aspectMap[genericAspectRatio] || genericAspectRatio;
+      }
+      
+      input.aspect_ratio = lumaAspectRatio;
+      
+      // DEBUG: Log específico para Luma Photon
+      console.log('📸 Luma Photon Debug - Parâmetros completos:', {
+        model: data.model,
+        receivedData: Object.keys(data),
+        receivedAspectRatio: data.aspect_ratio,
+        receivedAspectRatioCamel: (data as any).aspectRatio,
+        receivedImageSize: (data as any).image_size,
+        finalInput: {
+          prompt: input.prompt?.substring(0, 50),
+          aspect_ratio: input.aspect_ratio
         }
       });
     } else if (data.model === 'fal-ai/flux-pro-kontext') {
@@ -326,7 +304,7 @@ export async function generateImageFalAction(
           sync_mode: input.sync_mode
         }
       });
-    } else if (data.model === 'fal-ai/nano-banana-edit') {
+    } else if (data.model === 'fal-ai/nano-banana/edit') {
       // Nano Banana Edit usa parâmetros específicos
       input.output_format = data.output_format || 'jpeg';
       input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
@@ -723,7 +701,7 @@ export async function generateImageFalAction(
     if (imageNodes && imageNodes.length > 0) {
       // Para image-to-image, usar o modelo apropriado
       // Nota: Verificar se o modelo suporta image-to-image
-      if (data.model === 'fal-ai/nano-banana-edit') {
+      if (data.model === 'fal-ai/nano-banana/edit') {
         // Nano Banana Edit usa image_urls (plural) - extrair apenas as URLs
         input.image_urls = imageNodes.map((node: any) => 
           typeof node === 'string' ? node : node.url

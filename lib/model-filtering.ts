@@ -85,8 +85,8 @@ const IMAGE_MODELS = {
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
-  'fal-ai/nano-banana-edit': {
-    id: 'fal-ai/nano-banana-edit',
+  'fal-ai/nano-banana/edit': {
+    id: 'fal-ai/nano-banana/edit',
     label: 'Nano Banana Edit',
     provider: 'fal',
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem

@@ -199,7 +199,7 @@ Modelos que aceitam imagens como entrada (ex: Nano Banana Edit) têm requisitos 
    - Muitos modelos image-to-image são minimalistas
    - **Excluir parâmetros globais** quando necessário:
    ```typescript
-   if (data.model !== 'fal-ai/nano-banana-edit') {
+   if (data.model !== 'fal-ai/nano-banana/edit') {
      input.seed = data.seed;
      input.guidance_scale = data.guidance_scale;
      // etc...
@@ -241,8 +241,8 @@ No arquivo `lib/model-filtering.ts`, cada modelo image-to-image deve especificar
   supportedInputs: ['image-primitive', 'image-transform'],
   maxImages: 1 // Aceita apenas uma imagem
 },
-'fal-ai/nano-banana-edit': {
-  id: 'fal-ai/nano-banana-edit',
+'fal-ai/nano-banana/edit': {
+  id: 'fal-ai/nano-banana/edit',
   label: 'Nano Banana Edit', 
   provider: 'fal',
   supportedInputs: ['image-primitive', 'image-transform'],
@@ -386,7 +386,7 @@ supportedInputs: ['text-primitive', 'text-transform']
 ### Modelo Image-to-Image Multi-Imagem (Nano Banana Edit):
 ```typescript
 // MODEL_SCHEMAS
-'fal-ai/nano-banana-edit': {
+'fal-ai/nano-banana/edit': {
   label: 'Nano Banana Edit',
   aspectRatios: [{ label: 'Tamanho original', value: 'fixed' }],
   fields: [
@@ -417,17 +417,17 @@ supportedInputs: ['image-primitive', 'image-transform']
 maxImages: Infinity // Aceita múltiplas imagens
 
 // API - parâmetros globais excluídos + tratamento de image_urls
-if (data.model !== 'fal-ai/nano-banana-edit') {
+if (data.model !== 'fal-ai/nano-banana/edit') {
   // parâmetros globais
 }
 
 // Lógica específica
-} else if (data.model === 'fal-ai/nano-banana-edit') {
+} else if (data.model === 'fal-ai/nano-banana/edit') {
   input.output_format = data.output_format || 'jpeg';
 }
 
 // Tratamento de image_urls (plural)
-if (data.model === 'fal-ai/nano-banana-edit') {
+if (data.model === 'fal-ai/nano-banana/edit') {
   input.image_urls = imageNodes.map((node: any) => 
     typeof node === 'string' ? node : node.url
   );

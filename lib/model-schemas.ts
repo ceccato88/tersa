@@ -614,180 +614,6 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/flux-pro-kontext-max': {
-    label: 'FLUX.1 Kontext [max]',
-    aspectRatios: [
-      { label: '1:1', value: '1:1' },
-      { label: '21:9', value: '21:9' },
-      { label: '16:9', value: '16:9' },
-      { label: '4:3', value: '4:3' },
-      { label: '3:2', value: '3:2' },
-      { label: '2:3', value: '2:3' },
-      { label: '3:4', value: '3:4' },
-      { label: '9:16', value: '9:16' },
-      { label: '9:21', value: '9:21' },
-    ],
-    fields: [
-      // Campo que aparece no nó principal (controla quantos nós criar)
-      {
-        name: 'num_images',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        min: 1,
-        max: 4,
-        gridColumn: 2
-      },
-      
-      // Campos que aparecem apenas na aba avançada
-      {
-        name: 'seed',
-        type: 'number',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: null,
-        gridColumn: 1
-      },
-      {
-        name: 'guidance_scale',
-        type: 'number',
-        label: 'Guidance Scale (1-20)',
-        placeholder: '3.5',
-        defaultValue: 3.5,
-        min: 1,
-        max: 20,
-        step: 0.1,
-        gridColumn: 2
-      },
-      {
-        name: 'sync_mode',
-        type: 'checkbox',
-        label: 'Modo Síncrono',
-        defaultValue: false,
-        gridColumn: 1
-      },
-      {
-        name: 'output_format',
-        type: 'select',
-        label: 'Formato de Saída',
-        options: [
-          { value: 'jpeg', label: 'JPEG' },
-          { value: 'png', label: 'PNG' }
-        ],
-        defaultValue: 'jpeg',
-        gridColumn: 2
-      },
-      {
-        name: 'safety_tolerance',
-        type: 'select',
-        label: 'Tolerância de Segurança',
-        options: [
-          { value: '1', label: '1 (Mais Restritivo)' },
-          { value: '2', label: '2 (Padrão)' },
-          { value: '3', label: '3' },
-          { value: '4', label: '4' },
-          { value: '5', label: '5' },
-          { value: '6', label: '6 (Mais Permissivo)' }
-        ],
-        defaultValue: '2',
-        gridColumn: 1
-      },
-      {
-        name: 'enhance_prompt',
-        type: 'checkbox',
-        label: 'Melhorar Prompt',
-        defaultValue: false,
-        gridColumn: 2
-      }
-    ]
-  },
-  'fal-ai/flux-pro-kontext-text': {
-    label: 'FLUX.1 Kontext [pro]',
-    aspectRatios: [
-      { label: '1:1', value: '1:1' },
-      { label: '21:9', value: '21:9' },
-      { label: '16:9', value: '16:9' },
-      { label: '4:3', value: '4:3' },
-      { label: '3:2', value: '3:2' },
-      { label: '2:3', value: '2:3' },
-      { label: '3:4', value: '3:4' },
-      { label: '9:16', value: '9:16' },
-      { label: '9:21', value: '9:21' },
-    ],
-    fields: [
-      // Campo que aparece no nó principal (controla quantos nós criar)
-      {
-        name: 'num_images',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        min: 1,
-        max: 4,
-        gridColumn: 2
-      },
-      
-      // Campos que aparecem apenas na aba avançada
-      {
-        name: 'seed',
-        type: 'number',
-        label: 'Seed',
-        placeholder: 'Deixe vazio para aleatório',
-        defaultValue: null,
-        gridColumn: 1
-      },
-      {
-        name: 'guidance_scale',
-        type: 'number',
-        label: 'Guidance Scale (1-20)',
-        placeholder: '3.5',
-        defaultValue: 3.5,
-        min: 1,
-        max: 20,
-        step: 0.1,
-        gridColumn: 2
-      },
-      {
-        name: 'sync_mode',
-        type: 'checkbox',
-        label: 'Modo Síncrono',
-        defaultValue: false,
-        gridColumn: 1
-      },
-      {
-        name: 'output_format',
-        type: 'select',
-        label: 'Formato de Saída',
-        options: [
-          { value: 'jpeg', label: 'JPEG' },
-          { value: 'png', label: 'PNG' }
-        ],
-        defaultValue: 'jpeg',
-        gridColumn: 2
-      },
-      {
-        name: 'safety_tolerance',
-        type: 'select',
-        label: 'Tolerância de Segurança',
-        options: [
-          { value: '1', label: '1 (Mais Restritivo)' },
-          { value: '2', label: '2 (Padrão)' },
-          { value: '3', label: '3' },
-          { value: '4', label: '4' },
-          { value: '5', label: '5' },
-          { value: '6', label: '6 (Mais Permissivo)' }
-        ],
-        defaultValue: '2',
-        gridColumn: 1
-      },
-      {
-        name: 'enhance_prompt',
-        type: 'checkbox',
-        label: 'Melhorar Prompt',
-        defaultValue: false,
-        gridColumn: 2
-      }
-    ]
-  },
   'fal-ai/flux-pro/kontext/max': {
     label: 'FLUX.1 Kontext [max]',
     aspectRatios: [
@@ -1958,9 +1784,25 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         max: 4,
         gridColumn: 2
       },
+      {
+        name: 'aspect_ratio',
+        type: 'select',
+        label: 'Aspect Ratio',
+        options: [
+          { value: '16:9', label: '16:9' },
+          { value: '9:16', label: '9:16' },
+          { value: '1:1', label: '1:1' },
+          { value: '4:3', label: '4:3' },
+          { value: '3:4', label: '3:4' },
+          { value: '21:9', label: '21:9' },
+          { value: '9:21', label: '9:21' },
+        ],
+        defaultValue: '1:1',
+        gridColumn: 1
+      }
     ]
   },
-  'fal-ai/nano-banana-edit': {
+  'fal-ai/nano-banana/edit': {
     label: 'Nano Banana Edit',
     aspectRatios: [
       { label: 'Tamanho original', value: 'fixed' },
@@ -2684,10 +2526,6 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.enhance_prompt = false;
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext-max
-  if (modelId === 'fal-ai/flux-pro-kontext-max') {
-    defaults.aspect_ratio = '1:1';
-  }
   
   // Adicionar valores padrão para o modelo fal-ai/flux-pro/kontext/max
   if (modelId === 'fal-ai/flux-pro/kontext/max') {
@@ -2759,13 +2597,9 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
   }
   
   
-  // Adicionar valores padrão para o modelo fal-ai/flux-pro-kontext-text
-  if (modelId === 'fal-ai/flux-pro-kontext-text') {
-    defaults.aspect_ratio = '1:1';
-  }
   
-  // Adicionar valores padrão para o modelo fal-ai/nano-banana-edit
-  if (modelId === 'fal-ai/nano-banana-edit') {
+  // Adicionar valores padrão para o modelo fal-ai/nano-banana/edit
+  if (modelId === 'fal-ai/nano-banana/edit') {
     defaults.fixed_size = 'fixed';
     defaults.output_format = 'jpeg';
     defaults.sync_mode = false;
