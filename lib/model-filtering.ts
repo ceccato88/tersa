@@ -145,20 +145,7 @@ const IMAGE_MODELS = {
 
 // Modelos de vídeo disponíveis
 const VIDEO_MODELS = {
-  // Modelos Replicate
-  'wan-video/wan-2.2-i2v-a14b': {
-    id: 'wan-video/wan-2.2-i2v-a14b',
-    label: 'WAN Video I2V (Replicate)',
-    provider: 'replicate',
-    supportedInputs: [
-      'text-primitive',
-      'text-transform',
-      'image-primitive',
-      'image-transform',
-      'video-primitive',
-      'video-transform'
-    ]
-  },
+  // Modelos FAL
   'fal-ai/luma-ray-2': {
     id: 'fal-ai/luma-ray-2',
     label: 'Luma Ray 2',
@@ -225,7 +212,7 @@ const VIDEO_MODELS = {
   // Image-to-Video models (require image input)
   'fal-ai/minimax/hailuo-02/pro/image-to-video': {
     id: 'fal-ai/minimax/hailuo-02/pro/image-to-video',
-    label: 'Hailuo 02 Pro (I2V)',
+    label: 'Hailuo 02 Pro',
     provider: 'fal',
     supportedInputs: [
       'image-primitive',
@@ -234,7 +221,7 @@ const VIDEO_MODELS = {
   },
   'moonvalley/marey/i2v': {
     id: 'moonvalley/marey/i2v',
-    label: 'Marey I2V',
+    label: 'Marey',
     provider: 'fal',
     supportedInputs: [
       'image-primitive',
@@ -243,7 +230,7 @@ const VIDEO_MODELS = {
   },
   'fal-ai/pika/v2.2/image-to-video': {
     id: 'fal-ai/pika/v2.2/image-to-video',
-    label: 'Pika v2.2 (I2V)',
+    label: 'Pika v2.2',
     provider: 'fal',
     supportedInputs: [
       'image-primitive',
@@ -252,7 +239,7 @@ const VIDEO_MODELS = {
   },
   'fal-ai/veo3/image-to-video': {
     id: 'fal-ai/veo3/image-to-video',
-    label: 'Veo 3 (I2V)',
+    label: 'Veo 3',
     provider: 'fal',
     supportedInputs: [
       'image-primitive',
@@ -261,7 +248,7 @@ const VIDEO_MODELS = {
   },
   'fal-ai/wan/v2.2-a14b/image-to-video': {
     id: 'fal-ai/wan/v2.2-a14b/image-to-video',
-    label: 'WAN 2.2 A14B (I2V)',
+    label: 'WAN 2.2',
     provider: 'fal',
     supportedInputs: [
       'image-primitive',
@@ -270,7 +257,7 @@ const VIDEO_MODELS = {
   },
   'fal-ai/luma-dream-machine/ray-2/image-to-video': {
     id: 'fal-ai/luma-dream-machine/ray-2/image-to-video',
-    label: 'Luma Ray 2 (I2V)',
+    label: 'Luma Ray 2',
     provider: 'fal',
     supportedInputs: [
       'image-primitive',
@@ -279,7 +266,7 @@ const VIDEO_MODELS = {
   },
   'fal-ai/kling-video/v2.1/master/image-to-video': {
     id: 'fal-ai/kling-video/v2.1/master/image-to-video',
-    label: 'Kling 2.1 Master (I2V)',
+    label: 'Kling 2.1 Master',
     provider: 'fal',
     supportedInputs: [
       'image-primitive',

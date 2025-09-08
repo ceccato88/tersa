@@ -29,7 +29,6 @@ export const POST = async (req: NextRequest) => {
     const body = await req.json();
     const { model, input } = body;
 
-    console.log('🔍 DEBUG - Request body:', JSON.stringify(body, null, 2));
 
     if (!model || !input) {
       console.log('❌ Missing model or input');

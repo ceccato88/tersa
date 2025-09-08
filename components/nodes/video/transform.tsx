@@ -128,11 +128,6 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
         .map((n) => (n.data?.generated?.url || n.data?.content?.url))
         .filter(Boolean);
 
-      console.log('[DEBUG] Video - Incomers:', incomers.length);
-      console.log('[DEBUG] Video - Image nodes:', images.length, images);
-      console.log('[DEBUG] Video - Video nodes:', incomers.filter(n => n.type === 'video').length);
-      console.log('[DEBUG] Video - Videos with URLs:', videos.length, videos);
-      console.log('[DEBUG] Video - Model:', modelId, isUpscaleModel(modelId) ? '(UPSCALE)' : '(NORMAL)');
 
       // Para modelos de upscale de vídeo, só precisamos de vídeos
       if (isUpscaleModel(modelId)) {

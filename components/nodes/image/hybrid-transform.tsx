@@ -387,10 +387,6 @@ export const HybridImageTransform = ({
     const textNodes = getTextFromTextNodes(incomers);
     const imageNodes = getImagesFromImageNodes(incomers);
 
-    console.log('[DEBUG] Image - Incomers:', incomers.length);
-    console.log('[DEBUG] Image - Text nodes:', textNodes.length, textNodes);
-    console.log('[DEBUG] Image - Image nodes:', imageNodes.length, imageNodes.map(n => n.url));
-    console.log('[DEBUG] Image - Model:', modelId);
 
     try {
       // Não exigir prompt para modelos de upscale e alguns modelos image-to-image
