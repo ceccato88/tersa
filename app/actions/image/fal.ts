@@ -98,6 +98,11 @@ export async function generateImageFalAction(
       aspectRatio: data.aspectRatio,
       seed: data.seed,
     });
+    // Log com modelo mapeado (normalizado) para facilitar depuração
+    try {
+      const _falModelLog = FAL_MODEL_MAP[data.model || 'fal-ai/flux-pro-kontext'] || 'fal-ai/flux-pro/kontext';
+      logger.info('🧭 Modelo normalizado (mapa FAL)', { model: data.model, falModel: _falModelLog });
+    } catch {}
 
     // Verificar se a chave da API está configurada
     if (!env.FAL_KEY) {

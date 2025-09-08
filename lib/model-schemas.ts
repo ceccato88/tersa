@@ -903,7 +903,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/topaz/upscale/video': {
     label: 'Topaz Video Upscale',
     aspectRatios: [
-      { label: 'Upscale', value: 'upscale' },
+      { label: 'Não Aplicável', value: 'upscale' },
     ],
     fields: [
       {
@@ -2239,7 +2239,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/topaz/upscale/image': {
     label: 'Topaz Upscale',
     aspectRatios: [
-      { label: 'Upscale', value: 'upscale' },
+      { label: 'Não Aplicável', value: 'upscale' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -2341,7 +2341,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/recraft/upscale/creative': {
     label: 'Recraft Creative Upscale',
     aspectRatios: [
-      { label: 'Upscale', value: 'upscale' },
+      { label: 'Não Aplicável', value: 'upscale' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)
@@ -2391,7 +2391,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
   'fal-ai/recraft/upscale/crisp': {
     label: 'Recraft Crisp Upscale',
     aspectRatios: [
-      { label: 'Upscale', value: 'upscale' },
+      { label: 'Não Aplicável', value: 'upscale' },
     ],
     fields: [
       // Campo que aparece no nó principal (controla quantos nós criar)

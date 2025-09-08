@@ -801,6 +801,50 @@ export const HybridImageTransform = ({
               onChange={(value) => {
                 const defaults = getModelDefaults(value);
                 updateNodeData(id, { model: value, ...defaults });
+                // Limpar e padronizar campos de tamanho ao trocar de modelo
+                const usesAspect = (
+                  value === 'fal-ai/flux-pro-v1.1-ultra' ||
+                  value === 'fal-ai/imagen4' ||
+                  value === 'fal-ai/imagen4-ultra' ||
+                  value === 'fal-ai/luma-photon'
+                );
+                const usesImageSize = (value === 'fal-ai/ideogram/v3/reframe');
+                const usesFixed = (
+                  value === 'fal-ai/nano-banana' ||
+                  value === 'fal-ai/nano-banana/edit' ||
+                  value === 'fal-ai/flux-pro-kontext' ||
+                  value === 'fal-ai/ideogram/character' ||
+                  value === 'fal-ai/flux/krea/image-to-image' ||
+                  value === 'fal-ai/flux-1/dev/image-to-image' ||
+                  value === 'fal-ai/recraft/v3/image-to-image' ||
+                  value === 'fal-ai/ideogram/v3/remix' ||
+                  value === 'fal-ai/ideogram/v3/replace-background' ||
+                  value === 'fal-ai/flux-pro/kontext/max' ||
+                  value === 'fal-ai/topaz/upscale/image' ||
+                  value === 'fal-ai/recraft/upscale/creative' ||
+                  value === 'fal-ai/recraft/upscale/crisp' ||
+                  value === 'fal-ai/ideogram/upscale'
+                );
+
+                if (usesAspect) {
+                  updateNodeData(id, {
+                    fixed_size: undefined as any,
+                    image_size: undefined as any,
+                    aspect_ratio: (defaults as any).aspect_ratio || (value === 'fal-ai/flux-pro-v1.1-ultra' ? '16:9' : '1:1'),
+                  });
+                } else if (usesImageSize) {
+                  updateNodeData(id, {
+                    fixed_size: undefined as any,
+                    aspect_ratio: undefined as any,
+                    image_size: (defaults as any).image_size || 'square_hd',
+                  });
+                } else if (usesFixed) {
+                  updateNodeData(id, {
+                    aspect_ratio: undefined as any,
+                    image_size: undefined as any,
+                    fixed_size: (defaults as any).fixed_size || 'fixed',
+                  });
+                }
                 
                 // Verificar se o novo modelo tem limite de imagens
                 const maxImages = getModelMaxImages(value, 'image');
