@@ -12,7 +12,7 @@ fal.config({
   credentials: env.FAL_KEY,
 });
 
-// Mapeamento de aspect ratios do Tersa para FAL
+// Mapeamento de aspect ratios do wow para FAL
 const ASPECT_RATIO_MAP: Record<string, string> = {
   'square_hd': 'square_hd',
   'square': 'square',
@@ -963,7 +963,7 @@ export async function generateImageFalAction(
 
     logger.info('✅ Imagem salva no Supabase Storage:', supabaseUrl.publicUrl);
 
-    // Retornar no formato esperado pelo Tersa
+    // Retornar no formato esperado pelo wow
     return {
       id: result.requestId,
       status: 'succeeded',

@@ -24,7 +24,7 @@ export const download = (
       extension = extractedExtension;
     }
   }
-  const filename = `tersa-${id}.${extension}`;
+  const filename = `wow-${id}.${extension}`;
 
   // Create a blob URL from the data URL
   fetch(data.url)

@@ -57,7 +57,7 @@ export const LoginEmailTemplate = ({
 );
 
 LoginEmailTemplate.PreviewProps = {
-  magicLink: 'https://www.tersa.ai/login',
+  magicLink: 'https://www.wow.ai/login',
   email: 'test@test.com',
 } as LoginEmailTemplateProps;
 

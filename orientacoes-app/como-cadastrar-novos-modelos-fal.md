@@ -1,12 +1,12 @@
-# Como Cadastrar Novos Modelos FAL no Sistema Tersa
+# Como Cadastrar Novos Modelos FAL no Sistema wow
 
 ## Visão Geral
 
-Este guia explica o processo completo para registrar novos modelos da FAL AI no sistema Tersa. O processo envolve 4 etapas principais em arquivos específicos.
+Este guia explica o processo completo para registrar novos modelos da FAL AI no sistema wow. O processo envolve 4 etapas principais em arquivos específicos.
 
 ## Arquitetura do Sistema
 
-O sistema de modelos FAL no Tersa é composto por 4 camadas obrigatórias:
+O sistema de modelos FAL no wow é composto por 4 camadas obrigatórias:
 
 1. **MODEL_SCHEMAS** (`lib/model-schemas.ts`) - Define campos e valores padrão
 2. **Model Filtering** (`lib/model-filtering.ts`) - Sistema de compatibilidade de entrada
@@ -498,4 +498,4 @@ if (data.model !== 'fal-ai/flux-pro-kontext') {
 
 ## Conclusão
 
-Seguindo este processo em ordem, qualquer novo modelo FAL pode ser integrado no sistema Tersa. A chave é manter consistência entre todas as 4 camadas e testar cada etapa antes de prosseguir para a próxima.
+Seguindo este processo em ordem, qualquer novo modelo FAL pode ser integrado no sistema wow. A chave é manter consistência entre todas as 4 camadas e testar cada etapa antes de prosseguir para a próxima.

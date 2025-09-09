@@ -1,6 +1,6 @@
 import type { ImageNodeData } from '@/components/nodes/image';
 
-// Mapeamento de aspect ratios do Tersa para FAL
+// Mapeamento de aspect ratios do wow para FAL
 const ASPECT_RATIO_MAP: Record<string, string> = {
   'square_hd': 'square_hd',
   'square': 'square',

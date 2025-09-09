@@ -19,7 +19,7 @@ export const SubFooter = () => {
         <Link href="/terms">Terms</Link>
         <Link href="/acceptable-use">Acceptable Use</Link>
         <a
-          href="https://github.com/haydenbleasel/tersa"
+          href="https://github.com/haydenbleasel/wow"
           target="_blank"
           rel="noopener noreferrer"
         >

@@ -36,6 +36,41 @@ export const POST = async (req: NextRequest) => {
       return new Response('Missing model or input', { status: 400 });
     }
 
+    // Test mode: log inputs and return a mock stream without calling external API
+    if (process.env.TEST_LOG_ONLY === 'true') {
+      const payload = { route: '/api/fal-stream', model, input };
+      try {
+        console.log('[TEST_LOG_ONLY]\n' + JSON.stringify(payload, null, 2));
+      } catch {
+        console.log('[TEST_LOG_ONLY]', payload);
+      }
+      appendMockLog(payload).catch(() => {});
+
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode('[MOCK] Texto gerado (stream)\n'));
+          if (input?.prompt) {
+            controller.enqueue(encoder.encode(`Prompt: ${input.prompt}\n`));
+          }
+          if (input?.image_url) {
+            controller.enqueue(encoder.encode(`Imagem: ${input.image_url}\n`));
+          }
+          controller.enqueue(encoder.encode('\n--- Reasoning ---\n'));
+          controller.enqueue(encoder.encode('Execução em modo de teste (sem chamar API externa).'));
+          controller.close();
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+        },
+      });
+    }
+
     // Configurar FAL client
     fal.config({
       credentials: process.env.FAL_KEY,
@@ -50,7 +85,8 @@ export const POST = async (req: NextRequest) => {
     // Preparar input para FAL AI
     const falInput: any = {
       prompt: input.prompt || '',
-      model: 'openai/gpt-5-chat',
+      // Use o modelo solicitado (fallback apenas se ausente)
+      model: model || 'openai/gpt-4o-mini',
       reasoning: input.reasoning || false,
       priority: input.priority || 'latency',
     };
@@ -123,34 +159,3 @@ export const POST = async (req: NextRequest) => {
 export async function GET() {
   return new Response('Method not allowed', { status: 405 });
 }
-
-    // Test mode: log inputs and return a mock stream without calling external API
-    if (process.env.TEST_LOG_ONLY === 'true') {
-      const payload = { route: '/api/fal-stream', model, input };
-      console.log('[TEST_LOG_ONLY]', payload);
-      appendMockLog(payload).catch(() => {});
-
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(encoder.encode('[MOCK] Texto gerado (stream)\n'));
-          if (input?.prompt) {
-            controller.enqueue(encoder.encode(`Prompt: ${input.prompt}\n`));
-          }
-          if (input?.image_url) {
-            controller.enqueue(encoder.encode(`Imagem: ${input.image_url}\n`));
-          }
-          controller.enqueue(encoder.encode('\n--- Reasoning ---\n'));
-          controller.enqueue(encoder.encode('Execução em modo de teste (sem chamar API externa).'));
-          controller.close();
-        },
-      });
-
-      return new Response(stream, {
-        headers: {
-          'Content-Type': 'text/plain; charset=utf-8',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
-        },
-      });
-    }

@@ -265,9 +265,9 @@ function showHelp() {
   console.log('  verify <email>    - Verificar dados de um usuário específico');
   console.log('  help              - Exibir esta ajuda');
   console.log('\nExemplos:');
-  console.log('  node delete-user.js delete admin@tersa.com');
+  console.log('  node delete-user.js delete admin@seudominio.com');
   console.log('  node delete-user.js list');
-  console.log('  node delete-user.js verify admin@tersa.com');
+  console.log('  node delete-user.js verify admin@seudominio.com');
   console.log('\n⚠️  ATENÇÃO: A exclusão é IRREVERSÍVEL!');
   console.log('⚠️  Sempre verifique os dados antes de excluir!');
 }

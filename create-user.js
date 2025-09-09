@@ -245,7 +245,7 @@ async function main() {
     console.log('  node create-user.js list');
     console.log('');
     console.log('Exemplo:');
-    console.log('  node create-user.js create admin@tersa.com minhasenha123');
+    console.log('  node create-user.js create admin@seudominio.com minhasenha123');
     return;
   }
   

@@ -37,7 +37,7 @@ import {
   ZaiIcon,
 } from './icons';
 
-export type TersaProvider = {
+export type wowProvider = {
   id: string;
   name: string;
   icon: typeof OpenAiIcon;
@@ -226,12 +226,12 @@ export const providers = {
   },
 };
 
-export type TersaModel = {
+export type wowModel = {
   // Inherits from chef if not provided
   icon?: typeof OpenAiIcon;
   label: string;
-  chef: TersaProvider;
-  providers: TersaProvider[];
+  chef: wowProvider;
+  providers: wowProvider[];
   legacy?: boolean;
   priceIndicator?: PriceBracket;
   disabled?: boolean;

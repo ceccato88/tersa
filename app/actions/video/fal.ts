@@ -285,7 +285,7 @@ export async function generateVideoFalAction(
       seed: result.data.seed,
     });
 
-    // Retornar no formato esperado pelo Tersa
+    // Retornar no formato esperado pelo wow
     return {
       id: result.requestId,
       status: 'succeeded',

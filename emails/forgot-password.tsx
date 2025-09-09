@@ -58,7 +58,7 @@ export const ForgotPasswordEmailTemplate = ({
 );
 
 ForgotPasswordEmailTemplate.PreviewProps = {
-  magicLink: 'https://www.tersa.ai/reset-password',
+  magicLink: 'https://www.wow.ai/reset-password',
   email: 'test@test.com',
 } as ForgotPasswordEmailTemplateProps;
 

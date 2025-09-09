@@ -58,7 +58,7 @@ export const SignupEmailTemplate = ({
 );
 
 SignupEmailTemplate.PreviewProps = {
-  magicLink: 'https://www.tersa.ai/sign-up',
+  magicLink: 'https://www.wow.ai/sign-up',
   email: 'test@test.com',
 } as SignupEmailTemplateProps;
 

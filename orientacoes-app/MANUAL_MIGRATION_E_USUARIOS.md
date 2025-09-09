@@ -268,7 +268,7 @@ wsl node create-user.js create <email> <senha>
 
 **Exemplo:**
 ```bash
-wsl node create-user.js create admin@tersa.com senha123456
+wsl node create-user.js create admin@seudominio.com senha123456
 ```
 
 #### Listar Usuários com Créditos Ilimitados
@@ -283,7 +283,7 @@ wsl node create-user.js verify <email>
 
 **Exemplo:**
 ```bash
-wsl node create-user.js verify admin@tersa.com
+wsl node create-user.js verify admin@seudominio.com
 ```
 
 #### Excluir Usuário
@@ -293,7 +293,7 @@ wsl node delete-user.js delete <email>
 
 **Exemplo:**
 ```bash
-wsl node delete-user.js delete admin@tersa.com
+wsl node delete-user.js delete admin@seudominio.com
 ```
 
 **⚠️ ATENÇÃO: A exclusão é IRREVERSÍVEL!**
@@ -340,10 +340,10 @@ O script executa as seguintes operações:
 ✅ Conectado com sucesso!
 🔧 Criando/atualizando função de exclusão...
 ✅ Função de exclusão criada/atualizada!
-🔍 Verificando se o usuário admin@tersa.com existe...
+🔍 Verificando se o usuário admin@seudominio.com existe...
 📋 Dados do usuário encontrado:
   - ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-  - Email: admin@tersa.com
+  - Email: admin@seudominio.com
   - Criado em: 2024-01-XX XX:XX:XX
   - Profile ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
@@ -356,7 +356,7 @@ O script executa as seguintes operações:
 📋 Detalhes da exclusão:
   - Auth User ID excluído: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
   - Profile ID excluído: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-  - Email: admin@tersa.com
+  - Email: admin@seudominio.com
   - Timestamp da exclusão: 2024-01-XX XX:XX:XX
 
 🔌 Conexão fechada.
@@ -370,7 +370,7 @@ Ao criar um usuário com sucesso:
 ✅ Usuário criado com sucesso!
 Detalhes:
 - ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-- Email: admin@tersa.com
+- Email: admin@seudominio.com
 - Criado em: 2024-01-XX XX:XX:XX
 - Customer ID: cus_xxxxxxxxxx
 - Product ID: prod_xxxxxxxxx
@@ -750,7 +750,7 @@ wsl pnpm migrate
 wsl node check-database-structure.js
 
 # 6. Criar primeiro usuário admin
-wsl node create-user.js create admin@tersa.com senha123456
+wsl node create-user.js create admin@seudominio.com senha123456
 
 # 7. Verificar criação
 wsl node create-user.js list
