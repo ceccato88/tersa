@@ -30,9 +30,9 @@ import { AdvancedVideoParamsPopup } from './advanced-params-popup';
 type VideoTransformProps = VideoNodeProps & { title: string };
 
 const AVAILABLE_MODELS = {
-  'fal-ai/luma-ray-2': { label: 'Luma Ray 2', chef: providers.fal, providers: [providers.fal], default: true },
+  'fal-ai/luma-ray-2': { label: 'Luma Ray 2', chef: providers.fal, providers: [providers.fal], default: false },
   'fal-ai/kling-2.1-master': { label: 'Kling 2.1 Master', chef: providers.fal, providers: [providers.fal], default: false },
-  'fal-ai/minimax/hailuo-02/pro/text-to-video': { label: 'Hailuo 02 Pro', chef: providers.fal, providers: [providers.fal], default: false },
+  'fal-ai/minimax/hailuo-02/pro/text-to-video': { label: 'Hailuo 02 Pro', chef: providers.fal, providers: [providers.fal], default: true },
   'moonvalley/marey/t2v': { label: 'Marey T2V', chef: providers.fal, providers: [providers.fal], default: false },
   'fal-ai/pika/v2.2/text-to-video': { label: 'Pika v2.2', chef: providers.fal, providers: [providers.fal], default: false },
   'fal-ai/veo3': { label: 'Veo 3', chef: providers.fal, providers: [providers.fal], default: false },

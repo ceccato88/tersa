@@ -63,6 +63,7 @@ The API accepts the following input parameters:
 
 - **`aspect_ratio`** (`Enum | string`, _optional_):
   The aspect ratio of the generated image. Default value: `16:9`
+  Possible enum values: 21:9, 16:9, 4:3, 3:2, 1:1, 2:3, 3:4, 9:16, 9:21
   - Default: `"16:9"`
   - One of: Enum | string
 

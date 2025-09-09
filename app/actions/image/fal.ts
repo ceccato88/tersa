@@ -32,15 +32,15 @@ const ASPECT_RATIO_MAP: Record<string, string> = {
 const FAL_MODEL_MAP: Record<string, string> = {
   'fal-ai/flux-pro-kontext': 'fal-ai/flux-pro/kontext',
   'fal-ai/flux-pro/kontext/max': 'fal-ai/flux-pro/kontext/max',
-  'fal-ai/flux-pro-v1.1': 'fal-ai/flux-pro/v1.1',
-  'fal-ai/flux-pro-v1.1-ultra': 'fal-ai/flux-pro/v1.1-ultra',
+  'fal-ai/flux-pro/v1.1': 'fal-ai/flux-pro/v1.1',
+  'fal-ai/flux-pro/v1.1-ultra': 'fal-ai/flux-pro/v1.1-ultra',
   'fal-ai/nano-banana': 'fal-ai/nano-banana',
 
-  'fal-ai/imagen4': 'fal-ai/imagen4/preview',
-  'fal-ai/imagen4-ultra': 'fal-ai/imagen4/preview/ultra',
-  'fal-ai/ideogram-v3': 'fal-ai/ideogram/v3',
-  'fal-ai/recraft-v3': 'fal-ai/recraft/v3/text-to-image',
-  'fal-ai/flux-krea': 'fal-ai/flux/krea',
+  'fal-ai/imagen4/preview': 'fal-ai/imagen4/preview',
+  'fal-ai/imagen4/preview/ultra': 'fal-ai/imagen4/preview/ultra',
+  'fal-ai/ideogram/v3': 'fal-ai/ideogram/v3',
+  'fal-ai/recraft/v3': 'fal-ai/recraft/v3/text-to-image',
+  'fal-ai/flux/krea': 'fal-ai/flux/krea',
   'fal-ai/luma-photon': 'fal-ai/luma-photon',
   'fal-ai/nano-banana/edit': 'fal-ai/nano-banana/edit',
   'fal-ai/ideogram/character': 'fal-ai/ideogram/character',
@@ -127,7 +127,7 @@ export async function generateImageFalAction(
     };
 
     // Adicionar parâmetros globais apenas se não for Recraft V3, Nano Banana, Nano Banana Edit, Imagen 4, Imagen 4 Ultra, Ideogram 3.0, Ideogram Character, FLUX1.1 [pro], FLUX1.1 [pro] ultra, FLUX.1 Kontext [max], FLUX.1 Kontext [pro] text, FLUX.1 Krea ou modelos image-to-image específicos
-    if (data.model !== 'fal-ai/recraft-v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana/edit' && data.model !== 'fal-ai/imagen4' && data.model !== 'fal-ai/imagen4-ultra' && data.model !== 'fal-ai/ideogram-v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro-v1.1' && data.model !== 'fal-ai/flux-pro-v1.1-ultra' && data.model !== 'fal-ai/flux-krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/ideogram/v3/replace-background' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp') {
+    if (data.model !== 'fal-ai/recraft/v3' && data.model !== 'fal-ai/nano-banana' && data.model !== 'fal-ai/nano-banana/edit' && data.model !== 'fal-ai/imagen4/preview' && data.model !== 'fal-ai/imagen4/preview/ultra' && data.model !== 'fal-ai/ideogram/v3' && data.model !== 'fal-ai/ideogram/character' && data.model !== 'fal-ai/flux-pro/v1.1' && data.model !== 'fal-ai/flux-pro/v1.1-ultra' && data.model !== 'fal-ai/flux/krea' && data.model !== 'fal-ai/flux-pro-kontext' && data.model !== 'fal-ai/flux-pro/kontext/max' && data.model !== 'fal-ai/luma-photon' && data.model !== 'fal-ai/ideogram/v3/reframe' && data.model !== 'fal-ai/ideogram/v3/remix' && data.model !== 'fal-ai/ideogram/v3/replace-background' && data.model !== 'fal-ai/topaz/upscale/image' && data.model !== 'fal-ai/recraft/upscale/creative' && data.model !== 'fal-ai/recraft/upscale/crisp') {
       input.seed = parseNumber(data.seed);
       
       // Guidance scale específico por modelo
@@ -140,7 +140,7 @@ export async function generateImageFalAction(
     }
 
     // Configurações específicas por modelo
-    if (data.model === 'fal-ai/flux-pro-v1.1-ultra') {
+    if (data.model === 'fal-ai/flux-pro/v1.1-ultra') {
       // FLUX1.1 [pro] ultra usa todos os parâmetros específicos
       input.aspect_ratio = data.aspect_ratio || '16:9';
       input.seed = parseNumber(data.seed);
@@ -249,7 +249,7 @@ export async function generateImageFalAction(
           enhance_prompt: input.enhance_prompt
         }
       });
-    } else if (data.model === 'fal-ai/imagen4') {
+    } else if (data.model === 'fal-ai/imagen4/preview') {
       // Imagen 4 usa todos os parâmetros específicos
       input.aspect_ratio = data.aspect_ratio || '1:1';
       input.num_images = parseNumber(data.num_images) || 1;
@@ -270,7 +270,7 @@ export async function generateImageFalAction(
           negative_prompt: input.negative_prompt?.substring(0, 30)
         }
       });
-    } else if (data.model === 'fal-ai/imagen4-ultra') {
+    } else if (data.model === 'fal-ai/imagen4/preview/ultra') {
       // Imagen 4 Ultra usa todos os parâmetros específicos (sempre 1 imagem)
       input.aspect_ratio = data.aspect_ratio || '1:1';
       input.num_images = 1; // Sempre 1 para Ultra
@@ -332,6 +332,33 @@ export async function generateImageFalAction(
       input.seed = parseNumber(data.seed);
       input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
       input.negative_prompt = data.negative_prompt || '';
+
+      // Color palette (preset/custom) - igual t2i
+      if (
+        data.color_palette_type === 'preset' &&
+        data.color_palette_preset &&
+        data.color_palette_preset !== 'none' &&
+        String(data.color_palette_preset).trim() !== ''
+      ) {
+        input.color_palette = { name: data.color_palette_preset };
+      } else if (
+        data.color_palette_type === 'custom' &&
+        (data.color_r !== undefined || data.color_g !== undefined || data.color_b !== undefined)
+      ) {
+        const r = data.color_r !== undefined && data.color_r !== null ? Number(data.color_r) : 190;
+        const g = data.color_g !== undefined && data.color_g !== null ? Number(data.color_g) : 29;
+        const b = data.color_b !== undefined && data.color_b !== null ? Number(data.color_b) : 29;
+        const validR = Math.max(0, Math.min(255, r));
+        const validG = Math.max(0, Math.min(255, g));
+        const validB = Math.max(0, Math.min(255, b));
+        input.color_palette = {
+          members: [
+            {
+              rgb: { r: validR, g: validG, b: validB }
+            }
+          ]
+        };
+      }
       
       // DEBUG: Log específico para Ideogram Character
       console.log('🎭 Ideogram Character Debug - Parâmetros completos:', {
@@ -354,9 +381,36 @@ export async function generateImageFalAction(
       input.rendering_speed = data.rendering_speed || 'BALANCED';
       input.seed = parseNumber(data.seed);
       input.sync_mode = data.sync_mode !== undefined ? data.sync_mode : false;
-      
+
       // Remover prompt para Ideogram Reframe (funciona sem prompt)
       delete input.prompt;
+
+      // Color palette (preset/custom)
+      if (
+        data.color_palette_type === 'preset' &&
+        data.color_palette_preset &&
+        data.color_palette_preset !== 'none' &&
+        String(data.color_palette_preset).trim() !== ''
+      ) {
+        input.color_palette = { name: data.color_palette_preset };
+      } else if (
+        data.color_palette_type === 'custom' &&
+        (data.color_r !== undefined || data.color_g !== undefined || data.color_b !== undefined)
+      ) {
+        const r = data.color_r !== undefined && data.color_r !== null ? Number(data.color_r) : 190;
+        const g = data.color_g !== undefined && data.color_g !== null ? Number(data.color_g) : 29;
+        const b = data.color_b !== undefined && data.color_b !== null ? Number(data.color_b) : 29;
+        const validR = Math.max(0, Math.min(255, r));
+        const validG = Math.max(0, Math.min(255, g));
+        const validB = Math.max(0, Math.min(255, b));
+        input.color_palette = {
+          members: [
+            {
+              rgb: { r: validR, g: validG, b: validB }
+            }
+          ]
+        };
+      }
       
       // DEBUG: Log específico para Ideogram 3.0 Reframe
       console.log('🖼️ Ideogram 3.0 Reframe Debug - Parâmetros completos:', {
@@ -521,7 +575,7 @@ export async function generateImageFalAction(
           color_palette: input.color_palette
         }
       });
-    } else if (data.model === 'fal-ai/flux-pro-v1.1') {
+    } else if (data.model === 'fal-ai/flux-pro/v1.1') {
       // FLUX1.1 [pro] usa todos os parâmetros específicos
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'landscape_4_3'] || 'landscape_4_3';
       input.image_size = imageSize;
@@ -549,7 +603,7 @@ export async function generateImageFalAction(
           enhance_prompt: input.enhance_prompt
         }
       });
-    } else if (data.model === 'fal-ai/ideogram-v3') {
+    } else if (data.model === 'fal-ai/ideogram/v3') {
       // Ideogram 3.0 usa todos os parâmetros específicos
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
       input.image_size = imageSize;
@@ -605,12 +659,13 @@ export async function generateImageFalAction(
           color_palette: input.color_palette
         }
       });
-    } else if (data.model === 'fal-ai/recraft-v3') {
+    } else if (data.model === 'fal-ai/recraft/v3') {
       // Recraft V3 usa todos os parâmetros específicos
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'square_hd'] || 'square_hd';
       input.image_size = imageSize;
       input.style = data.style || 'realistic_image';
       input.enable_safety_checker = data.enable_safety_checker !== undefined ? data.enable_safety_checker : false;
+      // style_id não será utilizado
       
       // Cores preferenciais personalizadas (tanto text-to-image quanto image-to-image)
       if (data.colors_type === 'custom' && (data.colors_r !== undefined || data.colors_g !== undefined || data.colors_b !== undefined)) {
@@ -629,6 +684,8 @@ export async function generateImageFalAction(
           g: validG,
           b: validB
         }];
+      } else {
+        input.colors = [];
       }
       
       // DEBUG: Log específico para Recraft V3
@@ -644,7 +701,7 @@ export async function generateImageFalAction(
           colorsCount: input.colors?.length || 0
         }
       });
-    } else if (data.model === 'fal-ai/flux-krea') {
+    } else if (data.model === 'fal-ai/flux/krea') {
       // FLUX.1 Krea usa todos os parâmetros específicos
       const imageSize = ASPECT_RATIO_MAP[data.aspectRatio || data.image_size || 'landscape_4_3'] || 'landscape_4_3';
       input.image_size = imageSize;
@@ -728,6 +785,11 @@ export async function generateImageFalAction(
         imageCount: imageNodes.length,
         model: data.model,
       });
+    }
+
+    // Remover prompt para modelos que não aceitam esse campo
+    if (data.model === 'fal-ai/ideogram/v3/reframe' || data.model === 'fal-ai/topaz/upscale/image' || data.model === 'fal-ai/recraft/upscale/creative' || data.model === 'fal-ai/recraft/upscale/crisp') {
+      if (input.prompt !== undefined) delete input.prompt;
     }
 
     // DEBUG: Log completo do input que será enviado para FAL (removido para produção)

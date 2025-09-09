@@ -1,0 +1,229 @@
+[2025-09-09T01:54:25.415Z]
+{
+  "route": "/api/fal-image",
+  "prompt": "",
+  "originalParams": {
+    "model": "fal-ai/ideogram/v3/reframe",
+    "num_images": 1,
+    "seed": null,
+    "guidance_scale": 3.5,
+    "sync_mode": false,
+    "output_format": "jpeg",
+    "safety_tolerance": "2",
+    "enhance_prompt": false,
+    "rendering_speed": "BALANCED",
+    "color_palette_type": "none",
+    "color_palette_preset": null,
+    "color_r": 190,
+    "color_g": 29,
+    "color_b": 29,
+    "image_size": "square_hd",
+    "aspectRatio": "square_hd",
+    "numOutputs": 1
+  },
+  "filteredParams": {
+    "model": "fal-ai/ideogram/v3/reframe",
+    "rendering_speed": "BALANCED",
+    "num_images": 1,
+    "seed": null,
+    "sync_mode": false,
+    "image_url": "https://placehold.co/1024x1024/png?text=MOCK",
+    "image_size": "square_hd"
+  },
+  "imageNodes": [
+    {
+      "url": "https://placehold.co/1024x1024/png?text=MOCK",
+      "type": "image/jpeg"
+    }
+  ]
+}
+
+[2025-09-09T01:54:32.480Z]
+{
+  "route": "/api/fal-image",
+  "prompt": "",
+  "originalParams": {
+    "model": "fal-ai/ideogram/v3/reframe",
+    "num_images": 1,
+    "seed": null,
+    "guidance_scale": 3.5,
+    "sync_mode": false,
+    "output_format": "jpeg",
+    "safety_tolerance": "2",
+    "enhance_prompt": false,
+    "rendering_speed": "BALANCED",
+    "color_palette_type": "preset",
+    "color_palette_preset": "PASTEL",
+    "color_r": 190,
+    "color_g": 29,
+    "color_b": 29,
+    "image_size": "square_hd",
+    "generated": {
+      "url": "https://placehold.co/1024x1024/png?text=MOCK",
+      "type": "image/jpeg"
+    },
+    "width": 1024,
+    "height": 1024,
+    "contentType": "image/jpeg",
+    "prompt": "",
+    "provider": "fal",
+    "updatedAt": "2025-09-09T01:54:25.814Z",
+    "aspectRatio": "square_hd",
+    "numOutputs": 1
+  },
+  "filteredParams": {
+    "model": "fal-ai/ideogram/v3/reframe",
+    "rendering_speed": "BALANCED",
+    "num_images": 1,
+    "seed": null,
+    "sync_mode": false,
+    "color_palette": {
+      "name": "PASTEL"
+    },
+    "image_url": "https://placehold.co/1024x1024/png?text=MOCK",
+    "image_size": "square_hd"
+  },
+  "imageNodes": [
+    {
+      "url": "https://placehold.co/1024x1024/png?text=MOCK",
+      "type": "image/jpeg"
+    }
+  ]
+}
+
+[2025-09-09T01:55:23.853Z]
+{
+  "route": "/api/fal-image",
+  "prompt": "teste",
+  "originalParams": {
+    "model": "fal-ai/ideogram/v3/remix",
+    "num_images": 1,
+    "seed": null,
+    "guidance_scale": 3.5,
+    "sync_mode": false,
+    "output_format": "jpeg",
+    "safety_tolerance": "2",
+    "enhance_prompt": false,
+    "fixed_size": "fixed",
+    "rendering_speed": "BALANCED",
+    "color_palette_type": "preset",
+    "color_palette_preset": "PASTEL",
+    "color_r": 190,
+    "color_g": 29,
+    "color_b": 29,
+    "image_size": "landscape_4_3",
+    "generated": {
+      "url": "https://placehold.co/1024x1024/png?text=MOCK",
+      "type": "image/jpeg"
+    },
+    "width": 1024,
+    "height": 1024,
+    "contentType": "image/jpeg",
+    "prompt": "",
+    "provider": "fal",
+    "updatedAt": "2025-09-09T01:54:32.629Z",
+    "strength": 0.8,
+    "style": "AUTO",
+    "expand_prompt": true,
+    "negative_prompt": "",
+    "aspectRatio": "landscape_4_3",
+    "instructions": "teste",
+    "numOutputs": 1
+  },
+  "filteredParams": {
+    "model": "fal-ai/ideogram/v3/remix",
+    "prompt": "teste",
+    "rendering_speed": "BALANCED",
+    "style": "AUTO",
+    "expand_prompt": true,
+    "num_images": 1,
+    "seed": null,
+    "sync_mode": false,
+    "strength": 0.8,
+    "image_size": "landscape_4_3",
+    "negative_prompt": "",
+    "color_palette": {
+      "name": "PASTEL"
+    },
+    "image_url": "https://placehold.co/1024x1024/png?text=MOCK"
+  },
+  "imageNodes": [
+    {
+      "url": "https://placehold.co/1024x1024/png?text=MOCK",
+      "type": "image/jpeg"
+    }
+  ]
+}
+
+[2025-09-09T01:55:49.809Z]
+{
+  "route": "/api/fal-image",
+  "prompt": "teste",
+  "originalParams": {
+    "model": "fal-ai/ideogram/v3/remix",
+    "num_images": 1,
+    "seed": null,
+    "guidance_scale": 3.5,
+    "sync_mode": false,
+    "output_format": "jpeg",
+    "safety_tolerance": "2",
+    "enhance_prompt": false,
+    "fixed_size": "fixed",
+    "rendering_speed": "BALANCED",
+    "color_palette_type": "custom",
+    "color_palette_preset": "PASTEL",
+    "color_r": 190,
+    "color_g": 29,
+    "color_b": 29,
+    "image_size": "landscape_4_3",
+    "generated": {
+      "url": "https://placehold.co/1024x1024/png?text=MOCK",
+      "type": "image/jpeg"
+    },
+    "width": 1024,
+    "height": 768,
+    "contentType": "image/jpeg",
+    "prompt": "teste",
+    "provider": "fal",
+    "updatedAt": "2025-09-09T01:55:24.384Z",
+    "strength": 0.8,
+    "style": "AUTO",
+    "expand_prompt": true,
+    "negative_prompt": "",
+    "aspectRatio": "landscape_4_3",
+    "instructions": "teste",
+    "numOutputs": 1
+  },
+  "filteredParams": {
+    "model": "fal-ai/ideogram/v3/remix",
+    "prompt": "teste",
+    "rendering_speed": "BALANCED",
+    "style": "AUTO",
+    "expand_prompt": true,
+    "num_images": 1,
+    "seed": null,
+    "sync_mode": false,
+    "strength": 0.8,
+    "image_size": "landscape_4_3",
+    "negative_prompt": "",
+    "color_palette": {
+      "members": [
+        {
+          "rgb": {
+            "r": 190,
+            "g": 29,
+            "b": 29
+          }
+        }
+      ]
+    },
+    "image_url": "https://placehold.co/1024x1024/png?text=MOCK"
+  },
+  "imageNodes": [
+    {
+      "url": "https://placehold.co/1024x1024/png?text=MOCK",
+      "type": "image/jpeg"
+    }
+  ]
+}
+

@@ -67,6 +67,7 @@ The API accepts the following input parameters:
 
 - **`image_size`** (`ImageSize | Enum`, _optional_):
   The resolution of the generated image Default value: `square_hd`
+  Possible enum values: square_hd, square, portrait_4_3, portrait_16_9, landscape_4_3, landscape_16_9
   - Default: `"square_hd"`
   - One of: ImageSize | Enum
 

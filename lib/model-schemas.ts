@@ -412,7 +412,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/flux-pro-v1.1': {
+  'fal-ai/flux-pro/v1.1': {
     label: 'FLUX1.1 [pro]',
     aspectRatios: [
       { label: 'Landscape 4:3', value: 'landscape_4_3' },
@@ -492,7 +492,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/flux-pro-v1.1-ultra': {
+  'fal-ai/flux-pro/v1.1-ultra': {
     label: 'FLUX1.1 [pro] ultra',
     aspectRatios: [
       { label: '16:9', value: '16:9' },
@@ -958,7 +958,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
     ]
   },
 
-  'fal-ai/imagen4': {
+  'fal-ai/imagen4/preview': {
     label: 'Imagen 4',
     aspectRatios: [
       { label: '1:1', value: '1:1' },
@@ -1009,7 +1009,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/imagen4-ultra': {
+  'fal-ai/imagen4/preview/ultra': {
     label: 'Imagen 4 Ultra',
     aspectRatios: [
       { label: '1:1', value: '1:1' },
@@ -1060,7 +1060,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/ideogram-v3': {
+  'fal-ai/ideogram/v3': {
     label: 'Ideogram 3.0',
     aspectRatios: [
       { label: 'Square HD', value: 'square_hd' },
@@ -1206,7 +1206,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       },
     ]
   },
-  'fal-ai/recraft-v3': {
+  'fal-ai/recraft/v3': {
     label: 'Recraft V3',
     aspectRatios: [
       { label: 'Square HD', value: 'square_hd' },
@@ -1391,7 +1391,7 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       }
     ]
   },
-  'fal-ai/flux-krea': {
+  'fal-ai/flux/krea': {
     label: 'FLUX.1 Krea',
     aspectRatios: [
       { label: 'Square HD', value: 'square_hd' },
@@ -1495,32 +1495,9 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
       { label: '9:21', value: '9:21' },
     ],
     fields: [
-      // Campo que aparece no nó principal (controla quantos nós criar)
-      {
-        name: 'num_images',
-        type: 'number',
-        label: 'Quantidade',
-        defaultValue: 1,
-        min: 1,
-        max: 4,
-        gridColumn: 2
-      },
-      {
-        name: 'aspect_ratio',
-        type: 'select',
-        label: 'Aspect Ratio',
-        options: [
-          { value: '16:9', label: '16:9' },
-          { value: '9:16', label: '9:16' },
-          { value: '1:1', label: '1:1' },
-          { value: '4:3', label: '4:3' },
-          { value: '3:4', label: '3:4' },
-          { value: '21:9', label: '21:9' },
-          { value: '9:21', label: '9:21' },
-        ],
-        defaultValue: '1:1',
-        gridColumn: 1
-      }
+      // Luma Photon tem apenas prompt e aspect_ratio
+      // O aspect_ratio já é controlado pelo seletor de tamanho na frente do nó
+      // Portanto não há campos para as opções avançadas
     ]
   },
   'fal-ai/nano-banana/edit': {
@@ -1630,6 +1607,70 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         placeholder: 'Descreva o que excluir da imagem',
         defaultValue: '',
         gridColumn: 2
+      },
+      // Paleta de cores (igual Ideogram t2i)
+      {
+        name: 'color_palette_type',
+        type: 'select',
+        label: 'Tipo de Paleta',
+        options: [
+          { value: 'none', label: 'Nenhuma' },
+          { value: 'preset', label: 'Predefinida' },
+          { value: 'custom', label: 'Personalizada' },
+        ],
+        defaultValue: 'none',
+        gridColumn: 1
+      },
+      {
+        name: 'color_palette_preset',
+        type: 'select',
+        label: 'Paleta Predefinida',
+        options: [
+          { value: 'EMBER', label: 'Ember' },
+          { value: 'FRESH', label: 'Fresh' },
+          { value: 'JUNGLE', label: 'Jungle' },
+          { value: 'MAGIC', label: 'Magic' },
+          { value: 'MELON', label: 'Melon' },
+          { value: 'MOSAIC', label: 'Mosaic' },
+          { value: 'PASTEL', label: 'Pastel' },
+          { value: 'ULTRAMARINE', label: 'Ultramarine' },
+        ],
+        defaultValue: null,
+        gridColumn: 2,
+        conditional: { field: 'color_palette_type', value: 'preset' }
+      },
+      {
+        name: 'color_r',
+        type: 'number',
+        label: 'Vermelho (R)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 190,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_g',
+        type: 'number',
+        label: 'Verde (G)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 2,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_b',
+        type: 'number',
+        label: 'Azul (B)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
       }
     ]
   },
@@ -1680,6 +1721,70 @@ export const MODEL_SCHEMAS: Record<string, ModelSchema> = {
         label: 'Modo Síncrono',
         defaultValue: false,
         gridColumn: 1
+      },
+      // Paleta de cores (igual Ideogram t2i)
+      {
+        name: 'color_palette_type',
+        type: 'select',
+        label: 'Tipo de Paleta',
+        options: [
+          { value: 'none', label: 'Nenhuma' },
+          { value: 'preset', label: 'Predefinida' },
+          { value: 'custom', label: 'Personalizada' }
+        ],
+        defaultValue: 'none',
+        gridColumn: 1
+      },
+      {
+        name: 'color_palette_preset',
+        type: 'select',
+        label: 'Paleta Predefinida',
+        options: [
+          { value: 'EMBER', label: 'Ember' },
+          { value: 'FRESH', label: 'Fresh' },
+          { value: 'JUNGLE', label: 'Jungle' },
+          { value: 'MAGIC', label: 'Magic' },
+          { value: 'MELON', label: 'Melon' },
+          { value: 'MOSAIC', label: 'Mosaic' },
+          { value: 'PASTEL', label: 'Pastel' },
+          { value: 'ULTRAMARINE', label: 'Ultramarine' }
+        ],
+        defaultValue: null,
+        gridColumn: 2,
+        conditional: { field: 'color_palette_type', value: 'preset' }
+      },
+      {
+        name: 'color_r',
+        type: 'number',
+        label: 'Vermelho (R)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 190,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_g',
+        type: 'number',
+        label: 'Verde (G)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 2,
+        conditional: { field: 'color_palette_type', value: 'custom' }
+      },
+      {
+        name: 'color_b',
+        type: 'number',
+        label: 'Azul (B)',
+        placeholder: '0-255',
+        min: 0,
+        max: 255,
+        defaultValue: 29,
+        gridColumn: 1,
+        conditional: { field: 'color_palette_type', value: 'custom' }
       }
     ]
   },
@@ -2178,13 +2283,13 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.enhance_prompt = false;
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/flux-pro-v1.1
-  if (modelId === 'fal-ai/flux-pro-v1.1') {
+  // Adicionar valores padrão para o modelo fal-ai/flux-pro/v1.1
+  if (modelId === 'fal-ai/flux-pro/v1.1') {
     defaults.image_size = 'landscape_4_3';
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/flux-pro-v1.1-ultra
-  if (modelId === 'fal-ai/flux-pro-v1.1-ultra') {
+  // Adicionar valores padrão para o modelo fal-ai/flux-pro/v1.1-ultra
+  if (modelId === 'fal-ai/flux-pro/v1.1-ultra') {
     defaults.aspect_ratio = '16:9';
   }
   
@@ -2193,18 +2298,18 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.fixed_size = 'fixed'; // Valor especial para tamanho fixo
   }
     
-  // Adicionar valores padrão para o modelo fal-ai/imagen4
-  if (modelId === 'fal-ai/imagen4') {
+  // Adicionar valores padrão para o modelo fal-ai/imagen4/preview
+  if (modelId === 'fal-ai/imagen4/preview') {
     defaults.aspect_ratio = '1:1';
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/imagen4-ultra
-  if (modelId === 'fal-ai/imagen4-ultra') {
+  // Adicionar valores padrão para o modelo fal-ai/imagen4/preview/ultra
+  if (modelId === 'fal-ai/imagen4/preview/ultra') {
     defaults.aspect_ratio = '1:1';
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/ideogram-v3
-  if (modelId === 'fal-ai/ideogram-v3') {
+  // Adicionar valores padrão para o modelo fal-ai/ideogram/v3
+  if (modelId === 'fal-ai/ideogram/v3') {
     defaults.image_size = 'square_hd';
     defaults.color_palette_type = 'none';
     defaults.color_r = 190;
@@ -2212,8 +2317,8 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.color_b = 29;
   }
     
-  // Adicionar valores padrão para o modelo fal-ai/recraft-v3
-  if (modelId === 'fal-ai/recraft-v3') {
+  // Adicionar valores padrão para o modelo fal-ai/recraft/v3
+  if (modelId === 'fal-ai/recraft/v3') {
     defaults.image_size = 'square_hd';
     defaults.style = 'realistic_image';
     defaults.negative_prompt = '';
@@ -2224,8 +2329,8 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.sync_mode = false;
   }
   
-  // Adicionar valores padrão para o modelo fal-ai/flux-krea
-  if (modelId === 'fal-ai/flux-krea') {
+  // Adicionar valores padrão para o modelo fal-ai/flux/krea
+  if (modelId === 'fal-ai/flux/krea') {
     defaults.image_size = 'landscape_4_3';
   }
   
@@ -2249,6 +2354,11 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.expand_prompt = true;
     defaults.sync_mode = false;
     defaults.negative_prompt = '';
+    defaults.color_palette_type = 'none';
+    defaults.color_palette_preset = null;
+    defaults.color_r = 190;
+    defaults.color_g = 29;
+    defaults.color_b = 29;
   }
     
   // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/reframe
@@ -2256,6 +2366,11 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
     defaults.image_size = 'square_hd';
     defaults.rendering_speed = 'BALANCED';
     defaults.sync_mode = false;
+    defaults.color_palette_type = 'none';
+    defaults.color_palette_preset = null;
+    defaults.color_r = 190;
+    defaults.color_g = 29;
+    defaults.color_b = 29;
   }
   
   // Adicionar valores padrão para o modelo fal-ai/ideogram/v3/remix
@@ -2409,4 +2524,5 @@ export const getModelDefaults = (modelId: string): Record<string, any> => {
 export const modelHasField = (modelId: string, fieldName: string): boolean => {
   const schema = getModelSchema(modelId);
   return schema?.fields.some(field => field.name === fieldName) || false;
+};
 

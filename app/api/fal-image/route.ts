@@ -40,15 +40,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Test mode: log inputs and return mock image URL without calling external API
+    // Test mode: process params first to show filtered/correct parameters that would be sent to FAL
     if (process.env.TEST_LOG_ONLY === 'true') {
-      const payload = { route: '/api/fal-image', prompt, params, imageNodes };
-      console.log('[TEST_LOG_ONLY]', payload);
+      // Import the function that processes parameters
+      const { buildFalInput } = await import('@/lib/fal-input-builder');
+      const filteredInput = buildFalInput(prompt, params, imageNodes);
+      
+      const payload = { 
+        route: '/api/fal-image', 
+        prompt, 
+        originalParams: params, // Parâmetros originais da interface
+        filteredParams: filteredInput, // Parâmetros filtrados que seriam enviados para FAL
+        imageNodes 
+      };
+      try {
+        console.log('[TEST_LOG_ONLY]\n' + JSON.stringify(payload, null, 2));
+      } catch {
+        console.log('[TEST_LOG_ONLY]', payload);
+      }
       appendMockLog(payload).catch(() => {});
       return NextResponse.json({
         success: true,
         data: {
-          output: 'https://via.placeholder.com/1024x1024.png?text=MOCK',
+          output: 'https://placehold.co/1024x1024/png?text=MOCK',
           prompt,
           model: params?.model || 'mock/image-model',
           seed: 0,

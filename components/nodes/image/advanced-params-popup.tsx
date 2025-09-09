@@ -37,7 +37,7 @@ export const AdvancedParamsPopup = ({
     if (!isOpen || hasCleanedUp) return;
 
     // Reset campos antigos do Recraft V3 text-to-image
-    if (modelId === 'fal-ai/recraft-v3') {
+    if (modelId === 'fal-ai/recraft/v3') {
       let needsUpdate = false;
       const updates: Record<string, any> = {};
 
@@ -68,7 +68,7 @@ export const AdvancedParamsPopup = ({
     }
 
     // Reset para Ideogram 3.0
-    if (modelId === 'fal-ai/ideogram-v3' && data.color_palette_type === 'custom' && !data.color_r) {
+    if (modelId === 'fal-ai/ideogram/v3' && data.color_palette_type === 'custom' && !data.color_r) {
       console.log('🔄 Forçando reset para none devido a valor inválido');
       updateNodeData(nodeId, { color_palette_type: 'none' });
     }

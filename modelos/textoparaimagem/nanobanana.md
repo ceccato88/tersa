@@ -43,7 +43,7 @@ The API accepts the following input parameters:
   When true, images will be returned as data URIs instead of URLs.
   - Default: `false`
 
-
+Nano banana tem tamanho único, não enviamos isso para a api.
 
 **Required Parameters Example**:
 

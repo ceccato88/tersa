@@ -32,6 +32,15 @@ const nextConfig: NextConfig = {
       // Placeholder images for mock/testing
       {
         protocol: 'https',
+        hostname: 'placehold.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      // Temporariamente manter via.placeholder.com para dados antigos
+      {
+        protocol: 'https',
         hostname: 'via.placeholder.com',
       },
 

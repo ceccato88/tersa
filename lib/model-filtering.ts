@@ -30,14 +30,14 @@ const IMAGE_MODELS = {
     supportedInputs: ['image-primitive', 'image-transform'], // Apenas imagem
     maxImages: 1 // Aceita apenas uma imagem
   },
-  'fal-ai/flux-pro-v1.1': {
-    id: 'fal-ai/flux-pro-v1.1',
+  'fal-ai/flux-pro/v1.1': {
+    id: 'fal-ai/flux-pro/v1.1',
     label: 'FLUX1.1 [pro]',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
-  'fal-ai/flux-pro-v1.1-ultra': {
-    id: 'fal-ai/flux-pro-v1.1-ultra',
+  'fal-ai/flux-pro/v1.1-ultra': {
+    id: 'fal-ai/flux-pro/v1.1-ultra',
     label: 'FLUX1.1 [pro] ultra',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
@@ -49,32 +49,32 @@ const IMAGE_MODELS = {
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
 
-  'fal-ai/imagen4': {
-    id: 'fal-ai/imagen4',
+  'fal-ai/imagen4/preview': {
+    id: 'fal-ai/imagen4/preview',
     label: 'Imagen 4',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
-  'fal-ai/imagen4-ultra': {
-    id: 'fal-ai/imagen4-ultra',
+  'fal-ai/imagen4/preview/ultra': {
+    id: 'fal-ai/imagen4/preview/ultra',
     label: 'Imagen 4 Ultra',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
-  'fal-ai/ideogram-v3': {
-    id: 'fal-ai/ideogram-v3',
+  'fal-ai/ideogram/v3': {
+    id: 'fal-ai/ideogram/v3',
     label: 'Ideogram 3.0',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
-  'fal-ai/recraft-v3': {
-    id: 'fal-ai/recraft-v3',
+  'fal-ai/recraft/v3': {
+    id: 'fal-ai/recraft/v3',
     label: 'Recraft V3',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
   },
-  'fal-ai/flux-krea': {
-    id: 'fal-ai/flux-krea',
+  'fal-ai/flux/krea': {
+    id: 'fal-ai/flux/krea',
     label: 'FLUX.1 Krea',
     provider: 'fal',
     supportedInputs: ['text-primitive', 'text-transform'] // Apenas texto
