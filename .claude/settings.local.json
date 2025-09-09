@@ -12,7 +12,8 @@
       "Bash(crontab:*)",
       "Bash(docker stop:*)",
       "Bash(docker rm:*)",
-      "Bash(docker system prune:*)"
+      "Bash(docker system prune:*)",
+      "Bash(pnpm remove:*)"
     ],
     "deny": [],
     "ask": []
