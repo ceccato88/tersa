@@ -960,7 +960,9 @@ export async function generateImageFalAction(
 
     // Construir URL privada via proxy (não expira)
     const path = uploadResult.data.path;
-    const finalUrl = `/api/storage/files/${path}`;
+    const finalUrl = new URL(`/api/storage/files/${path}`,
+      env.NEXT_PUBLIC_APP_URL
+    ).toString();
 
     logger.info('✅ Imagem salva no Supabase Storage:', finalUrl);
 

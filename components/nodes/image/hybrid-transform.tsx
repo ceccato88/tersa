@@ -16,7 +16,6 @@ import { useProject } from '@/providers/project';
 import { getIncomers, useReactFlow, useNodes } from '@xyflow/react';
 import {
   ClockIcon,
-  CopyIcon,
   DownloadIcon,
   ExternalLinkIcon,
   Loader2Icon,
@@ -357,12 +356,7 @@ export const HybridImageTransform = ({
     [id, updateNodeData]
   );
 
-  const handleCopy = useCallback(() => {
-    if (data.generated?.url) {
-      navigator.clipboard.writeText(data.generated.url);
-      toast.success('URL da imagem copiada para a área de transferência');
-    }
-  }, [data.generated?.url]);
+  
 
   // Transferência automática de prompt de nós conectados
   useEffect(() => {
@@ -677,19 +671,7 @@ export const HybridImageTransform = ({
         ),
       });
 
-      items.push({
-        tooltip: 'Copiar URL',
-        children: (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-            onClick={handleCopy}
-          >
-            <CopyIcon size={12} />
-          </Button>
-        ),
-      });
+      
 
       items.push({
         tooltip: 'Abrir em nova janela',

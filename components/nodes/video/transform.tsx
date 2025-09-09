@@ -14,7 +14,7 @@ import { providers } from '@/lib/providers';
 import { getImagesFromImageNodes, getTextFromTextNodes } from '@/lib/xyflow';
 import { useProject } from '@/providers/project';
 import { getIncomers, useReactFlow } from '@xyflow/react';
-import { ClockIcon, CopyIcon, DownloadIcon, ExternalLinkIcon, Loader2Icon, PlayIcon, RotateCcwIcon, Settings } from 'lucide-react';
+import { ClockIcon, DownloadIcon, ExternalLinkIcon, Loader2Icon, PlayIcon, RotateCcwIcon, Settings } from 'lucide-react';
 import {
   type ChangeEventHandler,
   type ComponentProps,
@@ -104,12 +104,7 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
     if (!data.instructions && !data.generated?.url) transferPrompt();
   }, [data.instructions, data.generated?.url, transferPrompt]);
 
-  const handleCopy = useCallback(() => {
-    if (data.generated?.url) {
-      navigator.clipboard.writeText(data.generated.url);
-      toast.success('URL do vídeo copiada para a área de transferência');
-    }
-  }, [data.generated?.url]);
+  
 
   const handleGenerate = useCallback(async () => {
     if (loading || !project?.id) return;
@@ -353,14 +348,7 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
           </Button>
         ),
       });
-      items.push({
-        tooltip: 'Copiar URL',
-        children: (
-          <Button variant="ghost" size="icon" className="rounded-full" onClick={handleCopy}>
-            <CopyIcon size={12} />
-          </Button>
-        ),
-      });
+      
       items.push({
         tooltip: 'Abrir em nova janela',
         children: (
@@ -388,7 +376,7 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
       });
     }
     return items;
-  }, [data.generated?.url, data.updatedAt, handleCopy, id]);
+  }, [data.generated?.url, data.updatedAt, id]);
 
   return (
     <NodeLayout id={id} data={data} type={type} title={title} toolbar={toolbar}>

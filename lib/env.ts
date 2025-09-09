@@ -28,6 +28,7 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1),
+    NEXT_PUBLIC_APP_URL: z.string().url().min(1),
 
     // Supabase Integration
     NEXT_PUBLIC_SUPABASE_URL: z.string().url().min(1),
@@ -44,6 +45,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SUPABASE_DOMAIN: process.env.NEXT_PUBLIC_SUPABASE_DOMAIN,
     NEXT_PUBLIC_SUPABASE_HOSTNAME: process.env.NEXT_PUBLIC_SUPABASE_HOSTNAME,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
     RESEND_TOKEN: process.env.RESEND_TOKEN,

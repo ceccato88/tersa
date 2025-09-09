@@ -6,12 +6,12 @@ export const maxDuration = 60;
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { bucket: string; path: string[] } }
+  context: { params: Promise<{ bucket: string; path: string[] }> }
 ) {
   try {
     const user = await getSubscribedUser();
-    const bucket = params.bucket;
-    const pathSegments = Array.isArray(params.path) ? params.path : [params.path];
+    const { bucket, path } = await context.params;
+    const pathSegments = Array.isArray(path) ? path : [path];
     const filePath = pathSegments.join('/');
 
     // Segurança adicional: garantir que o caminho começa com o id do usuário
