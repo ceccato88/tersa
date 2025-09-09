@@ -342,7 +342,9 @@ export async function generateVideoFalAction(
     const upload = await supabase.storage.from('files').upload(fileName, videoArrayBuffer, { contentType: mimeType });
     if (upload.error) throw new Error(`Erro no upload de vídeo: ${upload.error.message}`);
 
-    const proxyUrl = `/api/storage/files/${upload.data.path}`;
+    const proxyUrl = new URL(`/api/storage/files/${upload.data.path}`,
+      env.NEXT_PUBLIC_APP_URL
+    ).toString();
 
     // Retornar no formato esperado
     return {

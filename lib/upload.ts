@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import { env } from './env';
 import { createClient } from './supabase/client';
 import { createUploadClient } from './supabase/upload-client';
 
@@ -32,7 +33,9 @@ export const uploadFile = async (
   }
 
   // Construir URL via proxy (sem expirar, privado)
-  const proxyUrl = `/api/storage/${bucket}/${blob.data.path}`;
+  const proxyUrl = new URL(`/api/storage/${bucket}/${blob.data.path}`,
+    env.NEXT_PUBLIC_APP_URL
+  ).toString();
 
   return {
     url: proxyUrl,
