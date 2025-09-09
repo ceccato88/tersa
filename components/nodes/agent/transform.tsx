@@ -144,7 +144,17 @@ export const AgentTransform = ({ data, id, type, title }: AgentTransformProps) =
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let message = `Falha ao gerar (${response.status})`;
+        try {
+          const text = await response.text();
+          try {
+            const maybe = JSON.parse(text);
+            message = maybe?.error || text || message;
+          } catch {
+            message = text || message;
+          }
+        } catch {}
+        throw new Error(message);
       }
 
       const reader = response.body?.getReader();

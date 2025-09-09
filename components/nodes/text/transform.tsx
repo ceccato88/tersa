@@ -130,7 +130,18 @@ export const TextTransform = ({ data, id, type, title }: TextTransformProps) => 
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          // Ler mensagem clara do servidor
+          let message = `Falha ao gerar texto (${response.status})`;
+          try {
+            const text = await response.text();
+            try {
+              const maybe = JSON.parse(text);
+              message = maybe?.error || text || message;
+            } catch {
+              message = text || message;
+            }
+          } catch {}
+          throw new Error(message);
         }
 
         const reader = response.body?.getReader();

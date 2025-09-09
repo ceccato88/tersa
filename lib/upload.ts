@@ -31,13 +31,11 @@ export const uploadFile = async (
     throw new Error(blob.error.message);
   }
 
-  // Obter URL pública usando cliente normal (domínio customizado)
-  const { data: downloadUrl } = authClient.storage
-    .from(bucket)
-    .getPublicUrl(blob.data.path);
+  // Construir URL via proxy (sem expirar, privado)
+  const proxyUrl = `/api/storage/${bucket}/${blob.data.path}`;
 
   return {
-    url: downloadUrl.publicUrl,
+    url: proxyUrl,
     type: file.type,
   };
 };

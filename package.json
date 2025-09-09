@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "export": "email export",
-    "migrate": "npx drizzle-kit push",
+    "migrate": "npx drizzle-kit push && node scripts/apply-rls-policies.js",
+    "migrate:storage-urls": "node scripts/migrate-storage-urls.js",
     "generate": "npx -y openapi-typescript@latest https://api.us1.bfl.ai/openapi.json -o ./openapi/bfl.d.ts"
   },
   "dependencies": {

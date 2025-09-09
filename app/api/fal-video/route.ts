@@ -62,11 +62,13 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true, data: result });
-  } catch (error) {
-    console.error('FAL Video API Error:', error);
+  } catch (error: any) {
+    const message = typeof error?.message === 'string' ? error.message : 'Failed to generate video';
+    console.error('FAL Video API Error:', message);
+    const status = message.includes('Token FAL não configurado') ? 400 : 500;
     return NextResponse.json(
-      { error: 'Failed to generate video' },
-      { status: 500 }
+      { error: message },
+      { status }
     );
   }
 }

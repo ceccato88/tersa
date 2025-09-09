@@ -6,11 +6,21 @@ import type { ImageNodeData } from '@/components/nodes/image';
 import { getSubscribedUser } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { nanoid } from 'nanoid';
+import { getUserFalToken } from '@/app/actions/profile/update-fal-token';
 
-// Configurar a chave da API FAL
-fal.config({
-  credentials: env.FAL_KEY,
-});
+// Configurar a chave da API FAL obrigando token do usuário
+const configureFalToken = async (userId?: string) => {
+  if (!userId) {
+    throw new Error('Você precisa estar autenticado para usar os modelos FAL.');
+  }
+  const userToken = await getUserFalToken(userId);
+  if (!userToken) {
+    throw new Error('Token FAL não configurado. Acesse seu perfil e salve seu token FAL para continuar.');
+  }
+  fal.config({ credentials: userToken });
+  logger.info('🔑 Usando token FAL do usuário');
+  return userToken;
+};
 
 // Mapeamento de aspect ratios do wow para FAL
 const ASPECT_RATIO_MAP: Record<string, string> = {
@@ -83,20 +93,16 @@ export async function generateImageFalAction(
   imageNodes?: string[]
 ) {
   try {
-    // DEBUG: Log completo dos dados recebidos (removido para produção)
-    // console.log('🎨 FAL Action Debug - Dados recebidos:', {
-    //   model: data.model,
-    //   prompt: prompt.substring(0, 100),
-    //   allData: data,
-    //   dataKeys: Object.keys(data),
-    //   hasAdvancedParams: !!(data.seed || data.guidance_scale || data.strength || data.style || data.num_inference_steps)
-    // });
+    // Obter usuário atual para configurar token personalizado
+    const user = await getSubscribedUser();
+    await configureFalToken(user?.id);
 
     logger.info('🎨 Iniciando geração de imagem via FAL', {
       model: data.model,
       prompt: prompt.substring(0, 100),
       aspectRatio: data.aspectRatio,
       seed: data.seed,
+      userId: user?.id || 'sistema',
     });
     // Log com modelo mapeado (normalizado) para facilitar depuração
     try {
@@ -104,10 +110,7 @@ export async function generateImageFalAction(
       logger.info('🧭 Modelo normalizado (mapa FAL)', { model: data.model, falModel: _falModelLog });
     } catch {}
 
-    // Verificar se a chave da API está configurada
-    if (!env.FAL_KEY) {
-      throw new Error('FAL_KEY não está configurada nas variáveis de ambiente');
-    }
+    // Sem fallback para FAL_KEY: exigimos token do usuário (feito acima)
 
     // Mapear o modelo
     const falModel = FAL_MODEL_MAP[data.model || 'fal-ai/flux-pro-kontext'] || 'fal-ai/flux-pro/kontext';
@@ -941,7 +944,6 @@ export async function generateImageFalAction(
 
     // Upload para Supabase Storage
     const client = await createClient();
-    const user = await getSubscribedUser();
     const outputFormat = input.output_format || 'jpeg';
     const mimeType = outputFormat === 'jpeg' ? 'image/jpeg' : `image/${outputFormat}`;
     const fileName = `${user.id}/${nanoid()}.${outputFormat}`;
@@ -956,19 +958,18 @@ export async function generateImageFalAction(
       throw new Error(`Erro no upload para Supabase: ${uploadResult.error.message}`);
     }
 
-    // Obter URL pública do Supabase
-    const { data: supabaseUrl } = client.storage
-      .from('files')
-      .getPublicUrl(uploadResult.data.path);
+    // Construir URL privada via proxy (não expira)
+    const path = uploadResult.data.path;
+    const finalUrl = `/api/storage/files/${path}`;
 
-    logger.info('✅ Imagem salva no Supabase Storage:', supabaseUrl.publicUrl);
+    logger.info('✅ Imagem salva no Supabase Storage:', finalUrl);
 
     // Retornar no formato esperado pelo wow
     return {
       id: result.requestId,
       status: 'succeeded',
-      output: supabaseUrl.publicUrl, // Usar URL do Supabase Storage
-      urls: [supabaseUrl.publicUrl],
+      output: finalUrl, // Usar URL via proxy
+      urls: [finalUrl],
       seed: result.data.seed,
       prompt: result.data.prompt || prompt,
       model: data.model,
@@ -979,7 +980,7 @@ export async function generateImageFalAction(
         guidance_scale: input.guidance_scale,
         num_inference_steps: input.num_inference_steps,
         image_size: input.image_size,
-        supabase_url: supabaseUrl.publicUrl,
+        supabase_url: finalUrl,
         original_fal_url: primaryImageUrl,
       },
     };

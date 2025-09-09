@@ -3,11 +3,24 @@ import { handleError } from '@/lib/error/handle';
 import { logger } from '@/lib/logger';
 import { env } from '@/lib/env';
 import type { VideoNodeData } from '@/components/nodes/video';
+import { getSubscribedUser } from '@/lib/auth';
+import { getUserFalToken } from '@/app/actions/profile/update-fal-token';
+import { createClient } from '@/lib/supabase/server';
+import { nanoid } from 'nanoid';
 
-// Configurar a chave da API FAL
-fal.config({
-  credentials: env.FAL_KEY,
-});
+// Configurar a chave da API FAL obrigando token do usuário
+const configureFalToken = async (userId?: string) => {
+  if (!userId) {
+    throw new Error('Você precisa estar autenticado para usar os modelos FAL.');
+  }
+  const userToken = await getUserFalToken(userId);
+  if (!userToken) {
+    throw new Error('Token FAL não configurado. Acesse seu perfil e salve seu token FAL para continuar.');
+  }
+  fal.config({ credentials: userToken });
+  logger.info('🔑 Usando token FAL do usuário para vídeo');
+  return userToken;
+};
 
 // Mapeamento de modelos de vídeo FAL
 const FAL_VIDEO_MODEL_MAP: Record<string, string> = {
@@ -46,18 +59,20 @@ export async function generateVideoFalAction(
   videos?: string[]
 ) {
   try {
+    // Obter usuário atual para configurar token personalizado
+    const user = await getSubscribedUser();
+    await configureFalToken(user?.id);
+
     logger.info('🎬 Iniciando geração de vídeo via FAL', {
       model: data.model,
       prompt: prompt.substring(0, 100),
       aspectRatio: data.aspectRatio,
       duration: data.duration,
       fps: data.fps,
+      userId: user?.id || 'sistema',
     });
 
-    // Verificar se a chave da API está configurada
-    if (!env.FAL_KEY) {
-      throw new Error('FAL_KEY não está configurada nas variáveis de ambiente');
-    }
+    // Sem fallback para FAL_KEY: exigimos token do usuário (feito acima)
 
     // Mapear o modelo
     const falModel = FAL_VIDEO_MODEL_MAP[data.model || 'fal-ai/luma-ray-2'] || 'fal-ai/luma-dream-machine/ray-2';
@@ -286,12 +301,55 @@ export async function generateVideoFalAction(
       seed: result.data.seed,
     });
 
-    // Retornar no formato esperado pelo wow
+    // Determinar URL de vídeo principal
+    let primaryVideoUrl: string | undefined = result.data.video?.url || result.data.videos?.[0]?.url;
+    if (!primaryVideoUrl) {
+      throw new Error('Nenhuma URL de vídeo encontrada na resposta da FAL');
+    }
+
+    // Download do vídeo com retry básico
+    let videoArrayBuffer: ArrayBuffer | undefined;
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 300000); // 5 min
+        const resp = await fetch(primaryVideoUrl, {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Mozilla/5.0',
+            'Accept': 'video/*',
+            'Cache-Control': 'no-cache',
+          },
+        });
+        clearTimeout(timeout);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status} ao baixar vídeo`);
+        videoArrayBuffer = await resp.arrayBuffer();
+        break;
+      } catch (e) {
+        if (attempt === maxAttempts) throw e;
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    }
+
+    if (!videoArrayBuffer) throw new Error('Falha ao baixar vídeo');
+
+    // Upload para Supabase Storage (bucket privado via proxy)
+    const supabase = await createClient();
+    const ext = (String(result.data.video?.url || '').endsWith('.webm') || (data as any).format === 'webm') ? 'webm' : 'mp4';
+    const mimeType = ext === 'webm' ? 'video/webm' : 'video/mp4';
+    const fileName = `${user!.id}/${nanoid()}.${ext}`;
+    const upload = await supabase.storage.from('files').upload(fileName, videoArrayBuffer, { contentType: mimeType });
+    if (upload.error) throw new Error(`Erro no upload de vídeo: ${upload.error.message}`);
+
+    const proxyUrl = `/api/storage/files/${upload.data.path}`;
+
+    // Retornar no formato esperado
     return {
       id: result.requestId,
       status: 'succeeded',
-      output: result.data.video?.url || result.data.videos?.[0]?.url || '',
-      urls: result.data.videos?.map(video => video.url) || [result.data.video?.url].filter(Boolean),
+      output: proxyUrl,
+      urls: [proxyUrl],
       seed: result.data.seed,
       prompt: result.data.prompt || prompt,
       model: data.model,
@@ -303,6 +361,7 @@ export async function generateVideoFalAction(
         width: input.width,
         height: input.height,
         motion_bucket_id: input.motion_bucket_id,
+        original_fal_url: primaryVideoUrl,
       },
     };
   } catch (error) {

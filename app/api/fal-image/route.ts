@@ -73,11 +73,13 @@ export async function POST(request: NextRequest) {
     const result = await generateImageFalAction(prompt, params, imageNodes);
     
     return NextResponse.json({ success: true, data: result });
-  } catch (error) {
-    console.error('FAL Image API Error:', error);
+  } catch (error: any) {
+    const message = typeof error?.message === 'string' ? error.message : 'Failed to generate image';
+    console.error('FAL Image API Error:', message);
+    const status = message.includes('Token FAL não configurado') ? 400 : 500;
     return NextResponse.json(
-      { error: 'Failed to generate image' },
-      { status: 500 }
+      { error: message },
+      { status }
     );
   }
 }

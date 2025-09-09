@@ -7,6 +7,7 @@ import { logServerAction } from '@/lib/logger';
 import { projects } from '@/schema';
 import { eq } from 'drizzle-orm';
 import { fal } from '@fal-ai/client';
+import { getUserFalToken } from '@/app/actions/profile/update-fal-token';
 
 export const describeAction = async (
   url: string,
@@ -22,7 +23,7 @@ export const describeAction = async (
   return logServerAction('describeAction', async () => {
     try {
       // Autenticação do usuário
-      await getSubscribedUser();
+      const user = await getSubscribedUser();
 
       // Busca do projeto
       const project = await database.query.projects.findFirst({
@@ -33,10 +34,13 @@ export const describeAction = async (
         throw new Error('Project not found');
       }
 
-      // Configurar FAL client
-      fal.config({
-        credentials: process.env.FAL_KEY,
-      });
+      // Exigir token do usuário (sem fallback para FAL_KEY)
+      const userToken = user ? await getUserFalToken(user.id) : null;
+      if (!userToken) {
+        return { error: 'Token FAL não configurado. Vá ao seu perfil e salve seu token FAL para usar a descrição de imagens.' };
+      }
+      fal.config({ credentials: userToken });
+      console.log('🔑 Token FAL para describe: usuário');
 
       console.log('🔍 Iniciando descrição de imagem com FAL AI Vision:', {
         imageUrl: url,

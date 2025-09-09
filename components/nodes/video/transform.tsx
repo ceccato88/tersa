@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { handleError } from '@/lib/error/handle';
 import { download } from '@/lib/download';
 import { getModelSchema, getModelDefaults } from '@/lib/model-schemas';
 import { useFilteredModels, getFirstAvailableModel, isUpscaleModel } from '@/lib/model-filtering';
@@ -320,7 +321,12 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
       });
       if (!res.ok) {
         const t = await res.text();
-        throw new Error(`Falha ao gerar vídeo: ${res.status} ${t}`);
+        let message = t;
+        try {
+          const maybe = JSON.parse(t);
+          message = maybe?.error || t;
+        } catch {}
+        throw new Error(message || `Falha ao gerar vídeo (${res.status})`);
       }
       const json = await res.json();
       const url = json?.data?.output || json?.data?.video?.url || json?.data?.urls?.[0] || '';
@@ -329,7 +335,8 @@ export const VideoTransform = ({ data, id, type, title }: VideoTransformProps) =
       updateNodeData(id, { generated: { url, type: 'video/mp4' }, updatedAt: new Date().toISOString(), model: modelId });
       toast.success('Vídeo gerado com sucesso');
     } catch (err) {
-      toast.error('Erro ao gerar vídeo');
+      const description = err instanceof Error ? err.message : 'Erro desconhecido';
+      handleError('Erro ao gerar vídeo', new Error(description));
     } finally {
       setLoading(false);
     }

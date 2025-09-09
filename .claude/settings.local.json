@@ -13,7 +13,9 @@
       "Bash(docker stop:*)",
       "Bash(docker rm:*)",
       "Bash(docker system prune:*)",
-      "Bash(pnpm remove:*)"
+      "Bash(pnpm remove:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(pnpm migrate:*)"
     ],
     "deny": [],
     "ask": []

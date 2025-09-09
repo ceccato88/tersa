@@ -474,7 +474,19 @@ export const HybridImageTransform = ({
           });
           
           if (!falResponse.ok) {
-            throw new Error('Failed to generate image with FAL');
+            // Capturar mensagem retornada pela API (ex.: Token FAL não configurado)
+            let message = 'Falha ao gerar imagem';
+            try {
+              const text = await falResponse.text();
+              // Se veio JSON com { error }, tentar extrair
+              try {
+                const maybe = JSON.parse(text);
+                message = maybe?.error || text || message;
+              } catch {
+                message = text || message;
+              }
+            } catch {}
+            throw new Error(message);
           }
           
           const falResult = await falResponse.json();
@@ -972,4 +984,3 @@ export const HybridImageTransform = ({
     </NodeLayout>
   );
 };
-

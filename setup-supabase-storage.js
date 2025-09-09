@@ -197,6 +197,7 @@ async function validateSetup() {
 async function main() {
   const args = process.argv.slice(2)
   const checkOnly = args.includes('--check-only')
+  const reset = args.includes('--reset')
   
   console.log('🚀 CONFIGURAÇÃO DO SUPABASE STORAGE')
   console.log('=====================================')
@@ -220,6 +221,26 @@ async function main() {
         }
       }
     } else {
+      if (reset) {
+        console.log('\n🧹 Removendo objetos e buckets existentes (reset)...')
+        try {
+          // Remover uploads multiparte pendentes (se existirem)
+          try { await client.query(`delete from storage.s3_multipart_uploads where bucket_id = any($1::text[])`, [EXPECTED_BUCKETS]) } catch {}
+          try { await client.query(`delete from storage.s3_multipart_uploads_parts where bucket_id = any($1::text[])`, [EXPECTED_BUCKETS]) } catch {}
+          try { await client.query(`delete from storage.s3_multipart_uploads_comp where bucket_id = any($1::text[])`, [EXPECTED_BUCKETS]) } catch {}
+
+          // Remover objetos e prefixes (árvore de pastas) antes de apagar buckets
+          await client.query(`delete from storage.objects where bucket_id = any($1::text[])`, [EXPECTED_BUCKETS])
+          try { await client.query(`delete from storage.prefixes where bucket_id = any($1::text[])`, [EXPECTED_BUCKETS]) } catch {}
+
+          // Por fim, remover os buckets
+          await client.query(`delete from storage.buckets where id = any($1::text[])`, [EXPECTED_BUCKETS])
+          console.log('✅ Buckets limpos')
+        } catch (e) {
+          console.log('❌ Falha ao limpar buckets:', e.message)
+          throw e
+        }
+      }
       // Executar seed.sql
       console.log('\n📄 Executando seed.sql...')
       await executeSeedSql()

@@ -4,6 +4,7 @@ import { createRateLimiter, slidingWindow } from '@/lib/rate-limit';
 import { fal } from '@fal-ai/client';
 import { appendMockLog } from '@/lib/mock-log';
 import { NextRequest } from 'next/server';
+import { getUserFalToken } from '@/app/actions/profile/update-fal-token';
 
 export const maxDuration = 300;
 
@@ -71,10 +72,13 @@ export const POST = async (req: NextRequest) => {
       });
     }
 
-    // Configurar FAL client
-    fal.config({
-      credentials: process.env.FAL_KEY,
-    });
+    // Exigir token do usuário (sem fallback para FAL_KEY)
+    const userToken = await getUserFalToken(user.id);
+    if (!userToken) {
+      return new Response('Token FAL não configurado. Acesse seu perfil e salve seu token FAL para continuar.', { status: 400 });
+    }
+    fal.config({ credentials: userToken });
+    console.log('🔑 Token FAL para texto: usuário');
 
     console.log('🤖 Iniciando geração de texto com FAL AI:', {
       model,

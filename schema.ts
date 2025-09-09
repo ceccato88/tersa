@@ -27,4 +27,5 @@ export const projects = pgTable('project', {
 export const profile = pgTable('profile', {
   id: text('id').primaryKey().notNull(),
   onboardedAt: timestamp('onboarded_at'),
+  falToken: text('fal_token'), // Token FAL do usuário (criptografado)
 });

@@ -8,6 +8,7 @@ import { projects } from '@/schema';
 import type { Edge, Node, Viewport } from '@xyflow/react';
 import { eq } from 'drizzle-orm';
 import { fal } from '@fal-ai/client';
+import { getUserFalToken } from '@/app/actions/profile/update-fal-token';
 
 type GenerateTextFalActionProps = {
   modelId: string;
@@ -39,14 +40,13 @@ export const generateTextFalAction = async ({
     const client = await createClient();
     const user = await getSubscribedUser();
 
-    if (!process.env.FAL_KEY) {
-      throw new Error('FAL API key not found');
+    // Exigir token do usuário (sem fallback para FAL_KEY)
+    const userToken = user ? await getUserFalToken(user.id) : null;
+    if (!userToken) {
+      return { error: 'Token FAL não configurado. Vá ao seu perfil e salve seu token FAL para usar os modelos.' };
     }
-
-    // Configurar FAL client
-    fal.config({
-      credentials: process.env.FAL_KEY,
-    });
+    fal.config({ credentials: userToken });
+    console.log('🔑 Token FAL para ação texto: usuário');
 
     console.log('🤖 Gerando texto com FAL AI:', {
       model: modelId,
