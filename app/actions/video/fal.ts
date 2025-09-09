@@ -269,6 +269,7 @@ export async function generateVideoFalAction(
     const result = await fal.subscribe(falModel, {
       input,
       logs: true,
+      timeout: 300000, // 5 minutos de timeout
       onQueueUpdate: (update) => {
         if (update.status === 'IN_PROGRESS') {
           logger.info('🔄 FAL vídeo em progresso', {

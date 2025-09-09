@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { appendMockLog } from '@/lib/mock-log';
 import { buildFalVideoInput } from '@/lib/fal-video-input-builder';
 
+// Configurar timeout da rota para 5 minutos (modelos de vídeo podem demorar mais)
+export const maxDuration = 300;
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

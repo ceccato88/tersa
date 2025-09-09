@@ -325,8 +325,8 @@ export const HybridImageTransform = ({
   
   // Calcular aspectRatio baseado no modelo
   const imageAspectRatio = useMemo(() => {
-    if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/ideogram/v3/replace-background' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp') {
-      // Nano Banana, Nano Banana Edit e FLUX.1 Kontext [pro] têm Não Aplicável (1:1)
+    if (modelId === 'fal-ai/nano-banana' || modelId === 'fal-ai/nano-banana/edit' || modelId === 'fal-ai/flux-pro-kontext' || modelId === 'fal-ai/ideogram/character' || modelId === 'fal-ai/flux/krea/image-to-image' || modelId === 'fal-ai/flux-1/dev/image-to-image' || modelId === 'fal-ai/ideogram/v3/replace-background' || modelId === 'fal-ai/ideogram/v3/remix' || modelId === 'fal-ai/topaz/upscale/image' || modelId === 'fal-ai/recraft/upscale/creative' || modelId === 'fal-ai/recraft/upscale/crisp') {
+      // Nano Banana, Nano Banana Edit, FLUX.1 Kontext [pro], Ideogram Remix e modelos de upscale têm Não Aplicável (1:1)
       return '1';
     } else if (modelId === 'fal-ai/flux-pro/v1.1-ultra' || modelId === 'fal-ai/imagen4/preview' || modelId === 'fal-ai/imagen4/preview/ultra' || modelId === 'fal-ai/flux-pro/kontext/max' || modelId === 'fal-ai/luma-photon') {
       // FLUX.1 Kontext [pro], [max], [text], FLUX1.1 [pro] ultra, Imagen 4, Imagen 4 Ultra usam aspect_ratio diretamente

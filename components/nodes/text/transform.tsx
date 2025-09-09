@@ -260,8 +260,10 @@ export const TextTransform = ({ data, id, type, title }: TextTransformProps) => 
       )}
 
       {!loading && data.generated?.text && (
-        <div className="nowheel h-full max-h-[30rem] flex-1 overflow-auto rounded-t-3xl rounded-b-xl bg-secondary p-6 mr-3">
-          <ReactMarkdown>{data.generated.text}</ReactMarkdown>
+        <div className="nowheel h-full max-h-[30rem] flex-1 bg-secondary rounded-b-xl overflow-hidden">
+          <div className="overflow-auto max-h-[30rem] p-6">
+            <ReactMarkdown>{data.generated.text}</ReactMarkdown>
+          </div>
         </div>
       )}
 

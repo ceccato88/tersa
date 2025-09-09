@@ -824,7 +824,7 @@ export async function generateImageFalAction(
         result = await fal.subscribe(falModel, {
           input,
           logs: true,
-          timeout: 120000, // 2 minutos de timeout
+          timeout: 300000, // 5 minutos de timeout
           onQueueUpdate: (update) => {
             if (update.status === 'IN_PROGRESS') {
               logger.info('🔄 FAL em progresso', {
@@ -892,7 +892,7 @@ export async function generateImageFalAction(
         // Fetch com timeout personalizado para downloads grandes (modelos de upscale)
         const controller = new AbortController();
         const isUpscaleModel = data.model?.includes('upscale');
-        const timeoutDuration = isUpscaleModel ? 120000 : 60000; // 2 min para upscale, 1 min para outros
+        const timeoutDuration = isUpscaleModel ? 300000 : 180000; // 5 min para upscale, 3 min para outros
         const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
         
         logger.info(`⏱️ Usando timeout de ${timeoutDuration/1000}s para download`, {

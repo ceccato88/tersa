@@ -5,7 +5,7 @@ import { fal } from '@fal-ai/client';
 import { appendMockLog } from '@/lib/mock-log';
 import { NextRequest } from 'next/server';
 
-export const maxDuration = 30;
+export const maxDuration = 300;
 
 // Rate limiter para FAL AI stream
 const rateLimiter = createRateLimiter({
