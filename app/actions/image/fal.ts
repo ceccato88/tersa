@@ -942,11 +942,22 @@ export async function generateImageFalAction(
       }
     }
 
-    // Upload para Supabase Storage
-    const client = await createClient();
+    // Upload para Supabase Storage usando service role para garantir permissões
+    const { createClient: createServiceClient } = await import('@supabase/supabase-js');
+    const { env } = await import('@/lib/env');
+    const client = createServiceClient(
+      env.NEXT_PUBLIC_SUPABASE_URL,
+      env.SUPABASE_SERVICE_ROLE_KEY
+    );
     const outputFormat = input.output_format || 'jpeg';
     const mimeType = outputFormat === 'jpeg' ? 'image/jpeg' : `image/${outputFormat}`;
     const fileName = `${user.id}/${nanoid()}.${outputFormat}`;
+    
+    logger.info('🔄 Iniciando upload para Supabase:', {
+      fileName,
+      mimeType,
+      arrayBufferSize: imageArrayBuffer.byteLength,
+    });
     
     const uploadResult = await client.storage
       .from('files')
@@ -955,14 +966,31 @@ export async function generateImageFalAction(
       });
 
     if (uploadResult.error) {
+      logger.error('❌ Erro no upload para Supabase:', uploadResult.error);
       throw new Error(`Erro no upload para Supabase: ${uploadResult.error.message}`);
     }
+    
+    console.log('✅ Upload concluído - Path:', uploadResult.data.path);
+    console.log('✅ Upload concluído - Full object:', uploadResult.data);
+    
+    // Aguardar um pouco para garantir que o arquivo esteja disponível
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    logger.info('✅ Upload concluído:', {
+      path: uploadResult.data.path,
+      fullPath: uploadResult.data.fullPath,
+    });
 
     // Construir URL privada via proxy (não expira)
     const path = uploadResult.data.path;
     const finalUrl = new URL(`/api/storage/files/${path}`,
       env.NEXT_PUBLIC_APP_URL
     ).toString();
+
+    console.log('🔗 URL construída:', {
+      originalPath: path,
+      finalUrl: finalUrl,
+    });
 
     logger.info('✅ Imagem salva no Supabase Storage:', finalUrl);
 

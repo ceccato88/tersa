@@ -28,6 +28,14 @@ const nextConfig: NextConfig = {
         hostname: 'localhost',
       },
       
+      // API storage local
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/api/storage/**',
+      },
+      
       
       // Placeholder images for mock/testing
       {
