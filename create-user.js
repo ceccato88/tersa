@@ -21,6 +21,7 @@ CREATE OR REPLACE FUNCTION create_user_function(
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = ''
 AS $$
 DECLARE
   new_user_id UUID;
